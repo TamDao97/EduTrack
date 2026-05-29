@@ -1,11 +1,33 @@
 ---
 name: edutrack-principles
-description: Load skill này ngay khi bắt đầu BẤT KỲ task code nào trong repo EduTrack (D:\Coderkechuyen\EduTrack — Tutor SaaS cho gia sư VN). Đây là kim chỉ nam: code dễ hiểu + tổ chức thông minh + UI đẹp giữ chân người dùng. Áp dụng cho cả BE (.NET 8) lẫn FE (Angular 17).
+description: Load skill này ngay khi bắt đầu BẤT KỲ task code nào trong repo EduTrack (D:\Coderkechuyen\EduTrack — Tutor SaaS cho gia sư VN). Đây là kim chỉ nam: code dễ hiểu + tổ chức thông minh + UI đẹp giữ chân người dùng. Áp dụng cho cả BE (.NET 8) lẫn FE (Angular 17). UI bắt buộc theo DESIGN_SYSTEM.md.
 ---
 
 # EduTrack — Kim chỉ nam
 
 > 3 mục tiêu xuyên suốt mọi file mình viết. Nếu phải chọn 1 trong 3, ưu tiên theo thứ tự: **dễ hiểu > tổ chức > đẹp**.
+
+## 📐 Design System — quan trọng nhất khi làm UI
+
+Mọi trang/component FE mới **BẮT BUỘC** tuân thủ `DESIGN_SYSTEM.md` (ở root repo).
+
+**Bộ tokens + mixins**:
+- `src/styles/_palette.scss` — color, typography, spacing, radius, shadow, breakpoint
+- `src/styles/_mixins.scss` — hero-gradient, card-clickable, btn-primary, form-input, empty-state…
+- Import: `@use 'palette' as *; @use 'mixins' as *;`
+
+**Pattern chuẩn cho trang nghiệp vụ**:
+```scss
+.page-x {
+  @include page-container;
+  &__hero { @include hero-gradient; }
+  &__content { @include content-sheet; }
+}
+.x-card { @include card-clickable; }
+.x-card__highlight { color: $accent; font-weight: $fw-bold; }  // financial highlight
+```
+
+**KHÔNG được**: hardcode hex color, hardcode px spacing, copy-paste >50 dòng SCSS lặp lại pattern đã có mixin.
 
 ---
 

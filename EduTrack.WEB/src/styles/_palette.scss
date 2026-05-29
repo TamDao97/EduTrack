@@ -1,76 +1,160 @@
 // ════════════════════════════════════════════════════════════════════
-// EduTrack — Design Tokens
-// Dùng trong mọi component SCSS: @use 'palette' as *;
-// (đã config stylePreprocessorOptions includePaths: ["src/styles"])
+// EduTrack — Design Tokens (SOURCE OF TRUTH)
+//
+// Mọi component SCSS dùng: @use 'palette' as *;
+// (đã config stylePreprocessorOptions.includePaths: ["src/styles"])
 // ════════════════════════════════════════════════════════════════════
 
-// ─────────── BRAND ───────────
-$primary:        #5B5FCF;     // indigo — màu chính (nút, link, focus, FAB)
-$primary-soft:   #E8EAFF;     // background nhẹ cho hover/chip
-$primary-dark:   #4549B8;     // gradient end, text on light
-$primary-vivid:  #7C3AED;     // hero gradient end (violet)
+// ───────────────────────── BRAND ─────────────────────────
+$primary:           #5B5FCF;     // indigo — màu chính
+$primary-soft:      #E8EAFF;     // background nhẹ, chip subject
+$primary-dark:      #4549B8;     // hover, text on light bg
+$primary-darker:    #383BA3;     // active state
+$primary-vivid:     #7C3AED;     // violet — gradient end của hero
 
-$accent:         #FF8A65;     // coral — highlight tài chính (giá, doanh thu)
-$accent-soft:    #FFEEE8;     // chip background
-$accent-dark:    #C2410C;     // text trên chip
+$accent:            #FF8A65;     // coral — highlight tài chính
+$accent-soft:       #FFEEE8;     // chip grade
+$accent-dark:       #C2410C;     // text trên chip accent
+$accent-darker:     #9A330A;     // active state
 
-// ─────────── SEMANTIC ───────────
-$success:        #52C41A;     // active, done, paid
-$success-soft:   #F0FBE5;
-$warning:        #FAAD14;     // paused, pending, sắp đến hạn
-$warning-soft:   #FFF7E0;
-$danger:         #F5222D;     // cancelled, overdue, xoá
-$danger-soft:    #FFF1F0;
-$info:           #1890FF;     // legacy ng-zorro blue
-$zalo:           #0068FF;     // brand Zalo
+// ─────────────────────── SEMANTIC ───────────────────────
+$success:           #52C41A;
+$success-soft:      #F0FBE5;
+$success-dark:      #389E0D;
+$warning:           #FAAD14;
+$warning-soft:      #FFF7E0;
+$warning-dark:      #D48806;
+$danger:            #F5222D;
+$danger-soft:       #FFF1F0;
+$danger-dark:       #CF1322;
+$info:              #1890FF;
+$info-soft:         #E6F4FF;
+$zalo:              #0068FF;
+$zalo-dark:         #0052CC;
 
-// ─────────── NEUTRALS ───────────
-$bg:             #F7F8FC;     // background page (off-white pha tím nhẹ)
-$bg-strong:      #EEF0F8;     // section divider
-$surface:        #FFFFFF;     // card, modal
-$border:         #E8EAF3;     // viền nhạt
-$border-strong:  #D1D6E3;     // viền đậm, divider
+// ─────────────────────── NEUTRALS ───────────────────────
+$bg:                #F7F8FC;     // background page
+$bg-strong:         #EEF0F8;     // section divider, alt rows
+$surface:           #FFFFFF;     // card, modal, panel
+$surface-alt:       #FAFBFE;     // hover state cho surface
+$border:            #E8EAF3;     // viền nhạt mặc định
+$border-strong:     #D1D6E3;     // viền đậm hơn, divider rõ
+$border-focus:      $primary;    // focus ring
 
-$text-1:         #1A1F36;     // heading, name
-$text-2:         #4A5170;     // body
-$text-3:         #8A91A8;     // meta, helper
-$text-4:         #B5BAD0;     // disabled
+$text-1:            #1A1F36;     // heading, name, body chính
+$text-2:            #4A5170;     // body phụ
+$text-3:            #8A91A8;     // meta, helper, placeholder
+$text-4:            #B5BAD0;     // disabled, hint
+$text-on-primary:   #FFFFFF;     // text trên nền primary
+$text-on-accent:    #FFFFFF;
 
-// ─────────── SHADOW ───────────
-$shadow-sm:      0 1px 2px rgba(26, 31, 54, 0.04);
-$shadow:         0 4px 12px rgba(26, 31, 54, 0.06);
-$shadow-lg:      0 12px 32px rgba(91, 95, 207, 0.12);
-$shadow-primary: 0 8px 24px rgba(91, 95, 207, 0.35);
-$shadow-accent:  0 8px 20px rgba(255, 138, 101, 0.35);
+// ─────────────────────── TYPOGRAPHY ───────────────────────
+$font-sans:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                    Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-mono:         'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
 
-// ─────────── RADIUS ───────────
-$radius-xs:      6px;
-$radius-sm:      8px;
-$radius:         12px;
-$radius-lg:      16px;
-$radius-xl:      24px;
-$radius-pill:    9999px;
+// Scale modular (8 cấp)
+$fs-display:        28px;        // hero title mobile
+$fs-display-lg:     32px;        // hero title desktop
+$fs-h1:             22px;        // page title
+$fs-h2:             18px;        // section title
+$fs-h3:             16px;        // subsection, card name
+$fs-body-lg:        15px;        // body lớn (form input)
+$fs-body:           14px;        // body chuẩn
+$fs-sm:             13px;        // helper, meta
+$fs-xs:             12px;        // small meta
+$fs-caption:        11px;        // eyebrow, labels uppercase
 
-// ─────────── SPACING ───────────
-$sp-1:           4px;
-$sp-2:           8px;
-$sp-3:           12px;
-$sp-4:           16px;
-$sp-5:           20px;
-$sp-6:           24px;
-$sp-8:           32px;
-$sp-10:          40px;
+$fw-normal:         400;
+$fw-medium:         500;
+$fw-semi:           600;
+$fw-bold:           700;
 
-// ─────────── GRADIENTS ───────────
-$gradient-hero:    linear-gradient(135deg, #{$primary} 0%, #{$primary-vivid} 100%);
-$gradient-primary: linear-gradient(135deg, #{$primary} 0%, #{$primary-dark} 100%);
-$gradient-accent:  linear-gradient(135deg, #FFB199 0%, #{$accent} 100%);
+$lh-tight:          1.2;
+$lh-normal:         1.5;
+$lh-relaxed:        1.65;
 
-// ─────────── BREAKPOINTS ───────────
-$bp-mobile:      767px;
-$bp-tablet:      1024px;
+$ls-tight:          -0.5px;
+$ls-snug:           -0.3px;
+$ls-normal:         0;
+$ls-wide:           0.3px;
+$ls-wider:          0.6px;
+$ls-widest:         1.5px;
 
-// ═══════════ KEYFRAMES (global) ═══════════
+// ─────────────────────── SPACING ───────────────────────
+$sp-1:              4px;
+$sp-2:              8px;
+$sp-3:              12px;
+$sp-4:              16px;
+$sp-5:              20px;
+$sp-6:              24px;
+$sp-7:              28px;
+$sp-8:              32px;
+$sp-10:             40px;
+$sp-12:             48px;
+$sp-14:             56px;
+$sp-16:             64px;
+$sp-20:             80px;
+
+// ─────────────────────── RADIUS ───────────────────────
+$radius-xs:         6px;
+$radius-sm:         8px;
+$radius:            10px;        // default
+$radius-md:         12px;
+$radius-lg:         16px;
+$radius-xl:         20px;
+$radius-2xl:        24px;
+$radius-pill:       9999px;
+
+// ─────────────────────── SHADOW ───────────────────────
+$shadow-xs:         0 1px 2px rgba(26, 31, 54, 0.04);
+$shadow-sm:         0 2px 4px rgba(26, 31, 54, 0.05);
+$shadow:            0 4px 12px rgba(26, 31, 54, 0.06);
+$shadow-md:         0 8px 20px rgba(26, 31, 54, 0.08);
+$shadow-lg:         0 12px 32px rgba(91, 95, 207, 0.12);
+$shadow-xl:         0 20px 48px rgba(91, 95, 207, 0.18);
+
+$shadow-primary:    0 8px 24px rgba(91, 95, 207, 0.35);
+$shadow-accent:     0 8px 20px rgba(255, 138, 101, 0.35);
+$shadow-success:    0 8px 20px rgba(82, 196, 26, 0.25);
+$shadow-zalo:       0 6px 14px rgba(0, 104, 255, 0.35);
+
+$ring-primary:      0 0 0 3px rgba(91, 95, 207, 0.22);
+$ring-danger:       0 0 0 3px rgba(245, 34, 45, 0.22);
+$ring-success:      0 0 0 3px rgba(82, 196, 26, 0.22);
+
+// ─────────────────────── GRADIENTS ───────────────────────
+$gradient-hero:     linear-gradient(135deg, #{$primary} 0%, #{$primary-vivid} 100%);
+$gradient-primary:  linear-gradient(135deg, #{$primary} 0%, #{$primary-dark} 100%);
+$gradient-accent:   linear-gradient(135deg, #FFB199 0%, #{$accent} 100%);
+$gradient-success:  linear-gradient(135deg, #6EE7B7 0%, #{$success} 100%);
+$gradient-glass:    linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%);
+
+// ─────────────────────── BREAKPOINTS ───────────────────────
+$bp-sm:             480px;
+$bp-md:             768px;
+$bp-lg:             1024px;
+$bp-xl:             1280px;
+$bp-2xl:            1536px;
+
+// ─────────────────────── Z-INDEX ───────────────────────
+$z-base:            1;
+$z-sticky:          10;
+$z-overlay:         50;
+$z-modal:           100;
+$z-toast:           1000;
+$z-tooltip:         1100;
+
+// ─────────────────────── TRANSITIONS ───────────────────────
+$ease-out:          cubic-bezier(0.4, 0, 0.2, 1);
+$ease-in-out:       cubic-bezier(0.4, 0, 0.6, 1);
+$ease-spring:       cubic-bezier(0.34, 1.56, 0.64, 1);
+
+$t-fast:            120ms;
+$t:                 180ms;
+$t-slow:            300ms;
+
+// ═══════════════════ KEYFRAMES GLOBAL ═══════════════════
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -79,4 +163,14 @@ $bp-tablet:      1024px;
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
 }
