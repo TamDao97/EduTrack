@@ -1,115 +1,173 @@
 <div class="page-students">
-  <!-- Header: title + search + status tabs (sticky top) -->
-  <header class="page-students__header">
-    <div class="page-students__title-row">
-      <h1 class="page-students__title">Học sinh</h1>
-      <span class="page-students__count" *ngIf="totalRecord > 0">{{ totalRecord }}</span>
-    </div>
-
-    <div class="page-students__search">
-      <span nz-icon nzType="search" nzTheme="outline"></span>
-      <input
-        type="text"
-        placeholder="Tìm tên HS, tên phụ huynh, SĐT…"
-        [value]="filter.keyword"
-        (input)="onSearchChange($any($event.target).value)"
-        autocomplete="off"
-      />
-    </div>
-
-    <div class="page-students__tabs">
-      <button
-        *ngFor="let tab of statusTabs"
-        type="button"
-        class="page-students__tab"
-        [class.is-active]="filter.status === tab.value"
-        (click)="onSelectStatus(tab.value)"
-      >
-        {{ tab.label }}
+  <!-- ─────── Header gradient + Hero stats ─────── -->
+  <header class="hero">
+    <div class="hero__top">
+      <div class="hero__title-block">
+        <span class="hero__eyebrow">QUẢN LÝ</span>
+        <h1 class="hero__title">Học sinh</h1>
+      </div>
+      <button class="hero__add-btn" (click)="onAdd()" *ngIf="students.length > 0">
+        <span nz-icon nzType="plus"></span>
+        <span class="hero__add-btn-label">Thêm HS</span>
       </button>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="hero__stats">
+      <div class="stat-pill stat-pill--active">
+        <div class="stat-pill__icon"><span nz-icon nzType="rise"></span></div>
+        <div class="stat-pill__body">
+          <div class="stat-pill__num">{{ countActive }}</div>
+          <div class="stat-pill__label">Đang học</div>
+        </div>
+      </div>
+      <div class="stat-pill stat-pill--paused">
+        <div class="stat-pill__icon"><span nz-icon nzType="pause-circle"></span></div>
+        <div class="stat-pill__body">
+          <div class="stat-pill__num">{{ countPaused }}</div>
+          <div class="stat-pill__label">Tạm nghỉ</div>
+        </div>
+      </div>
+      <div class="stat-pill stat-pill--revenue">
+        <div class="stat-pill__icon"><span nz-icon nzType="dollar"></span></div>
+        <div class="stat-pill__body">
+          <div class="stat-pill__num">{{ totalRatePerLesson | number:'1.0-0' }}<span class="stat-pill__unit">đ</span></div>
+          <div class="stat-pill__label">Doanh thu / buổi</div>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- Loading skeleton -->
-  <div *ngIf="isLoading && students.length === 0" class="page-students__skeleton">
-    <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+  <!-- ─────── Toolbar (search + tabs) ─────── -->
+  <div class="toolbar">
+    <div class="search-box">
+      <span nz-icon nzType="search" nzTheme="outline" class="search-box__icon"></span>
+      <input
+        type="text"
+        placeholder="Tìm tên HS, phụ huynh, SĐT…"
+        [value]="filter.keyword"
+        (input)="onSearchChange($any($event.target).value)"
+        autocomplete="off" />
+      <button class="search-box__clear" *ngIf="filter.keyword" (click)="onClearSearch()" aria-label="Xoá tìm kiếm">
+        <span nz-icon nzType="close-circle" nzTheme="fill"></span>
+      </button>
+    </div>
+
+    <div class="tabs">
+      <button *ngFor="let tab of statusTabs"
+              type="button"
+              class="tabs__btn"
+              [class.is-active]="filter.status === tab.value"
+              (click)="onSelectStatus(tab.value)">
+        <span class="tabs__dot" *ngIf="tab.dotColor" [style.background]="tab.dotColor"></span>
+        <span class="tabs__label">{{ tab.label }}</span>
+        <span class="tabs__count" *ngIf="countForTab(tab.value) > 0">{{ countForTab(tab.value) }}</span>
+      </button>
+    </div>
   </div>
 
-  <!-- Empty state -->
-  <div *ngIf="!isLoading && students.length === 0" class="page-students__empty">
-    <div class="page-students__empty-icon">
-      <span nz-icon nzType="solution" nzTheme="outline"></span>
+  <!-- ─────── Loading skeleton ─────── -->
+  <div *ngIf="isLoading && students.length === 0" class="skeleton-list">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5]">
+      <div class="skeleton-card__avatar"></div>
+      <div class="skeleton-card__lines">
+        <div class="skeleton-card__line skeleton-card__line--long"></div>
+        <div class="skeleton-card__line skeleton-card__line--short"></div>
+      </div>
     </div>
-    <h3>{{ filter.keyword ? 'Không tìm thấy học sinh' : 'Chưa có học sinh nào' }}</h3>
-    <p>{{ filter.keyword ? 'Thử từ khoá khác hoặc bỏ filter.' : 'Thêm học sinh đầu tiên để bắt đầu quản lý lịch và học phí.' }}</p>
-    <button nz-button nzType="primary" nzSize="large" (click)="onAdd()" *ngIf="!filter.keyword">
+  </div>
+
+  <!-- ─────── Empty state ─────── -->
+  <div *ngIf="!isLoading && students.length === 0" class="empty">
+    <div class="empty__art">
+      <div class="empty__circle empty__circle--1"></div>
+      <div class="empty__circle empty__circle--2"></div>
+      <div class="empty__circle empty__circle--3"></div>
+      <span class="empty__icon" nz-icon nzType="team" nzTheme="outline"></span>
+    </div>
+    <h3 class="empty__title">
+      {{ filter.keyword ? 'Không tìm thấy học sinh' : 'Bắt đầu hành trình dạy học' }}
+    </h3>
+    <p class="empty__desc">
+      {{ filter.keyword
+          ? 'Không có HS nào khớp với "' + filter.keyword + '". Thử từ khoá khác.'
+          : 'Thêm học sinh đầu tiên để quản lý lịch dạy, học phí và liên lạc phụ huynh.' }}
+    </p>
+    <button class="empty__cta" (click)="onAdd()" *ngIf="!filter.keyword">
       <span nz-icon nzType="plus"></span>
       Thêm học sinh đầu tiên
     </button>
+    <button class="empty__cta empty__cta--ghost" (click)="onClearSearch()" *ngIf="filter.keyword">
+      Xoá bộ lọc
+    </button>
   </div>
 
-  <!-- Student cards -->
-  <ul class="page-students__list" *ngIf="students.length > 0">
-    <li *ngFor="let s of students; trackBy: trackById" class="student-card" (click)="onViewDetail(s)">
-      <div class="student-card__avatar">
-        <nz-avatar
-          [nzText]="s.fullName?.charAt(0) | uppercase"
-          [nzSize]="48"
-          [ngStyle]="{ 'background-color': '#1890ff' }"
-        ></nz-avatar>
+  <!-- ─────── Student cards ─────── -->
+  <ul class="student-list" *ngIf="students.length > 0">
+    <li *ngFor="let s of students; trackBy: trackById"
+        class="student-card"
+        [class.is-paused]="s.status === StudentStatus.Paused"
+        [class.is-stopped]="s.status === StudentStatus.Stopped"
+        (click)="onViewDetail(s)">
+
+      <div class="student-card__avatar" [ngStyle]="avatarStyle(s.fullName)">
+        <span class="student-card__initials">{{ initials(s.fullName) }}</span>
+        <span class="student-card__status-dot" [style.background]="statusDotColor(s.status)"></span>
       </div>
 
       <div class="student-card__body">
-        <div class="student-card__row1">
+        <div class="student-card__head">
           <span class="student-card__name">{{ s.fullName }}</span>
-          <nz-tag [nzColor]="statusColor(s.status)">{{ StudentStatusLabel[s.status] }}</nz-tag>
         </div>
 
-        <div class="student-card__row2">
-          <span *ngIf="s.grade" class="student-card__meta">{{ s.grade }}</span>
-          <span *ngIf="s.subject" class="student-card__dot">·</span>
-          <span *ngIf="s.subject" class="student-card__meta">{{ s.subject }}</span>
-          <span *ngIf="s.perLessonRate" class="student-card__dot">·</span>
-          <span *ngIf="s.perLessonRate" class="student-card__rate">{{ s.perLessonRate | number:'1.0-0' }}đ/buổi</span>
+        <div class="student-card__chips" *ngIf="s.subject || s.grade">
+          <span class="chip chip--subject" *ngIf="s.subject">
+            <span nz-icon nzType="book"></span>{{ s.subject }}
+          </span>
+          <span class="chip chip--grade" *ngIf="s.grade">{{ s.grade }}</span>
         </div>
 
-        <div class="student-card__row3" *ngIf="s.parentFullName || s.parentPhone">
-          <span class="student-card__parent">
-            <span nz-icon nzType="user" nzTheme="outline"></span>
-            <span>{{ s.parentFullName || 'PH' }}{{ s.parentPhone ? ' · ' + formatPhone(s.parentPhone) : '' }}</span>
+        <div class="student-card__rate" *ngIf="s.perLessonRate">
+          <span class="student-card__rate-num">{{ s.perLessonRate | number:'1.0-0' }}đ</span>
+          <span class="student-card__rate-unit">/ buổi</span>
+        </div>
+
+        <div class="student-card__parent" *ngIf="s.parentFullName || s.parentPhone">
+          <span class="student-card__parent-icon" nz-icon nzType="user"></span>
+          <span class="student-card__parent-text">
+            {{ s.parentFullName || 'Phụ huynh' }}{{ s.parentPhone ? ' · ' + formatPhone(s.parentPhone) : '' }}
           </span>
         </div>
       </div>
 
       <div class="student-card__actions" (click)="$event.stopPropagation()">
-        <button class="student-card__btn student-card__btn--zalo"
+        <button class="action-btn action-btn--zalo"
                 (click)="onContactParent(s, $event)"
                 [disabled]="!s.parentPhone"
-                title="Nhắn Zalo PH">
-          <span nz-icon nzType="message" nzTheme="outline"></span>
+                title="Nhắn Zalo">
+          <span nz-icon nzType="message"></span>
         </button>
-        <button class="student-card__btn"
+        <button class="action-btn"
                 (click)="onCallParent(s, $event)"
                 [disabled]="!s.parentPhone"
-                title="Gọi PH">
-          <span nz-icon nzType="phone" nzTheme="outline"></span>
+                title="Gọi điện">
+          <span nz-icon nzType="phone"></span>
         </button>
-        <button nz-dropdown [nzDropdownMenu]="actionMenu" nzTrigger="click"
-                class="student-card__btn" title="Thao tác khác"
-                (click)="$event.stopPropagation()">
-          <span nz-icon nzType="more" nzTheme="outline"></span>
+        <button nz-dropdown [nzDropdownMenu]="rowMenu" nzTrigger="click"
+                class="action-btn" title="Thao tác">
+          <span nz-icon nzType="more"></span>
         </button>
-        <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+        <nz-dropdown-menu #rowMenu="nzDropdownMenu">
           <ul nz-menu>
             <li nz-menu-item (click)="onEdit(s)">
-              <span nz-icon nzType="edit" nzTheme="outline"></span> Sửa
+              <span nz-icon nzType="edit"></span> Sửa
             </li>
             <li nz-menu-item (click)="onViewDetail(s)">
-              <span nz-icon nzType="eye" nzTheme="outline"></span> Xem chi tiết
+              <span nz-icon nzType="eye"></span> Xem chi tiết
             </li>
             <li nz-menu-divider></li>
-            <li nz-menu-item (click)="onDelete(s)" class="text-danger">
-              <span nz-icon nzType="delete" nzTheme="outline"></span> Xoá
+            <li nz-menu-item (click)="onDelete(s)" class="menu-danger">
+              <span nz-icon nzType="delete"></span> Xoá
             </li>
           </ul>
         </nz-dropdown-menu>
@@ -117,9 +175,8 @@
     </li>
   </ul>
 
-  <!-- Floating action button (mobile + desktop) -->
-  <button class="fab-add" (click)="onAdd()" *ngIf="students.length > 0" title="Thêm học sinh">
-    <span nz-icon nzType="plus" nzTheme="outline"></span>
-    <span class="fab-add__label">Thêm HS</span>
+  <!-- ─────── Floating Add Button (mobile) ─────── -->
+  <button class="fab" (click)="onAdd()" *ngIf="students.length > 0" aria-label="Thêm học sinh">
+    <span nz-icon nzType="plus"></span>
   </button>
 </div>
