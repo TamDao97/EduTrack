@@ -1,0 +1,120 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.gallery {
+  @include page-container;
+  padding: $sp-6 $sp-4;
+
+  @include tablet-up {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: $sp-10 $sp-8;
+  }
+
+  &__header {
+    margin-bottom: $sp-8;
+    text-align: center;
+  }
+
+  &__eyebrow { @include t-eyebrow; display: block; margin-bottom: $sp-3; }
+
+  &__title {
+    @include t-display;
+    color: $text-1;
+    margin: 0 0 $sp-3;
+  }
+
+  &__sub {
+    @include t-body-lg;
+    color: $text-3;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+
+  &__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $sp-3;
+
+    @include tablet-up {
+      grid-template-columns: repeat(2, 1fr);
+      gap: $sp-4;
+    }
+    @include desktop-up {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+.demo-card {
+  @include card;
+  display: flex;
+  align-items: center;
+  gap: $sp-4;
+  padding: $sp-4;
+
+  &.is-clickable {
+    cursor: pointer;
+    transition: all $t $ease-out;
+    &:hover {
+      border-color: $primary;
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+  }
+
+  &.is-planned {
+    opacity: 0.6;
+    .demo-card__art { filter: grayscale(0.3); }
+  }
+
+  &__art {
+    flex-shrink: 0;
+    width: 64px; height: 64px;
+    border-radius: $radius-lg;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: $shadow-md;
+
+    [nz-icon] { font-size: 28px; color: #fff; }
+  }
+
+  &__body { flex: 1; min-width: 0; }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    margin-bottom: 4px;
+  }
+
+  &__title {
+    @include t-h3;
+    margin: 0;
+    flex: 1;
+    @include truncate;
+  }
+
+  &__status {
+    @include chip($bg-strong, $text-3);
+    font-size: 10px;
+
+    &[data-status="ready"]   { background: $success-soft; color: $success-dark; }
+    &[data-status="wip"]     { background: $warning-soft; color: $warning-dark; }
+    &[data-status="planned"] { background: $bg-strong;    color: $text-3; }
+  }
+
+  &__desc {
+    @include t-meta;
+    margin: 0;
+    line-height: $lh-normal;
+  }
+
+  &__arrow {
+    color: $primary;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+}

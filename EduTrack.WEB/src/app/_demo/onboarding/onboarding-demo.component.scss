@@ -1,0 +1,452 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+// ════════════════════════════════════════════════════════════════════
+// Onboarding 3-step — full-screen wizard
+// ════════════════════════════════════════════════════════════════════
+
+.onb {
+  min-height: 100vh;
+  background: $surface;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  // Welcome + done có nền gradient
+  &[data-step="welcome"], &[data-step="done"] {
+    background: $gradient-hero;
+    color: #fff;
+  }
+
+  @include tablet-up {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-shadow: $shadow-xl;
+  }
+}
+
+// ──────────────────────── HEADER ────────────────────────
+.onb__header {
+  display: flex;
+  align-items: center;
+  gap: $sp-3;
+  padding: $sp-3 $sp-4;
+  background: $surface;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: $z-sticky;
+}
+
+.onb__icon-btn {
+  @include btn-icon(40px);
+  flex-shrink: 0;
+}
+
+.onb__progress {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-1;
+}
+
+.onb__progress-bar {
+  height: 6px;
+  background: $bg-strong;
+  border-radius: $radius-pill;
+  overflow: hidden;
+}
+
+.onb__progress-fill {
+  height: 100%;
+  background: $gradient-primary;
+  border-radius: $radius-pill;
+  transition: width $t-slow $ease-out;
+  box-shadow: 0 0 8px rgba(91,95,207,0.4);
+}
+
+.onb__progress-label {
+  font-size: $fs-caption;
+  color: $text-3;
+  font-weight: $fw-semi;
+  letter-spacing: $ls-wide;
+}
+
+.onb__skip {
+  background: transparent;
+  border: none;
+  color: $text-3;
+  font-size: $fs-sm;
+  font-weight: $fw-semi;
+  cursor: pointer;
+  padding: $sp-2 $sp-3;
+  border-radius: $radius;
+  transition: all $t-fast;
+
+  &:hover { background: $bg; color: $text-1; }
+}
+
+// ──────────────────────── STAGE ────────────────────────
+.onb__stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: $sp-6 $sp-5 $sp-4;
+  animation: fadeInUp $t-slow $ease-out;
+
+  @include tablet-up { padding: $sp-8 $sp-7 $sp-6; }
+}
+
+// ──────────────────────── COPY (title + sub) ────────────────────────
+.onb__eyebrow {
+  @include t-eyebrow;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: $sp-3;
+  display: block;
+}
+
+.onb__title {
+  font-size: 28px;
+  font-weight: $fw-bold;
+  color: $text-1;
+  line-height: 1.15;
+  letter-spacing: -0.6px;
+  margin: 0 0 $sp-3;
+
+  .onb[data-step="welcome"] &, .onb[data-step="done"] & {
+    color: #fff;
+    font-size: 32px;
+  }
+}
+
+.onb__brand {
+  display: block;
+  background: linear-gradient(120deg, #FFE5D9 0%, #FFB199 50%, #FFE5D9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.8px;
+}
+
+.onb__sub {
+  @include t-body-lg;
+  color: $text-3;
+  line-height: $lh-relaxed;
+  margin: 0 0 $sp-6;
+
+  .onb[data-step="welcome"] &, .onb[data-step="done"] & {
+    color: rgba(255,255,255,0.85);
+  }
+}
+
+.onb__emoji {
+  display: inline-block;
+  margin-left: $sp-1;
+}
+
+// ──────────────────────── WELCOME ART ────────────────────────
+.onb__art-wrap {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: $sp-4 auto $sp-8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.onb__art-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+
+  &--1 {
+    width: 160px; height: 160px;
+    background: rgba(255,138,101,0.45);
+    top: 0; left: -10px;
+    animation: blob 6s ease-in-out infinite;
+  }
+  &--2 {
+    width: 140px; height: 140px;
+    background: rgba(255,255,255,0.35);
+    bottom: 0; right: -10px;
+    animation: blob 8s ease-in-out infinite reverse;
+  }
+}
+
+.onb__art-icon {
+  position: relative;
+  z-index: 1;
+  width: 120px; height: 120px;
+  border-radius: 36px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+
+  [nz-icon] { font-size: 56px; color: #fff; }
+
+  &--success {
+    background: linear-gradient(135deg, #6EE7B7 0%, $success 100%);
+    border-color: rgba(255,255,255,0.5);
+    box-shadow: $shadow-success;
+    [nz-icon] { font-size: 64px; }
+  }
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(8px, -8px) scale(1.08); }
+}
+
+// ──────────────────────── WELCOME — highlights list ────────────────────────
+.onb__highlights {
+  list-style: none;
+  margin: $sp-4 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-3;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    color: rgba(255,255,255,0.92);
+    font-size: $fs-body-lg;
+    font-weight: $fw-medium;
+  }
+}
+
+.onb__hl-icon {
+  width: 36px; height: 36px;
+  border-radius: $radius-md;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+// ──────────────────────── FORM ────────────────────────
+.onb__form {
+  flex: 1;
+
+  :host ::ng-deep .ant-form-item-label > label {
+    @include form-label;
+  }
+  :host ::ng-deep .ant-form-item { margin-bottom: $sp-4; }
+
+  .full-w { width: 100%; }
+}
+
+.onb__divider {
+  position: relative;
+  text-align: center;
+  margin: $sp-5 0 $sp-4;
+  color: $text-3;
+  font-size: $fs-caption;
+  font-weight: $fw-semi;
+  letter-spacing: $ls-wide;
+  text-transform: uppercase;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 1px;
+    background: $border;
+    z-index: 0;
+  }
+  span {
+    position: relative;
+    z-index: 1;
+    background: $surface;
+    padding: 0 $sp-3;
+  }
+}
+
+// ──────────────────────── CHIP TOGGLES ────────────────────────
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $sp-2;
+
+  &--dow {
+    gap: $sp-2;
+  }
+}
+
+.chip-toggle {
+  height: 40px;
+  padding: 0 $sp-4;
+  border: 1.5px solid $border;
+  background: $surface;
+  border-radius: $radius-pill;
+  font-size: $fs-body;
+  font-weight: $fw-semi;
+  color: $text-2;
+  cursor: pointer;
+  transition: all $t-fast $ease-out;
+  white-space: nowrap;
+  min-width: 44px;
+
+  &:hover { border-color: $border-strong; color: $text-1; }
+
+  &.is-on {
+    background: $primary;
+    border-color: $primary;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(91,95,207,0.3);
+  }
+
+  .chip-row--dow & {
+    width: 44px;
+    padding: 0;
+    text-align: center;
+  }
+}
+
+// ──────────────────────── ESTIMATE BOX (lesson step) ────────────────────────
+.onb__estimate {
+  background: $primary-soft;
+  border: 1px solid rgba(91,95,207,0.2);
+  color: $primary-dark;
+  padding: $sp-3 14px;
+  border-radius: $radius-md;
+  font-size: $fs-sm;
+  line-height: $lh-normal;
+  margin-top: $sp-4;
+  display: flex;
+  align-items: flex-start;
+  gap: $sp-2;
+
+  [nz-icon] {
+    font-size: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    color: $primary;
+  }
+  strong { font-weight: $fw-bold; color: $primary; }
+}
+
+// ──────────────────────── DONE — recap ────────────────────────
+.onb__stage--done {
+  text-align: center;
+  align-items: center;
+}
+
+.onb__art-wrap--done {
+  margin: $sp-2 auto $sp-6;
+}
+
+.onb__confetti {
+  position: absolute;
+  border-radius: 4px;
+  animation: confetti 2.5s ease-out infinite;
+
+  &--1 { width: 14px; height: 14px; background: #FFE5D9; top: 10px; left: 20px; }
+  &--2 { width: 10px; height: 10px; background: #FFB199; top: 40px; right: 20px; animation-delay: 0.3s; }
+  &--3 { width: 12px; height: 12px; background: #FFD3B5; bottom: 30px; left: 50px; animation-delay: 0.6s; }
+}
+
+@keyframes confetti {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+  100% { transform: translateY(30px) rotate(180deg); opacity: 0; }
+}
+
+.onb__recap {
+  width: 100%;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: $radius-lg;
+  padding: $sp-4;
+  margin: $sp-2 0 $sp-4;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-3;
+}
+
+.recap-item {
+  display: flex;
+  align-items: center;
+  gap: $sp-3;
+  text-align: left;
+
+  &__icon {
+    width: 36px; height: 36px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    flex: 1;
+    color: #fff;
+    font-size: $fs-body;
+    font-weight: $fw-semi;
+    line-height: $lh-tight;
+
+    small {
+      display: block;
+      font-size: $fs-xs;
+      font-weight: $fw-normal;
+      color: rgba(255,255,255,0.7);
+      margin-top: 2px;
+    }
+  }
+}
+
+// ──────────────────────── FOOTER (CTA) ────────────────────────
+.onb__footer {
+  padding-top: $sp-6;
+  display: flex;
+  flex-direction: column;
+  gap: $sp-2;
+  position: sticky;
+  bottom: 0;
+  background: inherit;
+}
+
+.onb__cta {
+  height: 52px;
+  border: none;
+  border-radius: 26px;
+  font-size: $fs-body-lg;
+  font-weight: $fw-bold;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  gap: $sp-2;
+  transition: all $t $ease-out;
+
+  &--primary {
+    background: #fff;
+    color: $primary-dark;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+
+    &:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,0.22); }
+    &:active { transform: scale(0.98); }
+
+    .onb[data-step="profile"] &,
+    .onb[data-step="student"] &,
+    .onb[data-step="lesson"] & {
+      background: $gradient-primary;
+      color: #fff;
+      box-shadow: $shadow-primary;
+      &:hover { box-shadow: 0 12px 28px rgba(91,95,207,0.45); }
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: $text-3;
+    border: none;
+    font-weight: $fw-semi;
+
+    &:hover { color: $text-1; background: $bg; }
+  }
+
+  [nz-icon] { font-size: 16px; }
+}

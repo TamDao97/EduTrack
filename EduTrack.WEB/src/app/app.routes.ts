@@ -13,12 +13,19 @@ import { StudentListComponent } from './pages/tutor-domain/student/student-list.
 import { StudentDetailComponent } from './pages/tutor-domain/student/student-detail/student-detail.component';
 import { LessonWeekComponent } from './pages/tutor-domain/lesson/lesson-week.component';
 import { NotificationInboxComponent } from './pages/tutor-domain/notification/notification-inbox.component';
+import { DesignGalleryComponent } from './_demo/design-gallery.component';
+import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
   },
+  // ─────────────── DESIGN DEMO (mock data, no API) ───────────────
+  // Standalone — KHÔNG nằm trong layout có sidebar, để show full visual.
+  { path: 'design',             component: DesignGalleryComponent },
+  { path: 'design/onboarding',  component: OnboardingDemoComponent },
+  // ──────────────────────────────────────────────────────────────
   {
     path: '',
     component: LayoutComponent, // Layout chính của ứng dụng
