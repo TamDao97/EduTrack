@@ -1,0 +1,100 @@
+<div class="page-inbox">
+  <header class="page-inbox__header">
+    <h1 class="page-inbox__title">Hộp nhắc</h1>
+    <span class="page-inbox__badge" *ngIf="pending.length > 0">{{ pending.length }} cần gửi</span>
+  </header>
+
+  <div *ngIf="isLoading && items.length === 0" class="page-inbox__loading">
+    <nz-spin nzSize="large" [nzSpinning]="true"></nz-spin>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && items.length === 0" class="page-inbox__empty">
+    <div class="page-inbox__empty-icon">
+      <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+    </div>
+    <h3>Không có nhắc nào cần gửi</h3>
+    <p>Mọi nhắc lịch + học phí sẽ xuất hiện ở đây khi đến hạn.</p>
+  </div>
+
+  <!-- Pending section -->
+  <section *ngIf="pending.length > 0" class="page-inbox__section">
+    <h3 class="page-inbox__section-title">Chờ gửi ({{ pending.length }})</h3>
+    <ul class="inbox-list">
+      <li *ngFor="let n of pending; trackBy: trackById"
+          class="inbox-card inbox-card--pending"
+          (click)="toggleExpand(n.id!)">
+        <div class="inbox-card__icon">
+          <span nz-icon [nzType]="typeIcon(n.type)"></span>
+        </div>
+        <div class="inbox-card__body">
+          <div class="inbox-card__row1">
+            <span class="inbox-card__title">{{ n.title }}</span>
+            <span class="inbox-card__when">{{ fmtScheduledAt(n.scheduledAt) }}</span>
+          </div>
+          <div class="inbox-card__row2">
+            <span class="inbox-card__type">{{ NotificationTypeLabel[n.type] }}</span>
+            <span class="inbox-card__dot" *ngIf="n.parentPhone">·</span>
+            <span class="inbox-card__phone" *ngIf="n.parentPhone">{{ n.parentPhone }}</span>
+          </div>
+
+          <!-- Expanded preview -->
+          <div *ngIf="isExpanded(n.id)" class="inbox-card__preview">
+            <pre class="inbox-card__body-text">{{ n.bodyText }}</pre>
+            <div class="inbox-card__actions">
+              <button class="inbox-card__act-btn inbox-card__act-btn--zalo"
+                      (click)="onSendZalo(n); $event.stopPropagation()"
+                      [disabled]="!n.zaloDeepLink">
+                <span nz-icon nzType="message"></span>
+                Mở Zalo & đánh dấu đã gửi
+              </button>
+              <button class="inbox-card__act-btn"
+                      (click)="onCopyText(n); $event.stopPropagation()">
+                <span nz-icon nzType="copy"></span>
+                Copy text
+              </button>
+              <button class="inbox-card__act-btn inbox-card__act-btn--sent"
+                      (click)="onMarkSent(n); $event.stopPropagation()">
+                <span nz-icon nzType="check"></span>
+                Đã gửi (qua kênh khác)
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="inbox-card__chevron">
+          <span nz-icon [nzType]="isExpanded(n.id) ? 'up' : 'down'"></span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Sent recent section -->
+  <section *ngIf="sent.length > 0" class="page-inbox__section">
+    <h3 class="page-inbox__section-title">Đã gửi gần đây ({{ sent.length }})</h3>
+    <ul class="inbox-list">
+      <li *ngFor="let n of sent; trackBy: trackById"
+          class="inbox-card inbox-card--sent"
+          (click)="toggleExpand(n.id!)">
+        <div class="inbox-card__icon inbox-card__icon--sent">
+          <span nz-icon nzType="check"></span>
+        </div>
+        <div class="inbox-card__body">
+          <div class="inbox-card__row1">
+            <span class="inbox-card__title">{{ n.title }}</span>
+            <span class="inbox-card__when">{{ fmtScheduledAt(n.sentAt || n.scheduledAt) }}</span>
+          </div>
+          <div class="inbox-card__row2">
+            <span class="inbox-card__type">{{ NotificationTypeLabel[n.type] }}</span>
+          </div>
+
+          <div *ngIf="isExpanded(n.id)" class="inbox-card__preview">
+            <pre class="inbox-card__body-text">{{ n.bodyText }}</pre>
+          </div>
+        </div>
+        <div class="inbox-card__chevron">
+          <span nz-icon [nzType]="isExpanded(n.id) ? 'up' : 'down'"></span>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>

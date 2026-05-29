@@ -6,6 +6,7 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzRadioModule } from 'ng-zorro-antd/radio';
@@ -53,6 +54,7 @@ export const libModule = [
   NzButtonModule,
   NzGridModule,
   NzDatePickerModule,
+  NzTimePickerModule,
   NzInputModule,
   NzInputNumberModule,
   NzRadioModule,

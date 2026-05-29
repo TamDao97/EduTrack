@@ -43,4 +43,28 @@ namespace EduTrack.API.DataContext.Enums
         [Description("Đã thu đủ")]
         Paid = 4,
     }
+
+    public enum NotificationTypeEnums
+    {
+        [Description("Nhắc lịch học (tối hôm trước)")]
+        LessonReminderEvening = 1,
+        [Description("Nhắc lịch học (trước 1 giờ)")]
+        LessonReminderHourBefore = 2,
+        [Description("Thông báo học phí")]
+        TuitionIssued = 3,
+        [Description("Nhắc nợ học phí")]
+        TuitionOverdue = 4,
+    }
+
+    public enum NotificationStatusEnums
+    {
+        [Description("Chờ gửi")]
+        Pending = 1,
+        [Description("Đã gửi")]
+        Sent = 2,
+        [Description("Đã đọc")]
+        Read = 3,
+        [Description("Đã huỷ")]
+        Cancelled = 4,
+    }
 }

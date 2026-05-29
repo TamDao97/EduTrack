@@ -1,0 +1,113 @@
+<div class="page-lessons">
+  <!-- Header -->
+  <header class="page-lessons__header">
+    <div class="page-lessons__top">
+      <h1 class="page-lessons__title">Lịch dạy</h1>
+      <button nz-dropdown [nzDropdownMenu]="addMenu" nzTrigger="click" class="page-lessons__add-btn" nzPlacement="bottomRight">
+        <span nz-icon nzType="plus"></span>
+        <span>Thêm lịch</span>
+      </button>
+      <nz-dropdown-menu #addMenu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item (click)="onAddOne()">
+            <span nz-icon nzType="schedule"></span> Thêm 1 buổi
+          </li>
+          <li nz-menu-item (click)="onAddRecurring()">
+            <span nz-icon nzType="reload"></span> Tạo lịch lặp lại
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+
+    <!-- Week navigator -->
+    <div class="page-lessons__nav">
+      <button class="page-lessons__nav-btn" (click)="onPrevWeek()">
+        <span nz-icon nzType="left"></span>
+      </button>
+      <div class="page-lessons__nav-info" (click)="onThisWeek()">
+        <div class="page-lessons__nav-label">{{ weekRangeLabel() }}</div>
+        <div class="page-lessons__nav-hint">Bấm để về tuần này</div>
+      </div>
+      <button class="page-lessons__nav-btn" (click)="onNextWeek()">
+        <span nz-icon nzType="right"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Skeleton -->
+  <div *ngIf="isLoading" class="page-lessons__loading">
+    <nz-spin nzSize="large" [nzSpinning]="isLoading"></nz-spin>
+  </div>
+
+  <!-- Day groups -->
+  <div class="page-lessons__days" *ngIf="!isLoading">
+    <section class="day-group" *ngFor="let day of days" [class.is-today]="day.isToday">
+      <header class="day-group__header">
+        <div class="day-group__date">
+          <span class="day-group__day">{{ day.dayLabel }}</span>
+          <span class="day-group__dot">·</span>
+          <span class="day-group__num">{{ day.dateLabel }}</span>
+          <span class="day-group__today-badge" *ngIf="day.isToday">HÔM NAY</span>
+        </div>
+        <span class="day-group__count" *ngIf="day.lessons.length > 0">{{ day.lessons.length }} buổi</span>
+      </header>
+
+      <!-- Empty day -->
+      <div *ngIf="day.lessons.length === 0" class="day-group__empty">
+        Không có lịch
+      </div>
+
+      <!-- Lessons -->
+      <ul class="day-group__list" *ngIf="day.lessons.length > 0">
+        <li *ngFor="let l of day.lessons; trackBy: trackById"
+            class="lesson-card"
+            [class.is-done]="l.status === LessonStatus.Done"
+            [class.is-cancelled]="l.status === LessonStatus.Cancelled"
+            [class.is-locked]="!!l.idTuitionPeriod"
+            (click)="onEdit(l)">
+          <div class="lesson-card__time">
+            <div class="lesson-card__time-start">{{ fmtTime(l.startTime) }}</div>
+            <div class="lesson-card__time-end">{{ fmtTime(l.endTime) }}</div>
+          </div>
+          <div class="lesson-card__body">
+            <div class="lesson-card__name">{{ l.studentFullName || '—' }}</div>
+            <div class="lesson-card__meta">
+              <span *ngIf="l.location">{{ l.location }}</span>
+              <span *ngIf="l.location && l.chargeAmount" class="lesson-card__dot">·</span>
+              <span *ngIf="l.chargeAmount">{{ l.chargeAmount | number:'1.0-0' }}đ</span>
+              <span class="lesson-card__lock" *ngIf="l.idTuitionPeriod" title="Đã chốt kỳ học phí">
+                <span nz-icon nzType="lock"></span>
+              </span>
+            </div>
+          </div>
+          <div class="lesson-card__actions" (click)="$event.stopPropagation()">
+            <button *ngIf="l.status === LessonStatus.Scheduled && !l.idTuitionPeriod"
+                    class="lesson-card__btn lesson-card__btn--done"
+                    (click)="onMarkDone(l, $event)" title="Đánh dấu đã dạy">
+              <span nz-icon nzType="check"></span>
+            </button>
+            <button nz-dropdown [nzDropdownMenu]="rowMenu" nzTrigger="click"
+                    class="lesson-card__btn" (click)="$event.stopPropagation()" title="Thao tác">
+              <span nz-icon nzType="more"></span>
+            </button>
+            <nz-dropdown-menu #rowMenu="nzDropdownMenu">
+              <ul nz-menu>
+                <li nz-menu-item (click)="onEdit(l)" *ngIf="!l.idTuitionPeriod">
+                  <span nz-icon nzType="edit"></span> Sửa
+                </li>
+                <li nz-menu-item (click)="onCancel(l, $event)"
+                    *ngIf="l.status === LessonStatus.Scheduled && !l.idTuitionPeriod">
+                  <span nz-icon nzType="close-circle"></span> Huỷ buổi
+                </li>
+                <li nz-menu-divider *ngIf="!l.idTuitionPeriod"></li>
+                <li nz-menu-item (click)="onDelete(l)" class="text-danger" *ngIf="!l.idTuitionPeriod">
+                  <span nz-icon nzType="delete"></span> Xoá
+                </li>
+              </ul>
+            </nz-dropdown-menu>
+          </div>
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>

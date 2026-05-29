@@ -23,13 +23,15 @@ namespace EduTrack.API.Services.TutorDomain
         private readonly ITDRepository<Lesson> _lessonRepos;
         private readonly ITDRepository<Student> _studentRepos;
         private readonly ITDRepository<Parent> _parentRepos;
+        private readonly INotificationGenerator _notiGen;
 
-        public TuitionPeriodService(IUnitOfWork unitOfWork, IUserContextService userContext)
+        public TuitionPeriodService(IUnitOfWork unitOfWork, IUserContextService userContext, INotificationGenerator notiGen)
             : base(unitOfWork, userContext)
         {
             _lessonRepos = unitOfWork.GetRepository<Lesson>();
             _studentRepos = unitOfWork.GetRepository<Student>();
             _parentRepos = unitOfWork.GetRepository<Parent>();
+            _notiGen = notiGen;
         }
 
         public async Task<Response<TuitionPeriodDto>> OpenOrGetAsync(Guid idStudent, int month, int year)
@@ -113,6 +115,10 @@ namespace EduTrack.API.Services.TutorDomain
             period.MarkDirty(nameof(period.Notes));
 
             await _unitOfWork.SaveChangesAsync();
+
+            // Sinh nhắc thu tiền cho phụ huynh (1 lần khi vừa chốt kỳ)
+            await _notiGen.GenerateForTuitionPeriodAsync(period);
+
             return Response<TuitionPeriodDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<TuitionPeriod, TuitionPeriodDto>(period), StatusCode.Ok.ToDescription());
         }
 

@@ -40,6 +40,7 @@ namespace EduTrack.API.DataContext
         public DbSet<Student> Students { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<TuitionPeriod> TuitionPeriods { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -86,6 +87,8 @@ namespace EduTrack.API.DataContext
             modelBuilder.Entity<Lesson>().HasIndex(l => l.IdTuitionPeriod);
             modelBuilder.Entity<TuitionPeriod>().HasIndex(t => new { t.IdStudent, t.PeriodYear, t.PeriodMonth }).IsUnique();
             modelBuilder.Entity<TutorProfile>().HasIndex(t => t.IdUser).IsUnique();
+            modelBuilder.Entity<Notification>().HasIndex(n => new { n.IdTutor, n.Status, n.ScheduledAt });
+            modelBuilder.Entity<Notification>().HasIndex(n => n.RefId);
 
             // Tiền tệ — VND nguyên, decimal(18,0)
             modelBuilder.Entity<Student>().Property(s => s.PerLessonRate).HasColumnType("decimal(18,0)");

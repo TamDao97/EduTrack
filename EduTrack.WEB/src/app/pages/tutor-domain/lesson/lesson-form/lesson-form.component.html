@@ -1,0 +1,58 @@
+<form nz-form [formGroup]="frmGroup" class="lesson-form" nzLayout="vertical">
+  <nz-form-item>
+    <nz-form-label nzRequired>Học sinh</nz-form-label>
+    <nz-form-control nzErrorTip="Chọn học sinh">
+      <nz-select formControlName="idStudent" nzShowSearch nzPlaceHolder="Tìm tên HS…" [nzDisabled]="isEdit">
+        <nz-option *ngFor="let s of students" [nzValue]="s.id"
+          [nzLabel]="s.fullName + (s.subject ? ' · ' + s.subject : '')"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Ngày dạy</nz-form-label>
+    <nz-form-control nzErrorTip="Chọn ngày">
+      <nz-date-picker formControlName="scheduledDate" nzFormat="EEEE, dd/MM/yyyy" class="full-w"></nz-date-picker>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Bắt đầu</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="startTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Kết thúc</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="endTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label>Địa điểm</nz-form-label>
+    <nz-form-control>
+      <input nz-input formControlName="location" placeholder="Vd: Tại nhà HS · Online Zoom · Trung tâm…" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Ghi chú</nz-form-label>
+    <nz-form-control>
+      <textarea nz-input formControlName="notes" rows="2"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="lesson-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      {{ isEdit ? 'Cập nhật' : 'Thêm buổi' }}
+    </button>
+  </div>
+</form>

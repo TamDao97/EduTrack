@@ -23,12 +23,14 @@ namespace EduTrack.API.Services.TutorDomain
     {
         private readonly ITDRepository<Student> _studentRepos;
         private readonly ITDRepository<Parent> _parentRepos;
+        private readonly INotificationGenerator _notiGen;
 
-        public LessonService(IUnitOfWork unitOfWork, IUserContextService userContext)
+        public LessonService(IUnitOfWork unitOfWork, IUserContextService userContext, INotificationGenerator notiGen)
             : base(unitOfWork, userContext)
         {
             _studentRepos = unitOfWork.GetRepository<Student>();
             _parentRepos = unitOfWork.GetRepository<Parent>();
+            _notiGen = notiGen;
         }
 
         public override async Task<Response<LessonDto>> CreateAsync(Lesson entity)
@@ -43,8 +45,12 @@ namespace EduTrack.API.Services.TutorDomain
             entity.ChargeAmount = student.PerLessonRate;
             entity.Status = LessonStatusEnums.Scheduled;
             entity.IdTuitionPeriod = null;
+            entity.IdTutor = idTutor;
 
-            return await base.CreateAsync(entity);
+            var rs = await base.CreateAsync(entity);
+            if (rs.Status == StatusCode.Ok)
+                await _notiGen.GenerateForLessonAsync(entity);
+            return rs;
         }
 
         public override async Task<Response<LessonDto>> UpdateAsync(Lesson entity)
@@ -107,6 +113,11 @@ namespace EduTrack.API.Services.TutorDomain
 
             await _repos.CreateMultiAsync(lessons);
             await _unitOfWork.SaveChangesAsync();
+
+            // Sinh nhắc cho từng buổi đã tạo
+            foreach (var l in lessons)
+                await _notiGen.GenerateForLessonAsync(l);
+
             return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
         }
 
@@ -124,6 +135,10 @@ namespace EduTrack.API.Services.TutorDomain
             lesson.MarkDirty(nameof(lesson.DoneAt));
             await _repos.UpdateAsync(lesson);
             await _unitOfWork.SaveChangesAsync();
+
+            // Buổi đã dạy thì không nhắc nữa
+            await _notiGen.CancelForLessonAsync(lesson.Id);
+
             return Response<LessonDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<Lesson, LessonDto>(lesson), StatusCode.Ok.ToDescription());
         }
 
@@ -142,6 +157,10 @@ namespace EduTrack.API.Services.TutorDomain
             lesson.MarkDirty(nameof(lesson.Notes));
             await _repos.UpdateAsync(lesson);
             await _unitOfWork.SaveChangesAsync();
+
+            // Buổi đã huỷ thì cancel mọi nhắc còn chờ gửi
+            await _notiGen.CancelForLessonAsync(lesson.Id);
+
             return Response<LessonDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<Lesson, LessonDto>(lesson), StatusCode.Ok.ToDescription());
         }
 

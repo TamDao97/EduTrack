@@ -1,0 +1,60 @@
+.bulk-form {
+  .full-w { width: 100%; }
+
+  &__dow {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__dow-btn {
+    width: 44px; height: 44px;
+    border: 1px solid #e8e8e8;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #595959;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover { border-color: #1890ff; color: #1890ff; }
+    &.is-on {
+      background: #1890ff;
+      border-color: #1890ff;
+      color: #fff;
+    }
+  }
+
+  &__summary {
+    background: rgba(24, 144, 255, 0.06);
+    border: 1px solid rgba(24, 144, 255, 0.2);
+    color: #1890ff;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin: 8px 0 16px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    strong { font-size: 16px; }
+  }
+
+  &__actions {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #f0f0f0;
+
+    button { min-width: 100px; height: 44px; }
+  }
+}
+
+@media (max-width: 767px) {
+  .bulk-form__actions button { flex: 1; }
+}

@@ -11,6 +11,8 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ConfigJsonComponent } from './pages/system/config-json/config-json.component';
 import { StudentListComponent } from './pages/tutor-domain/student/student-list.component';
 import { StudentDetailComponent } from './pages/tutor-domain/student/student-detail/student-detail.component';
+import { LessonWeekComponent } from './pages/tutor-domain/lesson/lesson-week.component';
+import { NotificationInboxComponent } from './pages/tutor-domain/notification/notification-inbox.component';
 
 export const routes: Routes = [
   {
@@ -59,6 +61,16 @@ export const routes: Routes = [
       {
         path: 'student/:id',
         component: StudentDetailComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'lesson',
+        component: LessonWeekComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'inbox',
+        component: NotificationInboxComponent,
         canActivate: [AuthGuard],
       },
     ],

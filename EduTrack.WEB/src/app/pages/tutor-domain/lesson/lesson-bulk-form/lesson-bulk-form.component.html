@@ -1,0 +1,83 @@
+<form nz-form [formGroup]="frmGroup" class="bulk-form" nzLayout="vertical">
+  <nz-form-item>
+    <nz-form-label nzRequired>Học sinh</nz-form-label>
+    <nz-form-control nzErrorTip="Chọn học sinh">
+      <nz-select formControlName="idStudent" nzShowSearch nzPlaceHolder="Tìm tên HS…">
+        <nz-option *ngFor="let s of students" [nzValue]="s.id"
+          [nzLabel]="s.fullName + (s.subject ? ' · ' + s.subject : '')"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Các thứ trong tuần</nz-form-label>
+    <nz-form-control>
+      <div class="bulk-form__dow">
+        <button *ngFor="let d of weekDays"
+                type="button"
+                class="bulk-form__dow-btn"
+                [class.is-on]="isDayOn(d.value)"
+                (click)="toggleDay(d.value)">
+          {{ d.label }}
+        </button>
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Bắt đầu</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="startTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Kết thúc</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="endTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Bắt đầu từ ngày</nz-form-label>
+        <nz-form-control>
+          <nz-date-picker formControlName="startDate" nzFormat="dd/MM/yyyy" class="full-w"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Số tuần lặp</nz-form-label>
+        <nz-form-control>
+          <nz-input-number formControlName="numberOfWeeks" [nzMin]="1" [nzMax]="52" class="full-w"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label>Địa điểm</nz-form-label>
+    <nz-form-control>
+      <input nz-input formControlName="location" placeholder="Vd: Tại nhà HS · Online Zoom…" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="bulk-form__summary" *ngIf="totalLessons > 0">
+    <span nz-icon nzType="info-circle"></span>
+    Sẽ tạo <strong>{{ totalLessons }}</strong> buổi học
+  </div>
+
+  <div class="bulk-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      Tạo {{ totalLessons || '' }} buổi
+    </button>
+  </div>
+</form>

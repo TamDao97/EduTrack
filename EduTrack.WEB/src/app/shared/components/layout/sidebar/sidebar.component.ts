@@ -39,6 +39,7 @@ export class SidebarComponent implements OnInit {
     'dashboard':   { type: 'dashboard', color: '#3b5bdb' },
     'student':     { type: 'solution',  color: '#f76707' },
     'lesson':      { type: 'calendar',  color: '#0c8599' },
+    'inbox':       { type: 'bell',      color: '#faad14' },
     'tuition':     { type: 'dollar',    color: '#c92a2a' },
     'user':        { type: 'team',      color: '#1d4ed8' },
     'role':        { type: 'safety',    color: '#65a30d' },
