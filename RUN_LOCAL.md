@@ -28,16 +28,31 @@ Mở `EduTrack.API/appsettings.json`, thay `REPLACE_ME_WITH_A_NEW_GUID_OR_LONG_R
 
 ---
 
-## Bước 2 — Apply migrations lên DB
+## Bước 2 — Tạo DB + schema (2 cách, chọn 1)
 
-Tạo database `EduTrack` trên SQL Server trước (chạy 1 câu `CREATE DATABASE EduTrack;` trên SSMS), rồi:
+### Cách A — chạy 3 file SQL có sẵn (KHÔNG cần cài dotnet-ef)
+
+Trên SSMS / Azure Data Studio, mở từng file theo thứ tự và F5:
+
+```
+EduTrack.API/ScriptSql/
+├── Schema/
+│   ├── 0_CreateDatabase.sql      ← chạy trên master, tạo DB EduTrack
+│   └── 1_InitDb.sql              ← chạy trên DB EduTrack, tạo bảng (idempotent)
+└── Seed/
+    └── 2_Seed_InitData.sql       ← chạy bước 6
+```
+
+### Cách B — dùng EF tự apply migrations
+
+Tạo trước database `EduTrack` trên SQL Server (`CREATE DATABASE EduTrack;`), rồi:
 
 ```powershell
 cd D:\Coderkechuyen\EduTrack\EduTrack.API
 dotnet ef database update
 ```
 
-Output cuối phải là `Done.` Nếu lỗi connection → kiểm tra lại `ConnectionStrings:EduTrackDbContextConnection` trong `appsettings.json`.
+Output cuối phải là `Done.` Nếu lỗi connection → kiểm tra `ConnectionStrings:EduTrackDbContextConnection` trong `appsettings.json`.
 
 ---
 
