@@ -1,0 +1,84 @@
+<section class="vh-100" style="background-color: #9a616d">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col col-xl-10">
+        <div class="card" style="border-radius: 1rem">
+          <div class="row g-0">
+            <div class="col-md-6 col-lg-5 d-none d-md-block">
+              <img
+                src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img1.webp"
+                alt="login form"
+                class="img-fluid"
+                style="border-radius: 1rem 0 0 1rem"
+              />
+            </div>
+            <div class="col-md-6 col-lg-7 d-flex align-items-center">
+              <div class="card-body p-4 p-lg-5 text-black">
+                <form
+                  nz-form
+                  [formGroup]="frmGroup"
+                  class="login-form"
+                  (ngSubmit)="onSubmit()"
+                >
+                  <nz-form-item>
+                    <nz-form-control nzHasFeedback [nzErrorTip]="emailErrorTpl">
+                      <nz-input-group nzPrefixIcon="user">
+                        <input
+                          type="text"
+                          nz-input
+                          formControlName="email"
+                          placeholder="Tài khoản"
+                        />
+                      </nz-input-group>
+                    </nz-form-control>
+                    <ng-template #emailErrorTpl let-control>
+                      <ng-container *ngIf="control.hasError('required')">
+                        Vui lòng nhập email!
+                      </ng-container>
+                      <ng-container *ngIf="control.hasError('email')">
+                        Email không hợp lệ!
+                      </ng-container>
+                    </ng-template>
+                  </nz-form-item>
+
+                  <nz-form-item>
+                    <nz-form-control [nzErrorTip]="passwordErrorTpl">
+                      <nz-input-group nzPrefixIcon="lock">
+                        <input
+                          type="password"
+                          nz-input
+                          formControlName="password"
+                          placeholder="Mật khẩu"
+                        />
+                      </nz-input-group>
+                    </nz-form-control>
+                    <ng-template #passwordErrorTpl let-control>
+                      <ng-container *ngIf="control.hasError('required')">
+                        Vui lòng nhập mật khẩu!
+                      </ng-container>
+                      <ng-container *ngIf="control.hasError('minlength')">
+                        Mật khẩu phải có ít nhất 6 ký tự!
+                      </ng-container>
+                    </ng-template>
+                  </nz-form-item>
+                  <div class="row">
+                    <div class="col-md-12 col-lg-12 d-flex justify-content-end">
+                      <button
+                        nz-button
+                        [nzType]="'primary'"
+                        [nzLoading]="isLoading"
+                        [disabled]="isLoading"
+                      >
+                        Đăng nhập
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

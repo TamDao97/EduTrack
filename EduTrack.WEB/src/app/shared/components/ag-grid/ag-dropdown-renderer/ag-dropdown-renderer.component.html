@@ -1,0 +1,16 @@
+<nz-select
+  [(ngModel)]="value"
+  (ngModelChange)="onValueChange($event)"
+  nzShowSearch
+  nzAllowClear
+  nzBorderless
+  nzPlaceHolder="--Chọn--"
+  class="ag-dropdown-renderer__select"
+>
+  <nz-option
+    *ngFor="let opt of options"
+    [nzValue]="opt[valueField]"
+    [nzLabel]="opt[labelField]"
+  >
+  </nz-option>
+</nz-select>

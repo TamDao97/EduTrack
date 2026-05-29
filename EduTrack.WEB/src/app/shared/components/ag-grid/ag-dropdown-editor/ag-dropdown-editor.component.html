@@ -1,0 +1,15 @@
+<nz-select
+  [(ngModel)]="value"
+  [(nzOpen)]="isOpen"
+  (nzOpenChange)="onOpenChange($event)"
+  nzBorderless
+  nzShowSearch
+  style="width: 100%"
+>
+  <nz-option
+    *ngFor="let opt of options"
+    [nzValue]="opt[valueField]"
+    [nzLabel]="opt[labelField]"
+  >
+  </nz-option>
+</nz-select>

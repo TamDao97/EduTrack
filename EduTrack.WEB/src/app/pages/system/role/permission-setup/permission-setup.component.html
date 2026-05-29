@@ -1,0 +1,74 @@
+<nz-card>
+  <div class="row">
+    <div class="col-md-12">
+      <h3 class="fw-bold">
+        <i class="icon-home"></i> <span class="ms-3">{{ title }}</span>
+      </h3>
+    </div>
+  </div>
+  <div class="row mt-5">
+    <div class="col-md-4">
+      <nz-select class="w-100" [(ngModel)]="objFilter.idRole" (ngModelChange)="onChangeRole()" nzAllowClear nzShowSearch
+        nzPlaceHolder="--Quyền--">
+        <nz-option [nzValue]="el.value" [nzLabel]="el.text" *ngFor="let el of lstRole"></nz-option>
+      </nz-select>
+    </div>
+    <div class="col-md-8">
+      <button nz-button nzType="primary" class="ms-1" (click)="addPermissionByRole()">Lưu</button>
+      <button nz-button nzType="primary" class="ms-1" nzDanger (click)="scanPermission()">Quét quyền hệ thống</button>
+      <!-- <button nz-button nzType="primary" class="ms-1" nzDanger (click)="autoAddPermission()">Tự động phân quyền</button> -->
+    </div>
+  </div>
+
+</nz-card>
+<nz-card class="mt-3">
+  <div class="row">
+    <div class="col-md-12">
+      <nz-table #moduleTable [nzData]="gridData" [nzFrontPagination]="false" nzShowPagination="false"
+        [nzScroll]="{ x: '1200px',y:'500px' }">
+        <thead>
+          <tr>
+            <th nzWidth="50">STT</th>
+            <th [nzWidth]="col.width" *ngFor="let col of gridColumns">
+              {{ col.header }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of moduleTable.data; let i = index">
+            <td nzWidth="50">{{ i + 1 }}</td>
+            <td [nzWidth]="col.width" *ngFor="let col of gridColumns" [ngSwitch]="col.type">
+              <ng-container *ngSwitchCase="'template'">
+                <ng-container [ngSwitch]="col.field">
+                  <ng-container *ngSwitchCase="'module'">
+                    <span>{{ row['moduleDescription'] }}</span>
+                    <br />
+                    <nz-tag [nzColor]="'blue'">
+                      <span nz-typography nzCopyable nzCopyText="{{ row.moduleCode }}">{{ row.moduleCode }}.</span>
+                    </nz-tag>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'permission'">
+                    <p *ngFor="let rowChild of row.lstPermissions; let i = index">
+                      <label nz-checkbox [(ngModel)]="rowChild.isChecked">{{rowChild.description}}
+                        ({{rowChild.roleCodes}})</label>
+                      <br />
+                      <nz-tag [nzColor]="'blue'">
+                        <span nz-typography nzCopyable nzCopyText="{{ rowChild.permissionCode }}">{{
+                          rowChild.permissionCode }}.</span>
+                      </nz-tag>
+                    </p>
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    {{ row[col.field] }}
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                {{ row[col.field] }}
+              </ng-container>
+            </td>
+          </tr>
+      </nz-table>
+    </div>
+  </div>
+</nz-card>

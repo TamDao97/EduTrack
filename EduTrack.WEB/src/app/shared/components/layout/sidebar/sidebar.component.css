@@ -1,0 +1,347 @@
+/* ============== MINI SIDEBAR (96px) — dark theme ============== */
+:host ::ng-deep .sidebar.sidebar-mini {
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+  background: linear-gradient(180deg, #1a1d2e 0%, #14172a 100%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 !important;
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow: visible !important;
+}
+
+/* Logo top — square 96x96 với background gradient subtle */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(30, 64, 175, 0.15) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.25s ease;
+  position: relative;
+}
+.sidebar-logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.15), transparent 60%);
+  pointer-events: none;
+}
+.sidebar-logo:hover {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15) 0%, rgba(30, 64, 175, 0.22) 100%);
+}
+.sidebar-logo img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 2px 6px rgba(14, 165, 233, 0.4));
+}
+.sidebar-logo:hover img {
+  transform: scale(1.05) rotate(-3deg);
+}
+
+/* Rail list — vertical icons + labels */
+.sidebar-rail {
+  list-style: none;
+  padding: 6px 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+.sidebar-rail::-webkit-scrollbar { width: 4px; }
+.sidebar-rail::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.sidebar-rail__item {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 4px 6px;
+}
+
+/* Label nhỏ dưới icon — show title menu cha */
+.sidebar-rail__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.1px;
+  max-width: 88px;
+  /* Truncate 2 dòng — đủ cho hầu hết title VN */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  transition: color 0.15s ease;
+}
+.sidebar-rail__item:hover .sidebar-rail__label {
+  color: #ffffff;
+}
+.sidebar-rail__item--active .sidebar-rail__label {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.sidebar-rail__btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-decoration: none !important;
+  /* Background color set inline qua [style.background]="getParentIcon().color" */
+  opacity: 0.82;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+.sidebar-rail__btn:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+.sidebar-rail__item--active .sidebar-rail__btn {
+  opacity: 1;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.32), 0 0 0 2px rgba(255, 255, 255, 0.3) inset;
+}
+
+/* Icon SVG (nz-icon) — trắng, kích thước cố định 26px → đồng đều mọi menu */
+:host ::ng-deep .sidebar-rail__icon {
+  font-size: 26px !important;
+  color: #ffffff !important;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+:host ::ng-deep .sidebar-rail__icon svg {
+  width: 26px;
+  height: 26px;
+}
+.sidebar-rail__btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Active state — vertical bar trắng align với icon button (không phải item) */
+.sidebar-rail__item--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 36px;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 40px;
+  background: #ffffff;
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+/* Indicator dot khi parent có children */
+.sidebar-rail__dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #faad14;
+  box-shadow: 0 0 6px rgba(250, 173, 20, 0.65);
+}
+.sidebar-rail__item--active .sidebar-rail__dot {
+  background: #ffffff;
+  box-shadow: none;
+}
+
+/* ============== FLYOUT PANEL ============== */
+:host ::ng-deep .sidebar-flyout {
+  position: fixed;
+  left: 96px;
+  z-index: 1050;
+  margin-left: 8px;
+  min-width: 220px;
+  max-width: 360px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+  padding: 6px;
+  animation: flyout-in 0.16s ease-out;
+}
+
+@keyframes flyout-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Arrow trỏ về icon parent — căn với center icon (icon ở top: 4px, height 64 → center y=36) */
+:host ::ng-deep .sidebar-flyout::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 30px;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 7px solid #ffffff;
+  filter: drop-shadow(-2px 1px 1px rgba(0, 0, 0, 0.06));
+}
+
+.sidebar-flyout__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 6px;
+  color: #262626;
+  font-weight: 700;
+  font-size: 14px;
+}
+.sidebar-flyout__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  flex-shrink: 0;
+  color: #ffffff;
+}
+:host ::ng-deep .sidebar-flyout__icon i[nz-icon] {
+  font-size: 15px;
+}
+.sidebar-flyout__title {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.sidebar-flyout__list {
+  list-style: none;
+  margin: 0;
+  padding: 2px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sidebar-flyout__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  color: #4a5568 !important;
+  font-size: 13px;
+  text-decoration: none !important;
+  transition: background 0.12s ease, color 0.12s ease;
+  cursor: pointer;
+  min-width: 0;
+  position: relative;
+}
+
+/* Icon SVG đồng đều — 16x16 fixed, màu xám trung tính */
+:host ::ng-deep .sidebar-flyout__child-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: #94a3b8 !important;
+  flex-shrink: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.12s ease;
+}
+:host ::ng-deep .sidebar-flyout__child-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.sidebar-flyout__child-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sidebar-flyout__link:hover {
+  background: #f1f5f9;
+  color: #1e293b !important;
+}
+:host ::ng-deep .sidebar-flyout__link:hover .sidebar-flyout__child-icon {
+  color: #475569 !important;
+}
+
+.sidebar-flyout__link--active {
+  background: #eff6ff;
+  color: #1d4ed8 !important;
+  font-weight: 600;
+}
+.sidebar-flyout__link--active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: #1d4ed8;
+  border-radius: 0 3px 3px 0;
+}
+:host ::ng-deep .sidebar-flyout__link--active .sidebar-flyout__child-icon {
+  color: #1d4ed8 !important;
+}
+
+.sidebar-flyout__link--single {
+  justify-content: space-between;
+  font-weight: 600;
+  color: #722ed1 !important;
+  background: #f9f0ff;
+}
+.sidebar-flyout__link--single:hover {
+  background: #efdbff;
+}

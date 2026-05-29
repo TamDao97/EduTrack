@@ -1,0 +1,55 @@
+.file-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #fafafa;
+    }
+
+    .thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    i[nz-icon] {
+      font-size: 24px;
+      color: #1677ff;
+    }
+
+    .file-info {
+      flex: 1;
+      overflow: hidden;
+
+      .file-name {
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .file-size {
+        font-size: 12px;
+        color: #888;
+      }
+    }
+  }
+}
+
+.preview-img {
+  width: 100%;
+  border-radius: 10px;
+}

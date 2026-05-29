@@ -1,0 +1,32 @@
+<!-- <nz-card>
+    <div class="row">
+      <div class="col-md-12">
+        <h3 class="fw-bold">
+          <i class="icon-home"></i> <span class="ms-3">{{ title }}</span>
+        </h3>
+      </div>
+    </div>
+  </nz-card> -->
+<nz-card>
+  <div class="row">
+    <div class="col-md-12">
+      <nz-tabset (nzSelectedIndexChange)="onTabChange($event)">
+        <nz-tab *ngFor="let tab of tabs" [nzTitle]="titleTemplate">
+          <ng-template #titleTemplate>
+            <span nz-icon [nzType]="tab.icon"></span>
+            {{ tab.name }}
+          </ng-template>
+          <ng-container [ngSwitch]="tabSelected">
+            <ng-container *ngSwitchCase="1">
+              <app-role-grid></app-role-grid>
+            </ng-container>
+            <ng-container *ngSwitchCase="2">
+              <app-permission-setup></app-permission-setup>
+            </ng-container>
+            <ng-container *ngSwitchDefault>NotFound</ng-container>
+          </ng-container>
+        </nz-tab>
+      </nz-tabset>
+    </div>
+  </div>
+</nz-card>

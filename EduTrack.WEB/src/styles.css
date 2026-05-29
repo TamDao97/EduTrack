@@ -1,0 +1,92 @@
+.page-inner {
+  padding: 8px !important;
+  /* padding-right: 15px !important; */
+}
+
+.main-header {
+  z-index: 999 !important;
+}
+
+.sidebar {
+  z-index: 1000 !important;
+}
+
+/* ============== MINI SIDEBAR LAYOUT OVERRIDE ============== */
+/* Sidebar component là rail 96px → main-panel cần margin 96px */
+.wrapper .sidebar {
+  width: 96px !important;
+}
+.wrapper .main-panel {
+  width: calc(100% - 96px) !important;
+  margin-left: 96px !important;
+  transition: margin-left 0.2s ease, width 0.2s ease;
+}
+/* Header (top bar) align với sidebar 96px */
+.wrapper .main-header {
+  left: 96px !important;
+  width: calc(100% - 96px) !important;
+}
+
+/* Begin: Table scroll */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* ép table body cho phép scroll ngang */
+::ng-deep .ant-table-body {
+  overflow-x: auto !important;
+}
+
+/* tránh bị che khi trong nz-card */
+::ng-deep .ant-card-body {
+  overflow-x: visible !important;
+  padding: 16px !important;
+}
+
+/* Global - styles.scss */
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #bfbfbf;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f5f5f5;
+}
+
+::ng-deep .ant-table-body::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+::ng-deep .ant-table-body:hover::-webkit-scrollbar-thumb {
+  background-color: #bfbfbf;
+}
+
+/* ::ng-deep .ant-card-body {
+  padding: 16px !important;
+} */
+
+/* End: Table scroll */
+
+/* Begin: Customize modal */
+.modal-padding-5px .ant-modal-body {
+  padding: 5px !important;
+}
+
+.modal-padding-10px .ant-modal-body {
+  padding: 10px !important;
+}
+
+/* End: Customize modal */
+
+/*text class custom*/
+/******************/
+.text-purple {
+  color: #6f42c1;
+  /* purple của Bootstrap */
+}

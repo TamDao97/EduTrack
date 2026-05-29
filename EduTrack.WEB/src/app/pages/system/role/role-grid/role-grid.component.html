@@ -1,0 +1,138 @@
+<nz-card>
+  <div class="row">
+    <div class="col-md-12">
+      <h3 class="fw-bold">
+        <i class="icon-home"></i> <span class="ms-3">{{ title }}</span>
+      </h3>
+    </div>
+  </div>
+  <div class="row mb-1">
+    <div class="col-md-6 mb-1"></div>
+    <div class="col-md-6 mb-1">
+      <div class="d-flex justify-content-end">
+        <nz-input-group nzSearch [nzAddOnAfter]="suffixButton">
+          <input type="text" nz-input placeholder="Từ khóa tìm kiếm" [(ngModel)]="objFilter.keyword"
+            (keydown.enter)="onSearch()" />
+        </nz-input-group>
+        <ng-template #suffixButton>
+          <button nz-button nzType="primary" nzSearch (click)="onSearch()">
+            <i nz-icon nzType="search" nzTheme="outline"></i>
+            Tìm kiếm
+          </button>
+        </ng-template>
+        <!-- <button nz-button nzType="primary" (click)="onSearchAdvance()">
+            <i class="fa fa-solid fa-filter"></i>
+          </button> -->
+      </div>
+    </div>
+  </div>
+</nz-card>
+<nz-card class="mt-3">
+  <div class="row mb-2">
+    <div class="col-md-12">
+      <nz-button-group>
+        <button nz-button (click)="onAdd()">Thêm mới</button>
+        <button nz-button nzType="primary" nz-dropdown [nzDropdownMenu]="menu">
+          <i nz-icon nzType="down"></i>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu nzSelectable>
+          <li nz-menu-item (click)="onDeleteMany()">
+            <a class="text-danger" href="javascript:void(0);"><i nz-icon nzType="delete" nzTheme="outline"></i> Xóa dữ
+              liệu</a>
+          </li>
+          <li nz-menu-item>
+            <a class="text-success" href="javascript:void(0);"><i nz-icon nzType="export" nzTheme="outline"></i> Export
+              excel</a>
+          </li>
+          <li nz-menu-item>
+            <a class="text-success" href="javascript:void(0);"><i nz-icon nzType="import" nzTheme="outline"></i> Import
+              excel</a>
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <nz-table #table [nzData]="gridData" [nzFrontPagination]="false" nzShowPagination="false"
+        [nzScroll]="{ x: 'max-content' }">
+        <thead>
+          <tr>
+            <th [width]="50" [(nzChecked)]="checked" [nzIndeterminate]="indeterminate"
+              (nzCheckedChange)="onAllChecked($event)"></th>
+            <th [width]="col.width" *ngFor="let col of gridColumns">
+              {{ col.header }}
+            </th>
+            <!-- Action -->
+            <th [width]="120"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of table.data; let i = index">
+            <td [width]="80" [nzChecked]="setOfCheckedId.has(row.id)" (nzCheckedChange)="onItemChecked(row.id, $event)">
+            </td>
+            <td *ngFor="let col of gridColumns" [ngSwitch]="col.type">
+              <ng-container *ngSwitchCase="'date'">
+                {{ row[col.field] | date : "HH:mm dd/MM/yyyy" }}
+              </ng-container>
+              <ng-container *ngSwitchCase="'currency'">
+                {{ row[col.field] | currency }}
+              </ng-container>
+              <ng-container *ngSwitchCase="'template'">
+                <ng-container [ngSwitch]="col.field">
+                  <ng-container *ngSwitchCase="'name'">
+                    <span>{{ row[col.field] }}</span>
+                    <br />
+                    <nz-tag [nzColor]="'blue'">
+                      <span nz-typography nzCopyable nzCopyText="{{ row.code }}">{{ row.code }}.</span>
+                    </nz-tag>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'isLockout'">
+                    <nz-tag [nzColor]="row[col.field] ? 'red' : 'green'">
+                      {{ col.customTemplate?.(row) }}
+                    </nz-tag>
+                  </ng-container>
+                  <ng-container *ngSwitchCase="'dateModify'">
+                    {{ row[col.field] | date : "HH:mm dd/MM/yyyy" }}
+                  </ng-container>
+                  <ng-container *ngSwitchDefault>
+                    {{ row[col.field] }}
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                {{ row[col.field] }}
+              </ng-container>
+            </td>
+            <!-- Action -->
+            <td nzRight="0px" class="bg-white py-2 p-2">
+              <div class="d-flex align-items-center justify-content-center gap-2">
+                <button nz-button nzType="default" nzSize="small" nzShape="circle" nz-tooltip [nzTooltipTitle]="'Xem'"
+                  [nzTooltipColor]="'blue'" (click)="onDetail(row)">
+                  <i nz-icon nzType="eye"></i>
+                </button>
+                <button nz-button nzType="default" nzSize="small" nzShape="circle" nz-tooltip [nzTooltipTitle]="'Sửa'"
+                  [nzTooltipColor]="'orange'" (click)="onEdit(row)">
+                  <i nz-icon nzType="edit"></i>
+                </button>
+                <button nz-button nzType="default" nzSize="small" nzShape="circle" nz-tooltip [nzTooltipTitle]="'Xóa'"
+                  [nzTooltipColor]="'red'" (click)="onDelete(row)">
+                  <i nz-icon nzType="delete"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <div class="mt-3 d-flex justify-content-end">
+        <nz-pagination [nzPageSize]="pageSize" [nzPageIndex]="pageNumber" [nzPageSizeOptions]="pageSizeOptions"
+          [nzTotal]="totalRecord" (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+          (nzPageIndexChange)="onPageChange($event)" (nzPageSizeChange)="onPageSizeChange($event)" nzShowSizeChanger
+          nzShowQuickJumper>
+        </nz-pagination>
+      </div>
+    </div>
+  </div>
+</nz-card>

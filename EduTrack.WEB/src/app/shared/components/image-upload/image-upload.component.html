@@ -1,0 +1,25 @@
+<div class="upload-wrapper" (click)="triggerFileInput($event)">
+  <ng-container *ngIf="imageUrl; else uploadPlaceholder">
+    <img [src]="imageUrl" alt="uploaded" class="upload-image" />
+    <button
+      class="remove-btn"
+      nz-icon
+      nzType="close-circle"
+      nzTheme="fill"
+      (click)="removeImage($event)"
+    ></button>
+  </ng-container>
+  <ng-template #uploadPlaceholder>
+    <div class="upload-placeholder">
+      <span>+</span>
+      <p>Upload</p>
+    </div>
+  </ng-template>
+  <input
+    type="file"
+    #fileInput
+    accept="image/*"
+    (change)="onFileSelected($event)"
+    style="display: none"
+  />
+</div>

@@ -1,0 +1,42 @@
+<!-- Mini sidebar (64px) — icon-only rail, hover icon parent để xem flyout children -->
+<div class="sidebar sidebar-mini" data-background-color="dark">
+  <!-- Logo EduTrack -->
+  <a href="#" class="sidebar-logo" routerLink="/" aria-label="EduTrack"
+     nz-tooltip nzTooltipTitle="EduTrack" nzTooltipPlacement="right">
+    <i nz-icon nzType="read" nzTheme="outline" style="font-size: 28px; color: #fff;"></i>
+  </a>
+
+  <!-- Rail items -->
+  <ul class="sidebar-rail">
+    <li *ngFor="let menu of menuItems" class="sidebar-rail__item"
+      [class.sidebar-rail__item--active]="activeMenuKey === menu.key"
+      (mouseenter)="onMenuEnter(menu, $event)" (mouseleave)="onMenuLeave()">
+      <a class="sidebar-rail__btn" [routerLink]="menu.url ? ['/' + menu.url] : null"
+        (click)="!menu.children?.length && onItemClick(menu)"
+        [style.background]="getParentIcon(menu).color">
+        <i nz-icon [nzType]="getParentIcon(menu).type" nzTheme="outline" class="sidebar-rail__icon"></i>
+        <!-- Indicator dot khi có children -->
+        <span class="sidebar-rail__dot" *ngIf="menu.children?.length"></span>
+      </a>
+      <!-- Title nhỏ phía dưới icon → biết ngay menu là gì không cần hover -->
+      <span class="sidebar-rail__label" [title]="menu.title">{{ menu.title }}</span>
+    </li>
+  </ul>
+</div>
+
+<!-- Flyout panel — CHỈ hiện khi hover menu có children (leaf menu navigate trực tiếp khi click icon) -->
+<div class="sidebar-flyout" *ngIf="hoveredMenu?.children?.length" [style.top.px]="flyoutTop"
+  (mouseenter)="onFlyoutEnter()" (mouseleave)="onFlyoutLeave()">
+  <ul class="sidebar-flyout__list">
+    <li *ngFor="let c of hoveredMenu.children">
+      <a class="sidebar-flyout__link"
+        [class.sidebar-flyout__link--active]="activeChildKey === c.key"
+        [routerLink]="c.url ? ['/' + c.url] : null"
+        (click)="onItemClick(c)">
+        <i nz-icon [nzType]="getMenuIcon(c).type" nzTheme="outline"
+           class="sidebar-flyout__child-icon"></i>
+        <span class="sidebar-flyout__child-title">{{ c.title }}</span>
+      </a>
+    </li>
+  </ul>
+</div>

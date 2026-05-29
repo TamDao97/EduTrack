@@ -1,0 +1,15 @@
+<div class="wrapper">
+  <app-sidebar></app-sidebar>
+  <div class="main-panel">
+    <app-header></app-header>
+    <div class="container">
+      <div class="page-inner">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+    <ngx-spinner type="" [fullScreen]="true" bdColor="rgba(0,0,0,0.2)">
+      <div><nz-spin> </nz-spin></div>
+    </ngx-spinner>
+  </div>
+  <app-footer></app-footer>
+</div>

@@ -1,0 +1,99 @@
+<!-- <nz-card nzSize="small"> -->
+<div class="row">
+  <div class="px-1 py-2" [ngClass]="control.colClass" *ngFor="let control of filterControls">
+    <!-- Text -->
+    <ng-container [ngSwitch]="control.type">
+      <ng-container *ngSwitchCase="controlTypeEnum.Text">
+        <input style="width: 100%" nz-input type="text" [placeholder]="control.placeHolder"
+          [(ngModel)]="objFilter[control.name]" />
+      </ng-container>
+
+      <!-- Select -->
+      <ng-container *ngSwitchCase="controlTypeEnum.Select">
+        <nz-select style="width: 100%" [(ngModel)]="objFilter[control.name]" [nzPlaceHolder]="control.placeHolder"
+          nzShowSearch nzAllowClear>
+          <nz-option *ngFor="let option of control.options" [nzValue]="option.value"
+            [nzLabel]="option.text"></nz-option>
+        </nz-select>
+      </ng-container>
+
+      <!-- SelectMultiple -->
+      <ng-container *ngSwitchCase="controlTypeEnum.SelectMultiple">
+        <nz-select style="width: 100%" [(ngModel)]="objFilter[control.name]" [nzPlaceHolder]="control.placeHolder"
+          nzMode="multiple" nzShowSearch nzAllowClear>
+          <nz-option *ngFor="let option of control.options" [nzValue]="option.value"
+            [nzLabel]="option.text"></nz-option>
+        </nz-select>
+      </ng-container>
+
+      <!-- Date -->
+      <ng-container *ngSwitchCase="controlTypeEnum.Date">
+        <nz-date-picker style="width: 100%" nzShowTime nzFormat="dd-MM-yyyy HH:mm"
+          (ngModelChange)="onDateChange($event)" (nzOnOk)="onDateOk($event)" [nzPlaceHolder]="control.placeHolder"
+          [(ngModel)]="objFilter[control.name]"></nz-date-picker>
+      </ng-container>
+
+      <!-- Date range -->
+      <ng-container *ngSwitchCase="controlTypeEnum.DateRange">
+        <nz-range-picker style="width: 100%" [nzShowTime]="{ nzFormat: 'HH:mm' }" nzFormat="dd-MM-yyyy HH:mm"
+          [nzPlaceHolder]="control.placeHolder" [(ngModel)]="objFilter[control.name]"></nz-range-picker>
+      </ng-container>
+
+      <!-- Ngày | Khoảng ngày ẩn thời gian -->
+      <ng-container *ngSwitchCase="controlTypeEnum.DateIgnoreTime">
+        <nz-date-picker style="width: 100%" nzFormat="dd-MM-yyyy" [nzPlaceHolder]="control.placeHolder"
+          [(ngModel)]="objFilter[control.name]"></nz-date-picker>
+      </ng-container>
+      <ng-container *ngSwitchCase="controlTypeEnum.DateRangeIgnoreTime">
+        <nz-range-picker style="width: 100%" nzFormat="dd-MM-yyyy" [nzPlaceHolder]="control.placeHolder"
+          [(ngModel)]="objFilter[control.name]"></nz-range-picker>
+      </ng-container>
+
+      <!-- Month -->
+      <ng-container *ngSwitchCase="controlTypeEnum.MonthYear">
+        <nz-date-picker style="width: 100%" nzMode="month" [(ngModel)]="objFilter[control.name]"></nz-date-picker>
+      </ng-container>
+
+      <!-- Text area -->
+      <ng-container *ngSwitchCase="controlTypeEnum.TextArea">
+        <nz-textarea-count style="width: 100%" [nzMaxCharacterCount]="100">
+          <textarea rows="4" nz-input [(ngModel)]="objFilter[control.name]"></textarea>
+        </nz-textarea-count>
+      </ng-container>
+
+      <!-- Radio -->
+      <ng-container *ngSwitchCase="controlTypeEnum.Radio">
+        <nz-radio-group style="width: 100%" [(ngModel)]="objFilter[control.name]">
+          <label nz-radio [nzValue]="option.value" *ngFor="let option of control.options">{{ option.text }}</label>
+        </nz-radio-group>
+      </ng-container>
+      <!-- <ng-container *ngSwitchCase="controlTypeEnum.CheckBox">
+        <nz-checkbox-group [nzOptions]="filterControls.options" [(ngModel)]="objFilter[control.name]" />
+      </ng-container> -->
+      <ng-container *ngSwitchDefault> </ng-container>
+    </ng-container>
+  </div>
+  <div class="col-3 px-1 py-2">
+    <button nz-button nzType="primary" (click)="onSearch()">
+      <i nz-icon nzType="search" nzTheme="outline"></i>
+      Tìm kiếm
+    </button>
+    <button nz-button nzType="default" class="ms-1" (click)="onClear()">
+      <i nz-icon nzType="reload" nzTheme="outline"></i>
+      Đặt lại
+    </button>
+  </div>
+</div>
+<!-- <div class="row mt-2">
+    <div class="col-12 text-end">
+      <button nz-button nzType="primary" (click)="onSearch()">
+        <i nz-icon nzType="search" nzTheme="outline"></i>
+        Tìm kiếm
+      </button>
+      <button nz-button nzType="default" class="ms-1" (click)="onClear()">
+        <i nz-icon nzType="reload" nzTheme="outline"></i>
+        Đặt lại
+      </button>
+    </div>
+  </div> -->
+<!-- </nz-card> -->

@@ -1,0 +1,14 @@
+<div class="copyable-cell" *ngIf="value != null && value !== ''; else emptyTpl">
+  <span class="copyable-cell__value">{{ value }}</span>
+  <button
+    type="button"
+    class="copyable-cell__btn"
+    [class.copyable-cell__btn--copied]="copied"
+    (click)="onCopy($event)"
+    nz-tooltip
+    [nzTooltipTitle]="copied ? 'Đã copy!' : 'Copy'"
+  >
+    <i nz-icon [nzType]="copied ? 'check' : 'copy'"></i>
+  </button>
+</div>
+<ng-template #emptyTpl></ng-template>

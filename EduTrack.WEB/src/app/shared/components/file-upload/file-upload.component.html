@@ -1,0 +1,50 @@
+<nz-upload
+  [nzFileList]="fileList"
+  [nzDisabled]="isDisabled"
+  [nzMultiple]="multiple"
+  [nzBeforeUpload]="handleUpload"
+  [nzRemove]="handleRemove"
+  [nzAccept]="accept"
+  [nzShowUploadList]="false"
+>
+  <button nz-button [disabled]="isDisabled || fileList.length >= maxFiles">
+    <i nz-icon nzType="upload"></i> Chọn file
+  </button>
+</nz-upload>
+
+<!-- Danh sách file hiển thị -->
+<div class="file-list mt-2">
+  <div class="file-item" *ngFor="let f of fileList" (click)="handlePreview(f)">
+    <ng-container *ngIf="isImage(f.name); else fileIcon">
+      <img [src]="f.url" class="thumb" alt="preview" />
+    </ng-container>
+    <ng-template #fileIcon>
+      <i nz-icon [nzType]="getFileIcon(f.name)" nzTheme="outline"></i>
+    </ng-template>
+
+    <div class="file-info">
+      <div class="file-name">{{ f.name }}</div>
+      <div class="file-size">{{ formatSize(f.size) }}</div>
+    </div>
+
+    <button
+      nz-button
+      nzType="link"
+      nzDanger
+      (click)="handleRemove(f); $event.stopPropagation()"
+    >
+      <i nz-icon nzType="delete"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Modal xem ảnh -->
+<nz-modal
+  [(nzVisible)]="previewVisible"
+  [nzFooter]="null"
+  nzCentered
+  nzWidth="60%"
+  (nzOnCancel)="previewVisible = false"
+>
+  <img *ngIf="previewImage" [src]="previewImage" class="preview-img" />
+</nz-modal>
