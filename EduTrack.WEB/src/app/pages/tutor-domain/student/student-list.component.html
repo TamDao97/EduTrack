@@ -80,10 +80,7 @@
   <!-- ─────── Empty state ─────── -->
   <div *ngIf="!isLoading && students.length === 0" class="empty">
     <div class="empty__art">
-      <div class="empty__circle empty__circle--1"></div>
-      <div class="empty__circle empty__circle--2"></div>
-      <div class="empty__circle empty__circle--3"></div>
-      <span class="empty__icon" nz-icon nzType="team" nzTheme="outline"></span>
+      <span nz-icon nzType="team" nzTheme="outline"></span>
     </div>
     <h3 class="empty__title">
       {{ filter.keyword ? 'Không tìm thấy học sinh' : 'Bắt đầu hành trình dạy học' }}
