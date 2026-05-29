@@ -99,7 +99,7 @@ Trên `https://localhost:7246/swagger`:
 
 Mở SSMS, kết nối DB `EduTrack`, mở file:
 ```
-D:\Coderkechuyen\EduTrack\EduTrack.API\ScriptSql\Seed\Seed_InitData.sql
+D:\Coderkechuyen\EduTrack\EduTrack.API\ScriptSql\Seed\2_Seed_InitData.sql
 ```
 
 Nhấn F5 để chạy. Output cuối phải có:
@@ -160,7 +160,7 @@ Mỗi mục check OK = phần đó hoạt động đúng. Nếu mục nào fail,
 | Browser "Not secure" trên https://localhost:7246 | `dotnet dev-certs https --trust` rồi restart browser |
 | FE gọi API CORS error | Đảm bảo `Program.cs` allow `http://localhost:4200` (đã có sẵn) + BE phải đang chạy |
 | Login 401 | Đảm bảo password gõ đúng + đã chạy seed SQL để link role |
-| Sidebar trống / không có menu | Chưa chạy seed Pages — re-run Seed_InitData.sql |
+| Sidebar trống / không có menu | Chưa chạy seed Pages — re-run 2_Seed_InitData.sql |
 | `npm install` peer dep conflict | Phải dùng `--legacy-peer-deps` (ag-grid-angular@35 cần Angular 18+) |
 | Token expired sau vài phút | Đó là JWT lifetime mặc định — login lại |
 
