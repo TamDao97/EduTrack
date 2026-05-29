@@ -1,6 +1,9 @@
-.page-inner {
-  padding: 8px !important;
-  /* padding-right: 15px !important; */
+/* ============== EduTrack — Page outlet (full-bleed, KHÔNG bootstrap .container) ============== */
+/* page-outlet thay cho .container + .page-inner cũ — bỏ max-width 1140 + padding 8px
+   để hero gradient của các page bên trong tràn cạnh đẹp. Pages tự quản padding/max-width. */
+.page-outlet {
+  background: #F7F8FC;
+  min-height: calc(100vh - 60px);
 }
 
 .main-header {
@@ -20,6 +23,7 @@
   width: calc(100% - 96px) !important;
   margin-left: 96px !important;
   transition: margin-left 0.2s ease, width 0.2s ease;
+  background: #F7F8FC;
 }
 /* Header (top bar) align với sidebar 96px */
 .wrapper .main-header {

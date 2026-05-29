@@ -2,11 +2,9 @@
   <app-sidebar></app-sidebar>
   <div class="main-panel">
     <app-header></app-header>
-    <div class="container">
-      <div class="page-inner">
-        <router-outlet></router-outlet>
-      </div>
-    </div>
+    <main class="page-outlet">
+      <router-outlet></router-outlet>
+    </main>
     <ngx-spinner type="" [fullScreen]="true" bdColor="rgba(0,0,0,0.2)">
       <div><nz-spin> </nz-spin></div>
     </ngx-spinner>
