@@ -1,299 +1,144 @@
 @use 'palette' as *;
+@use 'mixins' as *;
 
-.page-students {
-  position: relative;
-  background: $bg;
-  min-height: 100vh;
-  padding-bottom: 96px;
-}
+.page-students { @include page-container; }
 
-// ════════════════════ HERO ════════════════════
 .hero {
-  background: $gradient-hero;
-  padding: 20px 16px 24px;
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%; right: -20%;
-    width: 320px; height: 320px;
-    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -30%; left: -10%;
-    width: 220px; height: 220px;
-    background: radial-gradient(circle, rgba(255,138,101,0.18) 0%, transparent 70%);
-    pointer-events: none;
-  }
+  @include hero-gradient;
 
   &__top {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 1;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: $sp-5;
+    position: relative; z-index: 1;
   }
-
-  &__eyebrow {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    color: rgba(255,255,255,0.7);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
-  }
-
-  &__title {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.2;
-    letter-spacing: -0.5px;
-  }
+  &__title-block { position: relative; z-index: 1; }
+  &__eyebrow { @include t-eyebrow; color: rgba(255,255,255,0.7); margin-bottom: $sp-1; display: block; }
+  &__title { @include t-display; color: #fff; margin: 0; }
 
   &__add-btn {
-    background: rgba(255,255,255,0.18);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.25);
+    @include glass;
     color: #fff;
-    height: 40px; padding: 0 16px;
+    height: 40px; padding: 0 $sp-4;
     border-radius: 20px;
-    font-size: 14px; font-weight: 600;
+    font-size: $fs-body; font-weight: $fw-semi;
+    display: flex; align-items: center; gap: $sp-2;
     cursor: pointer;
-    display: flex; align-items: center; gap: 6px;
-    transition: all 0.18s;
+    transition: all $t $ease-out;
+    position: relative; z-index: 1;
 
-    &:hover { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
+    &:hover  { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
     &:active { transform: scale(0.97); }
-    [nz-icon] { font-size: 14px; }
   }
 
   &__stats {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    position: relative;
-    z-index: 1;
+    gap: $sp-2;
+    position: relative; z-index: 1;
+    @include tablet-up { gap: $sp-4; }
   }
 }
 
-// ════════════════════ STAT PILL ════════════════════
 .stat-pill {
-  background: rgba(255,255,255,0.16);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: $radius;
-  padding: 12px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  transition: all 0.18s;
-  cursor: default;
+  @include glass;
+  border-radius: $radius-md;
+  padding: $sp-3;
+  display: flex; align-items: center; gap: $sp-2;
+  transition: all $t $ease-out;
 
+  @include tablet-up { padding: $sp-4; }
   &:hover { background: rgba(255,255,255,0.22); transform: translateY(-2px); }
 
   &__icon {
     width: 36px; height: 36px;
     background: rgba(255,255,255,0.2);
-    border-radius: 10px;
+    border-radius: $radius;
     display: flex; align-items: center; justify-content: center;
     font-size: 16px; color: #fff;
     flex-shrink: 0;
+    @include tablet-up { width: 44px; height: 44px; font-size: 18px; }
   }
-
   &__body { min-width: 0; flex: 1; }
-
-  &__num {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  &__unit {
-    font-size: 11px;
-    font-weight: 500;
-    margin-left: 2px;
-    opacity: 0.7;
-  }
-
-  &__label {
-    font-size: 11px;
-    color: rgba(255,255,255,0.75);
-    margin-top: 2px;
-    letter-spacing: 0.3px;
-  }
+  &__num  { font-size: 20px; font-weight: $fw-bold; color: #fff; line-height: $lh-tight; @include truncate;
+    @include tablet-up { font-size: 24px; } }
+  &__unit { font-size: $fs-caption; font-weight: $fw-medium; margin-left: 2px; opacity: 0.7; }
+  &__label{ font-size: $fs-caption; color: rgba(255,255,255,0.75); margin-top: 2px; letter-spacing: $ls-wide; }
 
   &--active   .stat-pill__icon { background: rgba(82,196,26,0.4); }
   &--paused   .stat-pill__icon { background: rgba(250,173,20,0.4); }
   &--revenue  .stat-pill__icon { background: rgba(255,138,101,0.4); }
 }
 
-// ════════════════════ TOOLBAR ════════════════════
 .toolbar {
-  background: $surface;
-  padding: 16px 16px 0;
-  margin-top: -16px;
-  border-radius: $radius-lg $radius-lg 0 0;
-  position: relative;
-  z-index: 2;
-  box-shadow: $shadow;
+  @include content-sheet;
+  padding: $sp-4 $sp-4 0;
+  @include tablet-up { padding: $sp-6 $sp-8 0; }
 }
 
 .search-box {
   position: relative;
-  margin-bottom: 16px;
+  margin-bottom: $sp-4;
 
-  &__icon {
-    position: absolute;
-    left: 14px; top: 50%;
-    transform: translateY(-50%);
-    color: $text-3;
-    font-size: 16px;
-    pointer-events: none;
-  }
-
-  &__clear {
-    position: absolute;
-    right: 12px; top: 50%;
-    transform: translateY(-50%);
-    width: 24px; height: 24px;
-    border: none;
-    background: transparent;
-    color: $text-3;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-
-    &:hover { color: $danger; }
-  }
-
-  input {
-    width: 100%;
-    height: 46px;
-    padding: 0 40px 0 40px;
-    border: 1.5px solid $border;
-    border-radius: $radius;
-    font-size: 15px;
-    color: $text-1;
-    background: $surface;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-
-    &::placeholder { color: $text-3; }
-    &:focus {
-      border-color: $primary;
-      box-shadow: 0 0 0 3px $primary-soft;
-    }
-  }
+  &__icon  { position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+             color: $text-3; font-size: 16px; pointer-events: none; }
+  &__clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+             width: 24px; height: 24px; border: none; background: transparent;
+             color: $text-3; cursor: pointer; font-size: 16px; border-radius: 50%;
+             display: flex; align-items: center; justify-content: center;
+             &:hover { color: $danger; } }
+  input    { @include form-input; padding-left: 40px; padding-right: 40px; }
 }
 
-// ════════════════════ TABS ════════════════════
 .tabs {
-  display: flex;
-  gap: 6px;
-  margin: 0 -16px;
-  padding: 0 16px 16px;
+  display: flex; gap: $sp-2;
+  margin: 0 -#{$sp-4};
+  padding: 0 $sp-4 $sp-4;
   overflow-x: auto;
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 
   &__btn {
     flex-shrink: 0;
-    height: 36px;
-    padding: 0 14px;
+    height: 36px; padding: 0 14px;
     border: 1.5px solid $border;
     border-radius: 18px;
     background: $surface;
-    font-size: 13px; font-weight: 500;
+    font-size: $fs-sm; font-weight: $fw-medium;
     color: $text-2;
     cursor: pointer;
-    display: inline-flex; align-items: center; gap: 6px;
-    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: $sp-2;
+    transition: all $t-fast $ease-out;
 
     &:hover { border-color: $border-strong; color: $text-1; }
-
     &.is-active {
-      background: $primary;
-      border-color: $primary;
-      color: #fff;
-      font-weight: 600;
+      background: $primary; border-color: $primary; color: #fff;
+      font-weight: $fw-semi;
       box-shadow: 0 2px 8px rgba(91,95,207,0.3);
-
       .tabs__count { background: rgba(255,255,255,0.25); color: #fff; }
       .tabs__dot   { box-shadow: 0 0 0 2px rgba(255,255,255,0.5); }
     }
   }
-
-  &__dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  &__count {
-    background: $bg;
-    color: $text-2;
-    font-size: 11px; font-weight: 700;
-    padding: 1px 7px;
-    border-radius: 10px;
-    min-width: 20px;
-    text-align: center;
-  }
+  &__dot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  &__count { background: $bg; color: $text-2; font-size: $fs-caption; font-weight: $fw-bold;
+             padding: 1px 7px; border-radius: 10px; min-width: 20px; text-align: center; }
 }
 
-// ════════════════════ STUDENT LIST ════════════════════
 .student-list {
-  list-style: none;
-  margin: 0;
-  padding: 4px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  list-style: none; margin: 0;
+  padding: $sp-1 $sp-3;
+  display: flex; flex-direction: column; gap: $sp-2;
   background: $surface;
+  @include tablet-up { padding: $sp-4 $sp-8; max-width: 1200px; margin: 0 auto; }
 }
 
 .student-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  @include card-clickable;
+  display: flex; align-items: center; gap: $sp-3;
   padding: 14px;
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $radius;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  @include tablet-up { padding: $sp-5; }
 
-  &:hover {
-    border-color: $primary;
-    transform: translateY(-2px);
-    box-shadow: $shadow-lg;
-  }
-  &:active { transform: scale(0.99); }
-
-  &.is-paused {
-    background: $warning-soft;
-    .student-card__name { color: $text-2; }
-  }
-  &.is-stopped {
-    opacity: 0.6;
-    background: $bg;
-    .student-card__name { color: $text-3; }
-  }
+  &.is-paused  { background: $warning-soft; .student-card__name { color: $text-2; } }
+  &.is-stopped { opacity: 0.6; background: $bg; .student-card__name { color: $text-3; } }
 
   &__avatar {
     position: relative;
@@ -303,318 +148,90 @@
     flex-shrink: 0;
     box-shadow: 0 4px 10px rgba(91,95,207,0.18);
   }
-
-  &__initials {
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  }
-
-  &__status-dot {
-    position: absolute;
-    bottom: -2px; right: -2px;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    border: 2.5px solid $surface;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  }
+  &__initials { color: #fff; font-size: $fs-h2; font-weight: $fw-bold; letter-spacing: 0.5px;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  &__status-dot { position: absolute; bottom: -2px; right: -2px;
+                  width: 14px; height: 14px; border-radius: 50%;
+                  border: 2.5px solid $surface;
+                  box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
 
   &__body { flex: 1; min-width: 0; }
-
-  &__head {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  &__name {
-    font-size: 16px;
-    font-weight: 600;
-    color: $text-1;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    letter-spacing: -0.2px;
-  }
-
-  &__chips {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
-  }
+  &__head { display: flex; align-items: baseline; gap: $sp-2; margin-bottom: 6px; }
+  &__name { @include truncate; @include t-h3; flex: 1; letter-spacing: -0.2px; }
+  &__chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
 
   &__rate {
-    display: inline-flex;
-    align-items: baseline;
-    margin-bottom: 4px;
-
-    &-num {
-      font-size: 15px;
-      font-weight: 700;
-      color: $accent;
-      letter-spacing: -0.3px;
-    }
-    &-unit {
-      font-size: 11px;
-      color: $text-3;
-      margin-left: 2px;
-    }
+    display: inline-flex; align-items: baseline; margin-bottom: $sp-1;
+    &-num  { font-size: $fs-body-lg; font-weight: $fw-bold; color: $accent; letter-spacing: -0.3px; }
+    &-unit { font-size: $fs-caption; color: $text-3; margin-left: 2px; }
   }
-
   &__parent {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: $text-3;
+    display: flex; align-items: center; gap: $sp-1;
+    @include t-meta;
     max-width: 100%;
-
     &-icon { font-size: 11px; flex-shrink: 0; }
-    &-text {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    &-text { @include truncate; }
   }
-
-  &__actions {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-    align-self: flex-start;
-  }
+  &__actions { display: flex; gap: $sp-1; flex-shrink: 0; align-self: flex-start; }
 }
 
 .chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 8px;
-  letter-spacing: 0.2px;
-
-  &--subject {
-    background: $primary-soft;
-    color: $primary-dark;
-    [nz-icon] { font-size: 10px; }
-  }
-  &--grade {
-    background: $accent-soft;
-    color: $accent-dark;
-  }
+  &--subject { @include chip($primary-soft, $primary-dark); [nz-icon] { font-size: 10px; } }
+  &--grade   { @include chip($accent-soft,  $accent-dark);  }
 }
 
 .action-btn {
-  width: 38px; height: 38px;
-  border: 1px solid $border;
-  background: $surface;
-  border-radius: 10px;
-  color: $text-2;
-  font-size: 16px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    background: $primary-soft;
-    border-color: $primary;
-    color: $primary;
-    transform: scale(1.05);
-  }
-  &:active { transform: scale(0.92); }
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-    background: $bg;
-  }
-
+  @include btn-icon(38px);
   &--zalo {
     color: $zalo;
     border-color: rgba(0,104,255,0.2);
     background: rgba(0,104,255,0.04);
-    &:hover:not(:disabled) {
-      background: $zalo;
-      border-color: $zalo;
-      color: #fff;
-    }
+    &:hover:not(:disabled) { background: $zalo; border-color: $zalo; color: #fff; }
   }
 }
 
-// ════════════════════ SKELETON ════════════════════
-.skeleton-list {
-  padding: 12px;
-  background: $surface;
-}
-
+.skeleton-list { padding: $sp-3; background: $surface; }
 .skeleton-card {
-  display: flex;
-  gap: 12px;
+  display: flex; gap: $sp-3;
   padding: 14px;
   background: $surface;
   border: 1px solid $border;
-  border-radius: $radius;
-  margin-bottom: 10px;
+  border-radius: $radius-md;
+  margin-bottom: $sp-2;
 
-  &__avatar {
-    width: 52px; height: 52px;
-    border-radius: 14px;
-    background: linear-gradient(90deg, $border 25%, $bg 50%, $border 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite;
-    flex-shrink: 0;
-  }
-  &__lines { flex: 1; padding-top: 6px; }
-  &__line {
-    height: 12px;
-    background: linear-gradient(90deg, $border 25%, $bg 50%, $border 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite;
-    border-radius: 6px;
-    margin-bottom: 8px;
+  &__avatar { @include skeleton(52px, 52px, 14px); flex-shrink: 0; }
+  &__lines  { flex: 1; padding-top: 6px; }
+  &__line   { @include skeleton(12px, 100%); margin-bottom: $sp-2;
     &--long  { width: 70%; }
     &--short { width: 40%; }
   }
 }
 
-// ════════════════════ EMPTY STATE ════════════════════
 .empty {
-  text-align: center;
-  padding: 56px 24px 64px;
-  background: $surface;
-
-  &__art {
-    position: relative;
-    width: 160px; height: 160px;
-    margin: 0 auto 24px;
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  &__icon {
-    position: relative;
-    z-index: 2;
-    font-size: 56px;
-    color: $primary;
-  }
-
-  &__circle {
-    position: absolute;
-    border-radius: 50%;
-    z-index: 1;
-    &--1 { width: 160px; height: 160px; background: $primary-soft; }
-    &--2 { width: 120px; height: 120px; background: rgba(91,95,207,0.18); }
-    &--3 { width: 80px;  height: 80px;  background: rgba(91,95,207,0.28); }
-  }
-
-  &__title {
-    font-size: 20px;
-    font-weight: 700;
-    color: $text-1;
-    margin: 0 0 8px;
-    letter-spacing: -0.3px;
-  }
-
-  &__desc {
-    font-size: 14px;
-    color: $text-3;
-    margin: 0 0 28px;
-    line-height: 1.6;
-    max-width: 320px;
-    margin-left: auto; margin-right: auto;
-  }
+  @include empty-state;
+  &__art { @include empty-icon-circles(160px, $primary); }
+  &__title { @include t-h1; margin: 0 0 $sp-2; letter-spacing: -0.3px; }
+  &__desc  { @include t-body; color: $text-3; margin: 0 0 $sp-7; line-height: $lh-relaxed;
+             max-width: 320px; margin-left: auto; margin-right: auto; }
 
   &__cta {
-    height: 48px; padding: 0 28px;
-    background: $gradient-primary;
-    color: #fff;
-    border: none;
+    @include btn-primary(48px);
+    padding: 0 $sp-7;
     border-radius: 24px;
-    font-size: 15px; font-weight: 600;
-    cursor: pointer;
-    display: inline-flex; align-items: center; gap: 8px;
-    box-shadow: $shadow-primary;
-    transition: all 0.2s;
-
-    &:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(91,95,207,0.42); }
-    &:active { transform: scale(0.97); }
+    font-size: $fs-body-lg;
 
     &--ghost {
-      background: $surface;
-      color: $primary;
+      background: $surface; color: $primary;
       border: 1.5px solid $primary;
       box-shadow: none;
-      &:hover { background: $primary-soft; }
+      &:hover:not(:disabled) { background: $primary-soft; transform: none; box-shadow: none; }
     }
   }
 }
 
-// ════════════════════ FAB ════════════════════
-.fab {
-  position: fixed;
-  right: 16px; bottom: 16px;
-  width: 56px; height: 56px;
-  border: none;
-  border-radius: 50%;
-  background: $gradient-primary;
-  color: #fff;
-  font-size: 22px;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: $shadow-primary;
-  z-index: 20;
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  &:hover {
-    transform: translateY(-3px) rotate(90deg);
-    box-shadow: 0 12px 28px rgba(91,95,207,0.55);
-  }
-  &:active { transform: scale(0.9); }
-}
+.fab { @include btn-fab; }
 
 :host ::ng-deep .menu-danger {
   color: $danger !important;
   [nz-icon] { color: $danger; }
-}
-
-@media (min-width: 768px) {
-  .hero {
-    padding: 32px 32px 40px;
-    border-radius: 0 0 24px 24px;
-
-    &__title { font-size: 32px; }
-    &__stats { gap: 16px; }
-  }
-
-  .stat-pill {
-    padding: 16px;
-    &__num { font-size: 24px; }
-    &__icon { width: 44px; height: 44px; font-size: 18px; }
-  }
-
-  .toolbar { padding: 24px 32px 0; margin-top: -24px; }
-  .student-list { padding: 16px 32px; max-width: 1200px; margin: 0 auto; }
-  .student-card { padding: 18px; }
-  .fab { display: none; }
-}
-
-:host ::ng-deep .sheet-bottom-mobile {
-  @media (max-width: 767px) {
-    .ant-modal {
-      top: auto !important;
-      bottom: 0 !important;
-      margin: 0 !important;
-      max-width: 100vw !important;
-      width: 100vw !important;
-      padding-bottom: 0 !important;
-    }
-    .ant-modal-content {
-      border-radius: 20px 20px 0 0 !important;
-    }
-  }
 }

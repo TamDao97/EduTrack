@@ -90,3 +90,20 @@
   color: #6f42c1;
   /* purple của Bootstrap */
 }
+
+/* ============== EduTrack — Bottom sheet modal (mobile) ============== */
+/* className "sheet-bottom-mobile" được pass vào nz-modal qua nzClassName.
+   Trên mobile (<768px), modal trượt từ dưới lên full-width như bottom sheet. */
+@media (max-width: 767px) {
+  .sheet-bottom-mobile .ant-modal {
+    top: auto !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    padding-bottom: 0 !important;
+  }
+  .sheet-bottom-mobile .ant-modal-content {
+    border-radius: 20px 20px 0 0 !important;
+  }
+}
