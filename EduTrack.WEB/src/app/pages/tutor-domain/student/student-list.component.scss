@@ -1,40 +1,4 @@
-// ════════════════════════════════════════════════════════════════════
-// EduTrack — Student list (mobile-first, premium polish)
-// Palette: indigo primary + warm coral accent + soft neutrals
-// ════════════════════════════════════════════════════════════════════
-
-// Brand
-$primary:        #5B5FCF;    // indigo
-$primary-soft:   #E8EAFF;
-$primary-dark:   #4549B8;
-$accent:         #FF8A65;    // coral
-$accent-soft:    #FFEEE8;
-
-// Semantic
-$success:        #52C41A;
-$success-soft:   #F0FBE5;
-$warning:        #FAAD14;
-$warning-soft:   #FFF7E0;
-$danger:         #F5222D;
-$zalo:           #0068FF;
-
-// Neutrals
-$bg:             #F7F8FC;
-$surface:        #FFFFFF;
-$border:         #E8EAF3;
-$border-strong:  #D1D6E3;
-$text-1:         #1A1F36;
-$text-2:         #4A5170;
-$text-3:         #8A91A8;
-$text-4:         #B5BAD0;
-
-// Shadow & radius
-$shadow-sm:      0 1px 2px rgba(26, 31, 54, 0.04);
-$shadow:         0 4px 12px rgba(26, 31, 54, 0.06);
-$shadow-lg:      0 12px 32px rgba(91, 95, 207, 0.12);
-$radius-sm:      8px;
-$radius:         12px;
-$radius-lg:      16px;
+@use 'palette' as *;
 
 .page-students {
   position: relative;
@@ -45,7 +9,7 @@ $radius-lg:      16px;
 
 // ════════════════════ HERO ════════════════════
 .hero {
-  background: linear-gradient(135deg, $primary 0%, #7C3AED 100%);
+  background: $gradient-hero;
   padding: 20px 16px 24px;
   color: #fff;
   position: relative;
@@ -443,7 +407,7 @@ $radius-lg:      16px;
   }
   &--grade {
     background: $accent-soft;
-    color: #C2410C;
+    color: $accent-dark;
   }
 }
 
@@ -519,11 +483,6 @@ $radius-lg:      16px;
   }
 }
 
-@keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
 // ════════════════════ EMPTY STATE ════════════════════
 .empty {
   text-align: center;
@@ -572,14 +531,14 @@ $radius-lg:      16px;
 
   &__cta {
     height: 48px; padding: 0 28px;
-    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    background: $gradient-primary;
     color: #fff;
     border: none;
     border-radius: 24px;
     font-size: 15px; font-weight: 600;
     cursor: pointer;
     display: inline-flex; align-items: center; gap: 8px;
-    box-shadow: 0 8px 20px rgba(91,95,207,0.35);
+    box-shadow: $shadow-primary;
     transition: all 0.2s;
 
     &:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(91,95,207,0.42); }
@@ -602,12 +561,12 @@ $radius-lg:      16px;
   width: 56px; height: 56px;
   border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+  background: $gradient-primary;
   color: #fff;
   font-size: 22px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 24px rgba(91,95,207,0.45);
+  box-shadow: $shadow-primary;
   z-index: 20;
   transition: transform 0.2s, box-shadow 0.2s;
 
@@ -618,13 +577,11 @@ $radius-lg:      16px;
   &:active { transform: scale(0.9); }
 }
 
-// ════════════════════ MENU OVERRIDES ════════════════════
 :host ::ng-deep .menu-danger {
   color: $danger !important;
   [nz-icon] { color: $danger; }
 }
 
-// ════════════════════ DESKTOP (≥768) ════════════════════
 @media (min-width: 768px) {
   .hero {
     padding: 32px 32px 40px;
@@ -641,15 +598,11 @@ $radius-lg:      16px;
   }
 
   .toolbar { padding: 24px 32px 0; margin-top: -24px; }
-
   .student-list { padding: 16px 32px; max-width: 1200px; margin: 0 auto; }
   .student-card { padding: 18px; }
-
-  // Hide FAB on desktop — top-right add btn đã đủ
   .fab { display: none; }
 }
 
-// Bottom sheet override (mobile)
 :host ::ng-deep .sheet-bottom-mobile {
   @media (max-width: 767px) {
     .ant-modal {
