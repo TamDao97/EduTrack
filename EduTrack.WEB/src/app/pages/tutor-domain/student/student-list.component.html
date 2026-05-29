@@ -1,0 +1,125 @@
+<div class="page-students">
+  <!-- Header: title + search + status tabs (sticky top) -->
+  <header class="page-students__header">
+    <div class="page-students__title-row">
+      <h1 class="page-students__title">Học sinh</h1>
+      <span class="page-students__count" *ngIf="totalRecord > 0">{{ totalRecord }}</span>
+    </div>
+
+    <div class="page-students__search">
+      <span nz-icon nzType="search" nzTheme="outline"></span>
+      <input
+        type="text"
+        placeholder="Tìm tên HS, tên phụ huynh, SĐT…"
+        [value]="filter.keyword"
+        (input)="onSearchChange($any($event.target).value)"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="page-students__tabs">
+      <button
+        *ngFor="let tab of statusTabs"
+        type="button"
+        class="page-students__tab"
+        [class.is-active]="filter.status === tab.value"
+        (click)="onSelectStatus(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading skeleton -->
+  <div *ngIf="isLoading && students.length === 0" class="page-students__skeleton">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && students.length === 0" class="page-students__empty">
+    <div class="page-students__empty-icon">
+      <span nz-icon nzType="solution" nzTheme="outline"></span>
+    </div>
+    <h3>{{ filter.keyword ? 'Không tìm thấy học sinh' : 'Chưa có học sinh nào' }}</h3>
+    <p>{{ filter.keyword ? 'Thử từ khoá khác hoặc bỏ filter.' : 'Thêm học sinh đầu tiên để bắt đầu quản lý lịch và học phí.' }}</p>
+    <button nz-button nzType="primary" nzSize="large" (click)="onAdd()" *ngIf="!filter.keyword">
+      <span nz-icon nzType="plus"></span>
+      Thêm học sinh đầu tiên
+    </button>
+  </div>
+
+  <!-- Student cards -->
+  <ul class="page-students__list" *ngIf="students.length > 0">
+    <li *ngFor="let s of students; trackBy: trackById" class="student-card" (click)="onViewDetail(s)">
+      <div class="student-card__avatar">
+        <nz-avatar
+          [nzText]="s.fullName?.charAt(0) | uppercase"
+          [nzSize]="48"
+          [ngStyle]="{ 'background-color': '#1890ff' }"
+        ></nz-avatar>
+      </div>
+
+      <div class="student-card__body">
+        <div class="student-card__row1">
+          <span class="student-card__name">{{ s.fullName }}</span>
+          <nz-tag [nzColor]="statusColor(s.status)">{{ StudentStatusLabel[s.status] }}</nz-tag>
+        </div>
+
+        <div class="student-card__row2">
+          <span *ngIf="s.grade" class="student-card__meta">{{ s.grade }}</span>
+          <span *ngIf="s.subject" class="student-card__dot">·</span>
+          <span *ngIf="s.subject" class="student-card__meta">{{ s.subject }}</span>
+          <span *ngIf="s.perLessonRate" class="student-card__dot">·</span>
+          <span *ngIf="s.perLessonRate" class="student-card__rate">{{ s.perLessonRate | number:'1.0-0' }}đ/buổi</span>
+        </div>
+
+        <div class="student-card__row3" *ngIf="s.parentFullName || s.parentPhone">
+          <span class="student-card__parent">
+            <span nz-icon nzType="user" nzTheme="outline"></span>
+            <span>{{ s.parentFullName || 'PH' }}{{ s.parentPhone ? ' · ' + formatPhone(s.parentPhone) : '' }}</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="student-card__actions" (click)="$event.stopPropagation()">
+        <button class="student-card__btn student-card__btn--zalo"
+                (click)="onContactParent(s, $event)"
+                [disabled]="!s.parentPhone"
+                title="Nhắn Zalo PH">
+          <span nz-icon nzType="message" nzTheme="outline"></span>
+        </button>
+        <button class="student-card__btn"
+                (click)="onCallParent(s, $event)"
+                [disabled]="!s.parentPhone"
+                title="Gọi PH">
+          <span nz-icon nzType="phone" nzTheme="outline"></span>
+        </button>
+        <button nz-dropdown [nzDropdownMenu]="actionMenu" nzTrigger="click"
+                class="student-card__btn" title="Thao tác khác"
+                (click)="$event.stopPropagation()">
+          <span nz-icon nzType="more" nzTheme="outline"></span>
+        </button>
+        <nz-dropdown-menu #actionMenu="nzDropdownMenu">
+          <ul nz-menu>
+            <li nz-menu-item (click)="onEdit(s)">
+              <span nz-icon nzType="edit" nzTheme="outline"></span> Sửa
+            </li>
+            <li nz-menu-item (click)="onViewDetail(s)">
+              <span nz-icon nzType="eye" nzTheme="outline"></span> Xem chi tiết
+            </li>
+            <li nz-menu-divider></li>
+            <li nz-menu-item (click)="onDelete(s)" class="text-danger">
+              <span nz-icon nzType="delete" nzTheme="outline"></span> Xoá
+            </li>
+          </ul>
+        </nz-dropdown-menu>
+      </div>
+    </li>
+  </ul>
+
+  <!-- Floating action button (mobile + desktop) -->
+  <button class="fab-add" (click)="onAdd()" *ngIf="students.length > 0" title="Thêm học sinh">
+    <span nz-icon nzType="plus" nzTheme="outline"></span>
+    <span class="fab-add__label">Thêm HS</span>
+  </button>
+</div>

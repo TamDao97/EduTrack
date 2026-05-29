@@ -9,6 +9,8 @@ import { UserComponent } from './pages/system/auth/user/user.component';
 import { LoginComponent } from './pages/system/auth/login/login.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ConfigJsonComponent } from './pages/system/config-json/config-json.component';
+import { StudentListComponent } from './pages/tutor-domain/student/student-list.component';
+import { StudentDetailComponent } from './pages/tutor-domain/student/student-detail/student-detail.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +49,16 @@ export const routes: Routes = [
       {
         path: 'config-json',
         component: ConfigJsonComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'student',
+        component: StudentListComponent,
+        canActivate: [AuthGuard],
+      },
+      {
+        path: 'student/:id',
+        component: StudentDetailComponent,
         canActivate: [AuthGuard],
       },
     ],

@@ -1,0 +1,87 @@
+<div class="student-detail" *ngIf="student; else loadingTpl">
+  <!-- Header -->
+  <header class="student-detail__header">
+    <button class="student-detail__back" (click)="onBack()" aria-label="Quay lại">
+      <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
+    </button>
+    <h1 class="student-detail__title">Chi tiết học sinh</h1>
+    <button class="student-detail__edit" (click)="onEdit()" aria-label="Sửa">
+      <span nz-icon nzType="edit" nzTheme="outline"></span>
+    </button>
+  </header>
+
+  <!-- Hero -->
+  <section class="student-detail__hero">
+    <nz-avatar [nzText]="student.fullName.charAt(0)" [nzSize]="80" [ngStyle]="{'background-color': '#1890ff'}"></nz-avatar>
+    <h2 class="student-detail__name">{{ student.fullName }}</h2>
+    <nz-tag [nzColor]="statusColor(student.status)">{{ StudentStatusLabel[student.status] }}</nz-tag>
+    <p class="student-detail__sub" *ngIf="student.grade || student.subject">
+      <span *ngIf="student.grade">{{ student.grade }}</span>
+      <span *ngIf="student.grade && student.subject"> · </span>
+      <span *ngIf="student.subject">{{ student.subject }}</span>
+    </p>
+  </section>
+
+  <!-- Quick stats -->
+  <section class="student-detail__stats">
+    <div class="stat-card">
+      <div class="stat-card__label">Học phí / buổi</div>
+      <div class="stat-card__value">{{ student.perLessonRate | number:'1.0-0' }}<span>đ</span></div>
+    </div>
+    <div class="stat-card" *ngIf="student.startedAt">
+      <div class="stat-card__label">Bắt đầu học</div>
+      <div class="stat-card__value">{{ student.startedAt | date:'dd/MM/yyyy' }}</div>
+    </div>
+  </section>
+
+  <!-- Parent card -->
+  <section class="student-detail__section" *ngIf="student.parentFullName || student.parentPhone">
+    <h3 class="student-detail__section-title">Phụ huynh</h3>
+    <div class="parent-card">
+      <div class="parent-card__info">
+        <div class="parent-card__name">{{ student.parentFullName || '—' }}</div>
+        <div class="parent-card__phone">{{ formatPhone(student.parentPhone) }}</div>
+        <div class="parent-card__email" *ngIf="student.parentEmail">{{ student.parentEmail }}</div>
+      </div>
+      <div class="parent-card__actions">
+        <button class="contact-btn contact-btn--zalo" (click)="onZalo()" [disabled]="!student.parentPhone">
+          <span nz-icon nzType="message" nzTheme="outline"></span>
+          <span>Zalo</span>
+        </button>
+        <button class="contact-btn" (click)="onCall()" [disabled]="!student.parentPhone">
+          <span nz-icon nzType="phone" nzTheme="outline"></span>
+          <span>Gọi</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Notes -->
+  <section class="student-detail__section" *ngIf="student.notes">
+    <h3 class="student-detail__section-title">Ghi chú</h3>
+    <p class="student-detail__notes">{{ student.notes }}</p>
+  </section>
+
+  <!-- Placeholder cho lịch + học phí (W3, W4) -->
+  <section class="student-detail__section">
+    <h3 class="student-detail__section-title">Lịch học gần đây</h3>
+    <div class="empty-soon">
+      <span nz-icon nzType="calendar" nzTheme="outline"></span>
+      <span>Sẽ có ở tuần 3 — Lịch dạy + nhắc tự động</span>
+    </div>
+  </section>
+
+  <section class="student-detail__section">
+    <h3 class="student-detail__section-title">Kỳ học phí</h3>
+    <div class="empty-soon">
+      <span nz-icon nzType="dollar" nzTheme="outline"></span>
+      <span>Sẽ có ở tuần 4 — Học phí + thu tiền</span>
+    </div>
+  </section>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="student-detail__loading">
+    <nz-spin nzSize="large" [nzSpinning]="isLoading"></nz-spin>
+  </div>
+</ng-template>

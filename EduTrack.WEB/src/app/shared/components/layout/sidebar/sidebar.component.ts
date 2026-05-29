@@ -37,6 +37,9 @@ export class SidebarComponent implements OnInit {
   /** Map URL → ng-zorro icon type + màu nền. Bổ sung theo nghiệp vụ riêng của dự án. */
   private readonly iconMap: { [key: string]: { type: string; color: string } } = {
     'dashboard':   { type: 'dashboard', color: '#3b5bdb' },
+    'student':     { type: 'solution',  color: '#f76707' },
+    'lesson':      { type: 'calendar',  color: '#0c8599' },
+    'tuition':     { type: 'dollar',    color: '#c92a2a' },
     'user':        { type: 'team',      color: '#1d4ed8' },
     'role':        { type: 'safety',    color: '#65a30d' },
     'page':        { type: 'menu',      color: '#64748b' },

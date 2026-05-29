@@ -1,0 +1,135 @@
+<form nz-form [formGroup]="frmGroup" class="student-form" nzLayout="vertical">
+  <!-- Họ và tên -->
+  <nz-form-item>
+    <nz-form-label nzRequired>Họ và tên</nz-form-label>
+    <nz-form-control nzErrorTip="Vui lòng nhập họ tên">
+      <input nz-input formControlName="fullName" placeholder="Nguyễn Minh Mai" maxlength="200" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Phụ huynh -->
+  <nz-form-item>
+    <nz-form-label nzRequired>Phụ huynh</nz-form-label>
+    <nz-form-control nzErrorTip="Vui lòng chọn phụ huynh">
+      <div class="student-form__parent-row">
+        <nz-select
+          formControlName="idParent"
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="Tìm tên hoặc SĐT phụ huynh…"
+          [nzServerSearch]="false"
+          class="student-form__parent-select"
+        >
+          <nz-option
+            *ngFor="let p of parents"
+            [nzValue]="p.id"
+            [nzLabel]="p.fullName + ' · ' + p.phone"
+          ></nz-option>
+        </nz-select>
+        <button type="button" class="student-form__add-parent" (click)="onAddParent()">
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+        </button>
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Lớp + Môn -->
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Lớp / trình độ</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="grade" placeholder="Lớp 9, lớp 12, Đại học…" />
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Môn dạy</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="subject" placeholder="Toán, Lý, Anh…" />
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <!-- Học phí + Bắt đầu học -->
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Học phí / buổi (đ)</nz-form-label>
+        <nz-form-control nzErrorTip="Phải ≥ 0">
+          <nz-input-number
+            formControlName="perLessonRate"
+            [nzMin]="0"
+            [nzStep]="50000"
+            [nzFormatter]="formatVnd"
+            [nzParser]="parseVnd"
+            class="student-form__rate"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Bắt đầu học</nz-form-label>
+        <nz-form-control>
+          <nz-date-picker
+            formControlName="startedAt"
+            nzFormat="dd/MM/yyyy"
+            nzPlaceHolder="dd/MM/yyyy"
+            class="student-form__date"
+          ></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <!-- Ngày sinh + Trạng thái -->
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Ngày sinh</nz-form-label>
+        <nz-form-control>
+          <nz-date-picker
+            formControlName="dateBirth"
+            nzFormat="dd/MM/yyyy"
+            nzPlaceHolder="dd/MM/yyyy"
+            class="student-form__date"
+          ></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Trạng thái</nz-form-label>
+        <nz-form-control>
+          <nz-select formControlName="status">
+            <nz-option *ngFor="let o of statusOptions" [nzValue]="o.value" [nzLabel]="o.label"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <!-- Ghi chú -->
+  <nz-form-item>
+    <nz-form-label>Ghi chú</nz-form-label>
+    <nz-form-control>
+      <textarea
+        nz-input
+        formControlName="notes"
+        rows="2"
+        placeholder="Vd: Thích học buổi tối, không thích bài tập về nhà…"
+      ></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Actions sticky bottom -->
+  <div class="student-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      {{ isEdit ? 'Cập nhật' : 'Thêm học sinh' }}
+    </button>
+  </div>
+</form>

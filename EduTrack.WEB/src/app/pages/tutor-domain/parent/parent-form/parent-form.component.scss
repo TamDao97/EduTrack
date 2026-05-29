@@ -1,0 +1,19 @@
+.parent-form {
+  &__actions {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding-top: 16px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #f0f0f0;
+
+    button { min-width: 100px; height: 44px; }
+  }
+}
+
+@media (max-width: 767px) {
+  .parent-form__actions button { flex: 1; }
+}

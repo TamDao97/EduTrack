@@ -1,0 +1,47 @@
+.student-form {
+  &__parent-row {
+    display: flex;
+    gap: 8px;
+  }
+  &__parent-select {
+    flex: 1;
+  }
+  &__add-parent {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    border: 1px dashed #1890ff;
+    border-radius: 8px;
+    background: rgba(24, 144, 255, 0.06);
+    color: #1890ff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+
+    &:hover { background: rgba(24, 144, 255, 0.12); }
+    [nz-icon] { font-size: 16px; }
+  }
+
+  &__rate, &__date {
+    width: 100%;
+  }
+
+  &__actions {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding-top: 16px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid #f0f0f0;
+
+    button { min-width: 100px; height: 44px; }
+  }
+}
+
+@media (max-width: 767px) {
+  .student-form__actions {
+    button { flex: 1; }
+  }
+}

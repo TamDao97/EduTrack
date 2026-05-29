@@ -1,5 +1,6 @@
 using EduTrack.API.DataContext.Entity;
 using EduTrack.API.DataContext.Entity.Core;
+using EduTrack.API.DataContext.Entity.TutorDomain;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Security.Claims;
@@ -31,6 +32,14 @@ namespace EduTrack.API.DataContext
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<EduTrack.API.DataContext.Entity.Core.File> Files { get; set; }
         public DbSet<ConfigJson> ConfigJsons { get; set; }
+        #endregion
+
+        #region Tutor domain
+        public DbSet<TutorProfile> TutorProfiles { get; set; }
+        public DbSet<Parent> Parents { get; set; }
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<TuitionPeriod> TuitionPeriods { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -67,6 +76,24 @@ namespace EduTrack.API.DataContext
                     modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
                 }
             }
+
+            // Tutor domain — index tối thiểu cho query nóng
+            modelBuilder.Entity<Parent>().HasIndex(p => new { p.IdTutor, p.Phone });
+            modelBuilder.Entity<Student>().HasIndex(s => new { s.IdTutor, s.Status });
+            modelBuilder.Entity<Student>().HasIndex(s => s.IdParent);
+            modelBuilder.Entity<Lesson>().HasIndex(l => new { l.IdTutor, l.ScheduledDate });
+            modelBuilder.Entity<Lesson>().HasIndex(l => new { l.IdStudent, l.ScheduledDate });
+            modelBuilder.Entity<Lesson>().HasIndex(l => l.IdTuitionPeriod);
+            modelBuilder.Entity<TuitionPeriod>().HasIndex(t => new { t.IdStudent, t.PeriodYear, t.PeriodMonth }).IsUnique();
+            modelBuilder.Entity<TutorProfile>().HasIndex(t => t.IdUser).IsUnique();
+
+            // Tiền tệ — VND nguyên, decimal(18,0)
+            modelBuilder.Entity<Student>().Property(s => s.PerLessonRate).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<Lesson>().Property(l => l.ChargeAmount).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<TuitionPeriod>().Property(t => t.TotalAmount).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<TuitionPeriod>().Property(t => t.Adjustment).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<TuitionPeriod>().Property(t => t.FinalAmount).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<TuitionPeriod>().Property(t => t.PaidAmount).HasColumnType("decimal(18,0)");
         }
 
         public override int SaveChanges()

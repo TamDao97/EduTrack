@@ -21,6 +21,6 @@ namespace EduTrack.API.Commons
     {
         public const string SupperAdmin = "SUPPER_ADMIN";
         public const string Admin = "ADMIN";
-        public const string User = "USER";
+        public const string Tutor = "TUTOR";
     }
 }

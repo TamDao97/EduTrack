@@ -1,0 +1,36 @@
+<form nz-form [formGroup]="frmGroup" class="parent-form" nzLayout="vertical">
+  <nz-form-item>
+    <nz-form-label nzRequired>Tên phụ huynh</nz-form-label>
+    <nz-form-control nzErrorTip="Vui lòng nhập tên">
+      <input nz-input formControlName="fullName" placeholder="Vd: Mẹ Mai · Anh Nam…" maxlength="200" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Số điện thoại (Zalo)</nz-form-label>
+    <nz-form-control nzErrorTip="SĐT VN, bắt đầu bằng 0, 10-11 số">
+      <input nz-input formControlName="phone" placeholder="0901234567" inputmode="numeric" maxlength="11" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Email (không bắt buộc)</nz-form-label>
+    <nz-form-control>
+      <input nz-input formControlName="email" placeholder="email@example.com" type="email" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Ghi chú</nz-form-label>
+    <nz-form-control>
+      <textarea nz-input formControlName="notes" rows="2" placeholder="Ghi chú về phụ huynh"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="parent-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      {{ isEdit ? 'Cập nhật' : 'Thêm phụ huynh' }}
+    </button>
+  </div>
+</form>

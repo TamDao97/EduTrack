@@ -1,6 +1,7 @@
 using EduTrack.API.DataContext;
 using EduTrack.API.Services;
 using EduTrack.API.Services.Common;
+using EduTrack.API.Services.TutorDomain;
 using EduTrack.API.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +75,14 @@ namespace EduTrack.API.Configs
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IUserContextService, UserContextService>();
             services.AddScoped<ExcelService>();
+            #endregion
+
+            #region Tutor domain
+            services.AddScoped<ITutorProfileService, TutorProfileService>();
+            services.AddScoped<IParentService, ParentService>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<ILessonService, LessonService>();
+            services.AddScoped<ITuitionPeriodService, TuitionPeriodService>();
             #endregion
 
             services.AddHttpContextAccessor();
