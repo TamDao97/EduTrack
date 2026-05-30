@@ -35,4 +35,27 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public int? PeriodMonth { get; set; }
         public int? PeriodYear { get; set; }
     }
+
+    /// <summary>
+    /// Preview tổng số buổi đã dạy + số tiền dự kiến cho 1 HS trong tháng-năm,
+    /// để tutor xem trước khi bấm "Phát hành kỳ".
+    /// </summary>
+    public class TuitionPreviewDto
+    {
+        public Guid IdStudent { get; set; }
+        public int PeriodMonth { get; set; }
+        public int PeriodYear { get; set; }
+        public int TotalLessons { get; set; }
+        public decimal TotalAmount { get; set; }
+        public List<TuitionPreviewLineDto> Lessons { get; set; } = new();
+    }
+
+    public class TuitionPreviewLineDto
+    {
+        public Guid IdLesson { get; set; }
+        public DateTime ScheduledDate { get; set; }
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
+        public decimal ChargeAmount { get; set; }
+    }
 }

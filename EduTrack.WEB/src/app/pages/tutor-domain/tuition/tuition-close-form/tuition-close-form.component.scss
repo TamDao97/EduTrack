@@ -1,0 +1,75 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.cf {
+  .cf__rate { width: 100%; }
+
+  &__preview {
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    padding: $sp-3;
+    margin-bottom: $sp-4;
+  }
+
+  &__preview-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding-bottom: $sp-2;
+    border-bottom: 1px solid $border;
+    margin-bottom: $sp-2;
+  }
+  &__preview-label { @include t-h3; }
+  &__preview-total { font-size: $fs-body-lg; font-weight: $fw-bold; color: $accent; }
+
+  &__lessons {
+    list-style: none; margin: 0; padding: 0;
+    max-height: 220px; overflow-y: auto;
+  }
+  &__lesson {
+    display: flex; justify-content: space-between;
+    padding: $sp-2 0;
+    border-bottom: 1px dashed $border;
+    font-size: $fs-sm;
+    &:last-child { border-bottom: none; }
+  }
+  &__lesson-date  { color: $text-2; }
+  &__lesson-amount { color: $text-1; font-weight: $fw-semi; }
+
+  &__empty {
+    text-align: center;
+    color: $text-3;
+    padding: $sp-4 $sp-2;
+    [nz-icon] { font-size: 28px; color: $warning; display: block; margin-bottom: $sp-2; }
+    small { display: block; margin-top: $sp-1; font-size: $fs-xs; }
+  }
+
+  &__loading {
+    display: flex; align-items: center; gap: $sp-2;
+    color: $text-3; font-size: $fs-sm;
+    padding: $sp-3 0;
+  }
+
+  &__final {
+    background: linear-gradient(135deg, rgba(255,138,101,0.08) 0%, $surface 100%);
+    border: 1.5px solid rgba(255,138,101,0.3);
+    border-radius: $radius-md;
+    padding: $sp-3 $sp-4;
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: $sp-4;
+  }
+  &__final-label { font-size: $fs-body; font-weight: $fw-semi; color: $text-1; }
+  &__final-num   { font-size: 22px; font-weight: $fw-bold; color: $accent; letter-spacing: -0.5px;
+                   small { font-size: $fs-xs; opacity: 0.7; margin-left: 2px; } }
+
+  &__actions {
+    position: sticky;
+    bottom: 0;
+    background: $surface;
+    padding-top: $sp-4;
+    display: flex; gap: $sp-2; justify-content: flex-end;
+    border-top: 1px solid $border;
+
+    button { min-width: 120px; height: 44px; }
+    @include mobile-only { button { flex: 1; } }
+  }
+}

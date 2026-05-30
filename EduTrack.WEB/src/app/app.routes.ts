@@ -13,6 +13,7 @@ import { StudentListComponent } from './pages/tutor-domain/student/student-list.
 import { StudentDetailComponent } from './pages/tutor-domain/student/student-detail/student-detail.component';
 import { LessonWeekComponent } from './pages/tutor-domain/lesson/lesson-week.component';
 import { NotificationInboxComponent } from './pages/tutor-domain/notification/notification-inbox.component';
+import { TuitionListComponent } from './pages/tutor-domain/tuition/tuition-list.component';
 import { DesignGalleryComponent } from './_demo/design-gallery.component';
 import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
 import { DashboardDemoComponent } from './_demo/dashboard/dashboard-demo.component';
@@ -26,7 +27,6 @@ export const routes: Routes = [
     component: LoginComponent,
   },
   // ─────────────── DESIGN DEMO (mock data, no API) ───────────────
-  // Standalone — KHÔNG nằm trong layout có sidebar, để show full visual.
   { path: 'design',                 component: DesignGalleryComponent },
   { path: 'design/onboarding',      component: OnboardingDemoComponent },
   { path: 'design/dashboard',       component: DashboardDemoComponent },
@@ -36,60 +36,21 @@ export const routes: Routes = [
   // ──────────────────────────────────────────────────────────────
   {
     path: '',
-    component: LayoutComponent, // Layout chính của ứng dụng
+    component: LayoutComponent,
     children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
-      },
-      {
-        path: 'dashboard',
-        component: DashboardComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'page',
-        component: PageComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'user',
-        component: UserComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'role',
-        component: RoleComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'config-json',
-        component: ConfigJsonComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'student',
-        component: StudentListComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'student/:id',
-        component: StudentDetailComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'lesson',
-        component: LessonWeekComponent,
-        canActivate: [AuthGuard],
-      },
-      {
-        path: 'inbox',
-        component: NotificationInboxComponent,
-        canActivate: [AuthGuard],
-      },
+      { path: '',             redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard',    component: DashboardComponent,         canActivate: [AuthGuard] },
+      { path: 'page',         component: PageComponent,              canActivate: [AuthGuard] },
+      { path: 'user',         component: UserComponent,              canActivate: [AuthGuard] },
+      { path: 'role',         component: RoleComponent,              canActivate: [AuthGuard] },
+      { path: 'config-json',  component: ConfigJsonComponent,        canActivate: [AuthGuard] },
+      { path: 'student',      component: StudentListComponent,       canActivate: [AuthGuard] },
+      { path: 'student/:id',  component: StudentDetailComponent,     canActivate: [AuthGuard] },
+      { path: 'lesson',       component: LessonWeekComponent,        canActivate: [AuthGuard] },
+      { path: 'inbox',        component: NotificationInboxComponent, canActivate: [AuthGuard] },
+      { path: 'tuition',      component: TuitionListComponent,       canActivate: [AuthGuard] },
     ],
   },
   { path: 'error/:statusCode', component: PageErrorComponent },
-  { path: '**', component: Page404Component }, // Wildcard route for 404 page
+  { path: '**', component: Page404Component },
 ];

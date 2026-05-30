@@ -16,6 +16,7 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<TuitionPeriodDto>> OpenOrGetAsync(Guid idStudent, int month, int year);
         Task<Response<TuitionPeriodDto>> CloseAsync(Guid id, decimal adjustment, string? notes);
         Task<Response<TuitionPeriodDto>> RecordPaymentAsync(Guid id, decimal amount, string? notes);
+        Task<Response<TuitionPreviewDto>> PreviewAsync(Guid idStudent, int month, int year);
     }
 
     public class TuitionPeriodService : TutorScopedBaseService<TuitionPeriod, TuitionPeriodDto>, ITuitionPeriodService
@@ -154,6 +155,48 @@ namespace EduTrack.API.Services.TutorDomain
 
             await _unitOfWork.SaveChangesAsync();
             return Response<TuitionPeriodDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<TuitionPeriod, TuitionPeriodDto>(period), StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>Preview số buổi Done + tổng tiền chưa chốt — KHÔNG sửa DB.</summary>
+        public async Task<Response<TuitionPreviewDto>> PreviewAsync(Guid idStudent, int month, int year)
+        {
+            if (month < 1 || month > 12 || year < 2020 || year > 2100)
+                return Response<TuitionPreviewDto>.Error(StatusCode.BadRequest, "Tháng/năm không hợp lệ");
+
+            var idTutor = await GetCurrentTutorIdAsync();
+            var studentOk = await _studentRepos.TableNoTracking
+                .AnyAsync(s => s.Id == idStudent && s.IdTutor == idTutor);
+            if (!studentOk)
+                return Response<TuitionPreviewDto>.Error(StatusCode.BadRequest, "Học sinh không hợp lệ");
+
+            var lessons = await _lessonRepos.TableNoTracking
+                .Where(l => l.IdTutor == idTutor
+                         && l.IdStudent == idStudent
+                         && l.Status == LessonStatusEnums.Done
+                         && l.ScheduledDate.Year == year
+                         && l.ScheduledDate.Month == month
+                         && l.IdTuitionPeriod == null)
+                .OrderBy(l => l.ScheduledDate).ThenBy(l => l.StartTime)
+                .Select(l => new TuitionPreviewLineDto
+                {
+                    IdLesson = l.Id,
+                    ScheduledDate = l.ScheduledDate,
+                    StartTime = l.StartTime.ToString(@"hh\:mm"),
+                    EndTime = l.EndTime.ToString(@"hh\:mm"),
+                    ChargeAmount = l.ChargeAmount,
+                })
+                .ToListAsync();
+
+            var preview = new TuitionPreviewDto
+            {
+                IdStudent = idStudent,
+                PeriodMonth = month,
+                PeriodYear = year,
+                TotalLessons = lessons.Count,
+                TotalAmount = lessons.Sum(x => x.ChargeAmount),
+                Lessons = lessons,
+            };
+            return Response<TuitionPreviewDto>.Success(preview, StatusCode.Ok.ToDescription());
         }
 
         public async Task<Response<PagingData<List<TuitionPeriodDetailDto>>>> GetByFilterAsync(TuitionPeriodGridFilter filter)

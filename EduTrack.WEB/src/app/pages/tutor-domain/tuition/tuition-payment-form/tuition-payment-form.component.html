@@ -1,0 +1,52 @@
+<form nz-form [formGroup]="frmGroup" class="pf" nzLayout="vertical">
+  <!-- Summary -->
+  <div class="pf__summary" *ngIf="params">
+    <div class="pf__summary-name">{{ params.studentFullName }}</div>
+    <div class="pf__summary-period">Kỳ tháng {{ params.periodMonth }}/{{ params.periodYear }}</div>
+    <div class="pf__amount-grid">
+      <div class="amt">
+        <span class="amt__label">TỔNG</span>
+        <span class="amt__num">{{ fmt(params.finalAmount) }}đ</span>
+      </div>
+      <div class="amt" *ngIf="params.paidAmount > 0">
+        <span class="amt__label">ĐÃ THU</span>
+        <span class="amt__num amt__num--paid">{{ fmt(params.paidAmount) }}đ</span>
+      </div>
+      <div class="amt">
+        <span class="amt__label">CÒN NỢ</span>
+        <span class="amt__num amt__num--outstanding">{{ fmt(outstanding) }}đ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Amount input -->
+  <nz-form-item>
+    <nz-form-label nzRequired>Số tiền vừa nhận</nz-form-label>
+    <nz-form-control nzErrorTip="Số tiền phải > 0">
+      <div class="pf__amount-input-row">
+        <nz-input-number formControlName="amount" [nzMin]="0" [nzStep]="50000" class="full-w"></nz-input-number>
+        <button type="button" class="pf__full-btn" (click)="fillFull()">
+          <span nz-icon nzType="check"></span>
+          Thu đủ
+        </button>
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Notes -->
+  <nz-form-item>
+    <nz-form-label>Ghi chú (tuỳ chọn)</nz-form-label>
+    <nz-form-control>
+      <textarea nz-input formControlName="notes" rows="2"
+        placeholder="Vd: Đã chuyển khoản TCB lúc 14:30 · Đóng tiền mặt"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="pf__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large"
+            (click)="onSave()" [nzLoading]="isSubmitting">
+      Xác nhận đã thu
+    </button>
+  </div>
+</form>

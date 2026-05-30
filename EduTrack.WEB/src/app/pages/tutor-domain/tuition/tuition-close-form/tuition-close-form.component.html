@@ -1,0 +1,80 @@
+<form nz-form [formGroup]="frmGroup" class="cf" nzLayout="vertical">
+  <!-- Pick student + month -->
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="14">
+      <nz-form-item>
+        <nz-form-label nzRequired>Học sinh</nz-form-label>
+        <nz-form-control nzErrorTip="Chọn học sinh">
+          <nz-select formControlName="idStudent" nzShowSearch nzPlaceHolder="Tìm tên HS…" [nzDisabled]="!!params">
+            <nz-option *ngFor="let s of students" [nzValue]="s.id"
+              [nzLabel]="s.fullName + (s.subject ? ' · ' + s.subject : '')"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="10">
+      <nz-form-item>
+        <nz-form-label nzRequired>Kỳ tháng</nz-form-label>
+        <nz-form-control>
+          <nz-select formControlName="monthYear">
+            <nz-option *ngFor="let o of monthOptions" [nzValue]="o.value" [nzLabel]="o.label"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <!-- Preview lessons -->
+  <div class="cf__preview" *ngIf="preview && !isLoadingPreview">
+    <div class="cf__preview-head">
+      <span class="cf__preview-label">{{ preview.totalLessons }} buổi đã dạy</span>
+      <span class="cf__preview-total">{{ fmt(preview.totalAmount) }}đ</span>
+    </div>
+    <ul class="cf__lessons" *ngIf="preview.totalLessons > 0">
+      <li *ngFor="let l of preview.lessons" class="cf__lesson">
+        <span class="cf__lesson-date">{{ fmtDate(l.scheduledDate) }} · {{ l.startTime }}-{{ l.endTime }}</span>
+        <span class="cf__lesson-amount">{{ fmt(l.chargeAmount) }}đ</span>
+      </li>
+    </ul>
+    <div class="cf__empty" *ngIf="preview.totalLessons === 0">
+      <span nz-icon nzType="info-circle"></span>
+      Chưa có buổi học nào hoàn thành trong tháng này.
+      <small>Đánh dấu "Đã dạy" ở các buổi trước khi chốt kỳ.</small>
+    </div>
+  </div>
+
+  <div class="cf__loading" *ngIf="isLoadingPreview">
+    <nz-spin nzSize="small"></nz-spin>
+    <span>Đang tính tổng…</span>
+  </div>
+
+  <!-- Adjustment + notes -->
+  <nz-form-item>
+    <nz-form-label>Điều chỉnh (thưởng + / giảm −)</nz-form-label>
+    <nz-form-control>
+      <nz-input-number formControlName="adjustment" [nzStep]="50000" class="cf__rate"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Final summary -->
+  <div class="cf__final" *ngIf="preview && preview.totalLessons > 0">
+    <span class="cf__final-label">Học phí cuối</span>
+    <span class="cf__final-num">{{ fmt(totalAfterAdj) }}<small>đ</small></span>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label>Ghi chú (chỉ tutor xem)</nz-form-label>
+    <nz-form-control>
+      <textarea nz-input formControlName="notes" rows="2" placeholder="Vd: Tặng buổi học miễn phí, giảm 10% kỳ này…"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="cf__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large"
+            (click)="onSave()" [nzLoading]="isSubmitting"
+            [disabled]="!preview || preview.totalLessons === 0">
+      Phát hành kỳ
+    </button>
+  </div>
+</form>

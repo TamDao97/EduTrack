@@ -34,6 +34,13 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<TuitionPeriodDto>>> OpenOrGetAsync([FromBody] OpenOrGetReq req)
             => Ok(await _service.OpenOrGetAsync(req.IdStudent, req.Month, req.Year));
 
+        [TDPermission("PreviewAsync", "Xem trước số tiền chốt kỳ", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpGet("preview")]
+        public async Task<ActionResult<Response<TuitionPreviewDto>>> PreviewAsync(
+            [FromQuery] Guid idStudent, [FromQuery] int month, [FromQuery] int year)
+            => Ok(await _service.PreviewAsync(idStudent, month, year));
+
         [TDPermission("CloseAsync", "Chốt kỳ học phí", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpPost("close/{id:Guid}")]

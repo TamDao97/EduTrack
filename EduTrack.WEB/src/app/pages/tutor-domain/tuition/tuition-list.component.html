@@ -1,0 +1,140 @@
+<div class="tu">
+  <!-- Hero -->
+  <header class="tu__hero">
+    <span class="tu__eyebrow">HỌC PHÍ</span>
+    <h1 class="tu__title">Kỳ học phí</h1>
+
+    <div class="tu__stats">
+      <div class="stat-card stat-card--outstanding">
+        <div class="stat-card__label">CẦN THU</div>
+        <div class="stat-card__num">{{ fmt(totalOutstanding) }}<small>đ</small></div>
+        <div class="stat-card__sub">{{ countFor(TuitionStatus.Closed) + countFor(TuitionStatus.PartialPaid) }} kỳ chưa thu đủ</div>
+      </div>
+      <div class="stat-card stat-card--paid">
+        <div class="stat-card__label">ĐÃ THU</div>
+        <div class="stat-card__num">{{ fmt(totalCollected) }}<small>đ</small></div>
+        <div class="stat-card__sub">tổng đã thu</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tu__toolbar">
+    <div class="tu__tabs">
+      <button *ngFor="let tab of statusTabs"
+              class="tu__tab"
+              [class.is-active]="filter.status === tab.value"
+              (click)="onSelectStatus(tab.value)">
+        <span class="tu__tab-dot" *ngIf="tab.dot" [style.background]="tab.dot"></span>
+        <span>{{ tab.label }}</span>
+        <span class="tu__tab-count" *ngIf="countFor(tab.value) > 0">{{ countFor(tab.value) }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bank-info warning (chưa setup) -->
+  <div class="tu__warn" *ngIf="!bankInfo.bankName || !bankInfo.accountNumber">
+    <span nz-icon nzType="warning"></span>
+    <div>
+      <strong>Chưa có thông tin ngân hàng</strong>
+      <small>Vào <a routerLink="/settings">Cài đặt</a> để thêm — sẽ tự sinh QR cho phụ huynh chuyển khoản.</small>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && periods.length === 0" class="empty">
+    <div class="empty__art">
+      <span nz-icon nzType="dollar"></span>
+    </div>
+    <h3>Chưa có kỳ học phí nào</h3>
+    <p>Chốt kỳ đầu tiên để thu học phí cho HS đã dạy.</p>
+    <button class="empty__cta" (click)="onClose()">
+      <span nz-icon nzType="plus"></span>
+      Chốt kỳ đầu tiên
+    </button>
+  </div>
+
+  <!-- Period cards -->
+  <ul class="tu-list" *ngIf="periods.length > 0">
+    <li *ngFor="let p of periods; trackBy: trackById"
+        class="tu-card"
+        [class.is-paid]="p.status === TuitionStatus.Paid">
+
+      <div class="tu-card__top">
+        <div class="tu-card__avatar" [ngStyle]="avatarStyle(p.studentFullName)">
+          {{ initials(p.studentFullName) }}
+        </div>
+        <div class="tu-card__head">
+          <div class="tu-card__name">{{ p.studentFullName || '—' }}</div>
+          <div class="tu-card__period">Kỳ tháng {{ p.periodMonth }}/{{ p.periodYear }} · {{ p.totalLessons }} buổi</div>
+        </div>
+        <span class="tu-card__status"
+              [style.background]="statusSoft(p.status)"
+              [style.color]="statusColor(p.status)">
+          {{ statusLabel(p.status) }}
+        </span>
+      </div>
+
+      <!-- Amounts -->
+      <div class="tu-card__amounts">
+        <div class="amt amt--outstanding" *ngIf="outstandingOf(p) > 0">
+          <span class="amt__label">Còn nợ</span>
+          <span class="amt__num">{{ fmt(outstandingOf(p)) }}đ</span>
+        </div>
+        <div class="amt amt--paid" *ngIf="p.paidAmount > 0">
+          <span class="amt__label">Đã thu</span>
+          <span class="amt__num">{{ fmt(p.paidAmount) }}đ</span>
+        </div>
+        <div class="amt amt--total">
+          <span class="amt__label">Tổng</span>
+          <span class="amt__num">{{ fmt(p.finalAmount) }}đ</span>
+        </div>
+      </div>
+
+      <!-- Progress (nếu đã chốt) -->
+      <div class="tu-card__progress" *ngIf="p.status !== TuitionStatus.Open && p.finalAmount > 0">
+        <div class="tu-card__progress-bar">
+          <div class="tu-card__progress-fill"
+               [class.is-paid]="p.status === TuitionStatus.Paid"
+               [style.width.%]="paidPercentOf(p)"></div>
+        </div>
+        <span class="tu-card__progress-label">{{ paidPercentOf(p) }}%</span>
+      </div>
+
+      <!-- VietQR (nếu còn nợ + có bank info) -->
+      <div class="tu-card__qr" *ngIf="qrUrl(p) as q">
+        <img [src]="q" alt="VietQR" class="tu-card__qr-img" />
+        <div class="tu-card__qr-info">
+          <div class="tu-card__qr-title">Phụ huynh quét QR chuyển khoản</div>
+          <div class="tu-card__qr-detail">{{ bankInfo.bankName }} · {{ bankInfo.accountNumber }}</div>
+          <div class="tu-card__qr-detail">Nội dung tự điền sẵn</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="tu-card__actions">
+        <button class="tu-card__btn tu-card__btn--primary" *ngIf="p.status === TuitionStatus.Open" (click)="onClose(p)">
+          <span nz-icon nzType="check-circle"></span>
+          Chốt kỳ này
+        </button>
+        <button class="tu-card__btn tu-card__btn--accent"
+                *ngIf="p.status === TuitionStatus.Closed || p.status === TuitionStatus.PartialPaid"
+                (click)="onRemindZalo(p)">
+          <span nz-icon nzType="message"></span>
+          Nhắc thu Zalo
+        </button>
+        <button class="tu-card__btn"
+                *ngIf="p.status === TuitionStatus.Closed || p.status === TuitionStatus.PartialPaid"
+                (click)="onPayment(p)">
+          <span nz-icon nzType="dollar"></span>
+          Ghi nhận đã nhận
+        </button>
+      </div>
+    </li>
+  </ul>
+
+  <!-- FAB (mobile only) -->
+  <button class="fab" *ngIf="periods.length > 0" (click)="onClose()" aria-label="Chốt kỳ mới">
+    <span nz-icon nzType="plus"></span>
+  </button>
+</div>

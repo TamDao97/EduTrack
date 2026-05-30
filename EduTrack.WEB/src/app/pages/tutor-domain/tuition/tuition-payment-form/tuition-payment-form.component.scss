@@ -1,0 +1,64 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.pf {
+  .full-w { width: 100%; }
+
+  &__summary {
+    background: $primary-soft;
+    border: 1px solid rgba(91,95,207,0.2);
+    border-radius: $radius-md;
+    padding: $sp-3 $sp-4;
+    margin-bottom: $sp-4;
+  }
+  &__summary-name { @include t-h3; }
+  &__summary-period { @include t-meta; margin-bottom: $sp-3; }
+
+  &__amount-grid {
+    display: flex; gap: $sp-3;
+    flex-wrap: wrap;
+  }
+
+  &__amount-input-row {
+    display: flex; gap: $sp-2;
+    align-items: stretch;
+  }
+
+  &__full-btn {
+    background: $primary-soft;
+    border: 1px solid $primary;
+    color: $primary;
+    padding: 0 $sp-3;
+    border-radius: $radius;
+    font-size: $fs-sm; font-weight: $fw-semi;
+    cursor: pointer;
+    display: flex; align-items: center; gap: $sp-1;
+    transition: all $t-fast $ease-out;
+    flex-shrink: 0;
+    &:hover { background: $primary; color: #fff; }
+    [nz-icon] { font-size: 14px; }
+  }
+
+  &__actions {
+    position: sticky;
+    bottom: 0;
+    background: $surface;
+    padding-top: $sp-4;
+    display: flex; gap: $sp-2; justify-content: flex-end;
+    border-top: 1px solid $border;
+
+    button { min-width: 120px; height: 44px; }
+    @include mobile-only { button { flex: 1; } }
+  }
+}
+
+.amt {
+  display: flex; flex-direction: column;
+  flex: 1; min-width: 80px;
+  &__label { font-size: 10px; color: $text-3;
+             text-transform: uppercase; letter-spacing: $ls-wider;
+             font-weight: $fw-semi; margin-bottom: 2px; }
+  &__num { font-size: $fs-body-lg; font-weight: $fw-bold; letter-spacing: -0.3px; color: $text-1; }
+  &__num--outstanding { color: $danger; }
+  &__num--paid        { color: $success-dark; }
+}
