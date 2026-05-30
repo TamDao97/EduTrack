@@ -32,16 +32,32 @@ export class DesignGalleryComponent {
       gradient: 'linear-gradient(135deg, #5B5FCF 0%, #7C3AED 100%)',
     },
     {
-      key: 'dashboard', title: 'Dashboard', status: 'planned',
-      desc: 'Trang chủ — lịch hôm nay + nợ học phí + stats tháng',
+      key: 'dashboard', title: 'Dashboard', status: 'ready',
+      desc: 'Trang chủ — chào theo giờ, lịch hôm nay, cần xử lý, stats T5, lối tắt',
+      route: '/design/dashboard',
       iconType: 'dashboard',
       gradient: 'linear-gradient(135deg, #FF8A65 0%, #FF6B9D 100%)',
     },
     {
-      key: 'tuition-list', title: 'Kỳ học phí', status: 'planned',
-      desc: 'List các kỳ tháng theo HS, chốt kỳ + ghi nhận thanh toán',
+      key: 'tuition', title: 'Kỳ học phí', status: 'ready',
+      desc: 'List kỳ tháng với progress bar, status tabs, hành động chốt/thu/nhắc',
+      route: '/design/tuition',
       iconType: 'dollar',
       gradient: 'linear-gradient(135deg, #00B8A9 0%, #52C41A 100%)',
+    },
+    {
+      key: 'student-table', title: 'HS — TABLE mode', status: 'ready',
+      desc: 'Bảng truyền thống có filter + bulk action, để so sánh với card view',
+      route: '/design/student-table',
+      iconType: 'table',
+      gradient: 'linear-gradient(135deg, #4A5170 0%, #1A1F36 100%)',
+    },
+    {
+      key: 'settings', title: 'Cài đặt + Hồ sơ', status: 'ready',
+      desc: 'Profile, bank info VietQR, app preferences với toggle switch',
+      route: '/design/settings',
+      iconType: 'setting',
+      gradient: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
     },
     {
       key: 'tuition-close', title: 'Chốt kỳ + Thanh toán', status: 'planned',
@@ -54,12 +70,6 @@ export class DesignGalleryComponent {
       desc: 'Trang bán public — hero + features + pricing + CTA',
       iconType: 'global',
       gradient: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
-    },
-    {
-      key: 'settings', title: 'Cài đặt + Hồ sơ', status: 'planned',
-      desc: 'Tutor profile, bank info, app preferences',
-      iconType: 'setting',
-      gradient: 'linear-gradient(135deg, #4A5170 0%, #1A1F36 100%)',
     },
   ];
 

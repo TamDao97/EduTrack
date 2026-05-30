@@ -1,0 +1,296 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.st {
+  background: $bg;
+  min-height: 100vh;
+  padding: $sp-4;
+
+  // ────── Header (traditional admin, compact) ──────
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    margin-bottom: $sp-4;
+  }
+
+  &__title-block { flex: 1; }
+  &__title    { @include t-h1; margin: 0; color: $text-1; }
+  &__subtitle { @include t-meta; }
+
+  &__close {
+    @include btn-icon(36px);
+  }
+
+  &__view-toggle {
+    display: flex;
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: $radius;
+    padding: 2px;
+  }
+
+  // Toolbar
+  &__toolbar {
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    padding: $sp-3;
+    margin-bottom: $sp-3;
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    flex-wrap: wrap;
+
+    @include mobile-only { flex-direction: column; align-items: stretch; }
+  }
+
+  &__filters {
+    flex: 1;
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $sp-2;
+    flex-shrink: 0;
+  }
+
+  // Table wrap
+  &__table-wrap {
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    overflow: hidden;
+    box-shadow: $shadow-sm;
+  }
+
+  &__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $sp-3 $sp-4;
+    border-top: 1px solid $border;
+    color: $text-3;
+    font-size: $fs-sm;
+  }
+
+  &__card-fallback {
+    background: $surface;
+    padding: $sp-8;
+    border-radius: $radius-md;
+    border: 1px solid $border;
+  }
+  &__card-fallback-msg {
+    background: $primary-soft;
+    border: 1px dashed $primary;
+    color: $primary-dark;
+    padding: $sp-4;
+    border-radius: $radius;
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    font-size: $fs-body;
+  }
+}
+
+// ────── View toggle ──────
+.vt-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: $fs-sm;
+  color: $text-2;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  transition: all $t-fast;
+
+  &.is-active {
+    background: $primary;
+    color: #fff;
+    font-weight: $fw-semi;
+  }
+}
+
+// ────── Filter controls ──────
+.filter-input {
+  position: relative;
+  min-width: 260px;
+  flex: 1;
+
+  [nz-icon] {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: $text-3;
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    height: 36px;
+    padding: 0 $sp-3 0 32px;
+    border: 1px solid $border;
+    border-radius: $radius;
+    background: $surface;
+    font-size: $fs-sm;
+    color: $text-1;
+    outline: none;
+    transition: all $t-fast;
+    &:focus { border-color: $primary; box-shadow: $ring-primary; }
+  }
+}
+
+.filter-input-text, .filter-select {
+  height: 36px;
+  padding: 0 $sp-3;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $surface;
+  font-size: $fs-sm;
+  color: $text-1;
+  outline: none;
+  min-width: 160px;
+  transition: all $t-fast;
+  &:focus { border-color: $primary; box-shadow: $ring-primary; }
+}
+
+// ────── Buttons ──────
+.btn-primary, .btn-secondary {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: $radius;
+  font-size: $fs-sm;
+  font-weight: $fw-semi;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: all $t-fast $ease-out;
+  [nz-icon] { font-size: 14px; }
+}
+.btn-primary {
+  background: $primary;
+  color: #fff;
+  border: 1px solid $primary;
+  &:hover { background: $primary-dark; }
+}
+.btn-secondary {
+  background: $surface;
+  color: $text-2;
+  border: 1px solid $border;
+  &:hover:not(:disabled) { background: $bg; border-color: $border-strong; color: $text-1; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+// ────── Table ──────
+.st-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $fs-sm;
+
+  thead {
+    background: $bg-strong;
+    th {
+      text-align: left;
+      padding: $sp-3 $sp-3;
+      font-size: 11px;
+      font-weight: $fw-bold;
+      color: $text-2;
+      text-transform: uppercase;
+      letter-spacing: $ls-wide;
+      border-bottom: 1px solid $border;
+      white-space: nowrap;
+    }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background $t-fast;
+
+    &:hover { background: $surface-alt; }
+    &.is-selected { background: $primary-soft; }
+    &:last-child { border-bottom: none; }
+
+    td {
+      padding: $sp-3 $sp-3;
+      color: $text-1;
+      vertical-align: middle;
+    }
+  }
+
+  &__check {
+    width: 40px;
+    input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: $primary;
+      cursor: pointer;
+    }
+  }
+  &__name { strong { color: $text-1; font-weight: $fw-semi; } }
+  &__phone { font-family: $font-mono; color: $text-2; font-size: $fs-xs; }
+  &__num   { font-weight: $fw-semi; color: $accent; text-align: right; }
+  &__actions {
+    text-align: right;
+    white-space: nowrap;
+  }
+  &__empty {
+    text-align: center;
+    color: $text-3;
+    padding: $sp-12 !important;
+  }
+}
+
+.row-icon {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  color: $text-3;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  margin-left: 2px;
+  transition: all $t-fast;
+
+  &:hover { background: $primary-soft; color: $primary; }
+  &--danger:hover { background: $danger-soft; color: $danger; }
+}
+
+// ────── Tag chips ──────
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: $fw-semi;
+  letter-spacing: $ls-wide;
+
+  &.tag-active  { background: $success-soft; color: $success-dark; }
+  &.tag-paused  { background: $warning-soft; color: $warning-dark; }
+  &.tag-stopped { background: $bg-strong;    color: $text-3; }
+}
+
+// ────── Pagination ──────
+.page-controls {
+  display: flex;
+  gap: 2px;
+}
+.page-btn {
+  width: 32px; height: 32px;
+  border: 1px solid $border;
+  background: $surface;
+  border-radius: $radius-xs;
+  cursor: pointer;
+  font-size: $fs-sm;
+  color: $text-2;
+  transition: all $t-fast;
+
+  &.is-active { background: $primary; color: #fff; border-color: $primary; }
+  &:hover:not(:disabled):not(.is-active) { border-color: $primary; color: $primary; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}

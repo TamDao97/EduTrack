@@ -15,6 +15,10 @@ import { LessonWeekComponent } from './pages/tutor-domain/lesson/lesson-week.com
 import { NotificationInboxComponent } from './pages/tutor-domain/notification/notification-inbox.component';
 import { DesignGalleryComponent } from './_demo/design-gallery.component';
 import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
+import { DashboardDemoComponent } from './_demo/dashboard/dashboard-demo.component';
+import { TuitionDemoComponent } from './_demo/tuition/tuition-demo.component';
+import { StudentTableDemoComponent } from './_demo/student-table/student-table-demo.component';
+import { SettingsDemoComponent } from './_demo/settings/settings-demo.component';
 
 export const routes: Routes = [
   {
@@ -23,8 +27,12 @@ export const routes: Routes = [
   },
   // ─────────────── DESIGN DEMO (mock data, no API) ───────────────
   // Standalone — KHÔNG nằm trong layout có sidebar, để show full visual.
-  { path: 'design',             component: DesignGalleryComponent },
-  { path: 'design/onboarding',  component: OnboardingDemoComponent },
+  { path: 'design',                 component: DesignGalleryComponent },
+  { path: 'design/onboarding',      component: OnboardingDemoComponent },
+  { path: 'design/dashboard',       component: DashboardDemoComponent },
+  { path: 'design/tuition',         component: TuitionDemoComponent },
+  { path: 'design/student-table',   component: StudentTableDemoComponent },
+  { path: 'design/settings',        component: SettingsDemoComponent },
   // ──────────────────────────────────────────────────────────────
   {
     path: '',
