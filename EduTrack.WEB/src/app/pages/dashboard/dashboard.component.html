@@ -1,16 +1,131 @@
-<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-  <div>
-    <h3 class="fw-bold mb-3">Dashboard</h3>
-    <h6 class="op-7 mb-2">EduTrack — bộ core khởi đầu</h6>
-  </div>
-</div>
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-body">
-        <p>Chào mừng đến với EduTrack. Đây là trang dashboard mặc định.</p>
-        <p>Bắt đầu xây dựng tính năng của bạn từ menu bên trái hoặc thêm route mới ở <code>src/app/app.routes.ts</code>.</p>
+<div class="dash">
+  <header class="dash__hero">
+    <div class="dash__greeting">
+      <span class="dash__eyebrow">{{ todayLabel }}</span>
+      <h1 class="dash__title">{{ greeting }}<br><span class="dash__name">{{ tutorName }} 👋</span></h1>
+    </div>
+
+    <div class="dash__stats">
+      <div class="qs-pill" (click)="goTuition()">
+        <span class="qs-pill__icon" style="background: rgba(82,196,26,0.4)"><span nz-icon nzType="dollar"></span></span>
+        <div class="qs-pill__body">
+          <div class="qs-pill__num">{{ fmt(revenueThisMonth) }}<small>đ</small></div>
+          <div class="qs-pill__label">Học phí tháng này</div>
+        </div>
+      </div>
+      <div class="qs-pill" (click)="goLesson()">
+        <span class="qs-pill__icon" style="background: rgba(91,95,207,0.4)"><span nz-icon nzType="schedule"></span></span>
+        <div class="qs-pill__body">
+          <div class="qs-pill__num">{{ lessonsToday }}</div>
+          <div class="qs-pill__label">Buổi hôm nay</div>
+        </div>
+      </div>
+      <div class="qs-pill" (click)="goStudent()">
+        <span class="qs-pill__icon" style="background: rgba(255,138,101,0.4)"><span nz-icon nzType="solution"></span></span>
+        <div class="qs-pill__body">
+          <div class="qs-pill__num">{{ activeStudentsCount }}</div>
+          <div class="qs-pill__label">HS đang học</div>
+        </div>
+      </div>
+      <div class="qs-pill" (click)="goTuition()">
+        <span class="qs-pill__icon" style="background: rgba(250,173,20,0.4)"><span nz-icon nzType="exclamation-circle"></span></span>
+        <div class="qs-pill__body">
+          <div class="qs-pill__num">{{ pendingTuitionCount }}</div>
+          <div class="qs-pill__label">Kỳ chưa thu</div>
+        </div>
       </div>
     </div>
-  </div>
+  </header>
+
+  <section class="dash__section">
+    <div class="dash__section-head">
+      <h2 class="dash__section-title">
+        <span nz-icon nzType="calendar" class="dash__section-icon"></span>
+        Hôm nay
+      </h2>
+      <a class="dash__section-link" (click)="goLesson()">Xem lịch tuần →</a>
+    </div>
+
+    <ul class="lesson-list" *ngIf="todayLessons.length > 0">
+      <li *ngFor="let l of todayLessons"
+          class="today-lesson"
+          [class.is-done]="isLessonDone(l)">
+        <div class="today-lesson__avatar" [ngStyle]="avatarStyle(l.studentFullName)">
+          {{ initials(l.studentFullName) }}
+        </div>
+        <div class="today-lesson__body">
+          <div class="today-lesson__head">
+            <span class="today-lesson__time">{{ fmtTime(l.startTime) }}</span>
+            <span class="today-lesson__status" *ngIf="isLessonDone(l)">✓ Đã dạy</span>
+          </div>
+          <div class="today-lesson__name">{{ l.studentFullName || '—' }}</div>
+          <div class="today-lesson__meta" *ngIf="l.location">{{ l.location }}</div>
+        </div>
+      </li>
+    </ul>
+
+    <div *ngIf="todayLessons.length === 0 && !isLoading" class="dash__empty-mini">
+      <span nz-icon nzType="coffee"></span>
+      Hôm nay không có lịch dạy. Nghỉ ngơi đi!
+    </div>
+  </section>
+
+  <section class="dash__section" *ngIf="pendingNotiCount > 0 || pendingTuitionCount > 0">
+    <div class="dash__section-head">
+      <h2 class="dash__section-title">
+        <span nz-icon nzType="alert" class="dash__section-icon dash__section-icon--alert"></span>
+        Cần xử lý
+        <span class="dash__section-badge">{{ pendingNotiCount + pendingTuitionCount }}</span>
+      </h2>
+    </div>
+
+    <ul class="task-list">
+      <li class="task-card" data-type="reminder" *ngIf="pendingNotiCount > 0" (click)="goInbox()">
+        <div class="task-card__icon"><span nz-icon nzType="bell"></span></div>
+        <div class="task-card__body">
+          <div class="task-card__title">{{ pendingNotiCount }} nhắc cần gửi</div>
+          <div class="task-card__meta">Mở hộp nhắc để gửi Zalo cho phụ huynh</div>
+        </div>
+        <button class="task-card__cta" (click)="goInbox(); $event.stopPropagation()">Mở</button>
+      </li>
+
+      <li class="task-card" data-type="tuition" *ngIf="pendingTuitionCount > 0" (click)="goTuition()">
+        <div class="task-card__icon"><span nz-icon nzType="dollar"></span></div>
+        <div class="task-card__body">
+          <div class="task-card__title">{{ pendingTuitionCount }} kỳ chưa thu đủ</div>
+          <div class="task-card__meta task-card__meta--overdue">
+            Còn nợ: {{ fmt(totalOutstanding) }}đ
+          </div>
+        </div>
+        <button class="task-card__cta task-card__cta--accent" (click)="goTuition(); $event.stopPropagation()">Thu</button>
+      </li>
+    </ul>
+  </section>
+
+  <section class="dash__section">
+    <div class="dash__section-head">
+      <h2 class="dash__section-title">
+        <span nz-icon nzType="thunderbolt" class="dash__section-icon"></span>
+        Lối tắt
+      </h2>
+    </div>
+    <div class="quick-grid">
+      <button class="quick-btn" (click)="goStudent()">
+        <span nz-icon nzType="user-add" class="quick-btn__icon" style="background:#E8EAFF;color:#5B5FCF"></span>
+        <span class="quick-btn__label">Thêm HS</span>
+      </button>
+      <button class="quick-btn" (click)="goLesson()">
+        <span nz-icon nzType="schedule" class="quick-btn__icon" style="background:#FFEEE8;color:#FF8A65"></span>
+        <span class="quick-btn__label">Thêm buổi</span>
+      </button>
+      <button class="quick-btn" (click)="goTuition()">
+        <span nz-icon nzType="dollar" class="quick-btn__icon" style="background:#F0FBE5;color:#52C41A"></span>
+        <span class="quick-btn__label">Chốt kỳ</span>
+      </button>
+      <button class="quick-btn" (click)="goInbox()">
+        <span nz-icon nzType="bell" class="quick-btn__icon" style="background:#FFF7E0;color:#FAAD14"></span>
+        <span class="quick-btn__label">Hộp nhắc</span>
+      </button>
+    </div>
+  </section>
 </div>

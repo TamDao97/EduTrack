@@ -1,0 +1,211 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.dash {
+  @include page-container;
+  padding-bottom: $sp-8;
+
+  &__hero {
+    @include hero-gradient;
+    padding-bottom: $sp-7;
+  }
+
+  &__greeting { position: relative; z-index: 1; margin-bottom: $sp-5; }
+  &__eyebrow  { @include t-eyebrow; color: rgba(255,255,255,0.7); margin-bottom: $sp-2; display: block; }
+  &__title    { @include t-display; color: #fff; margin: 0; }
+  &__name     { font-weight: $fw-bold; }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-2;
+    position: relative; z-index: 1;
+    @include tablet-up { grid-template-columns: repeat(4, 1fr); gap: $sp-3; }
+  }
+
+  &__section {
+    background: $surface;
+    padding: $sp-5 $sp-4;
+    &:first-of-type { @include content-sheet; padding-top: $sp-5; }
+    @include tablet-up { padding: $sp-6 $sp-8; max-width: 1100px; margin: 0 auto; }
+  }
+
+  &__section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: $sp-3;
+  }
+  &__section-title {
+    @include t-h2;
+    margin: 0;
+    display: flex; align-items: center; gap: $sp-2;
+  }
+  &__section-icon { color: $primary; font-size: 18px; &--alert { color: $accent; } }
+  &__section-badge {
+    background: $accent; color: #fff;
+    font-size: $fs-xs; font-weight: $fw-bold;
+    padding: 2px 8px; border-radius: 10px;
+    margin-left: $sp-1;
+  }
+  &__section-link {
+    @include t-meta;
+    color: $primary; font-weight: $fw-semi;
+    cursor: pointer; text-decoration: none;
+    &:hover { color: $primary-dark; }
+  }
+
+  &__empty-mini {
+    background: $bg;
+    border: 1px dashed $border-strong;
+    border-radius: $radius;
+    padding: $sp-4;
+    text-align: center;
+    color: $text-3;
+    font-size: $fs-sm;
+    [nz-icon] { font-size: 22px; color: $primary; display: block; margin-bottom: $sp-2; }
+  }
+}
+
+.qs-pill {
+  @include glass;
+  border-radius: $radius-md;
+  padding: $sp-3;
+  display: flex;
+  gap: $sp-2;
+  align-items: center;
+  cursor: pointer;
+  transition: all $t $ease-out;
+
+  &:hover { background: rgba(255,255,255,0.22); transform: translateY(-2px); }
+
+  &__icon {
+    width: 32px; height: 32px;
+    border-radius: $radius-sm;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  &__body { min-width: 0; }
+  &__num  { color: #fff; font-size: 18px; font-weight: $fw-bold; line-height: $lh-tight; @include truncate;
+            small { font-size: $fs-caption; font-weight: $fw-normal; opacity: 0.7; margin-left: 2px; } }
+  &__label { color: rgba(255,255,255,0.78); font-size: $fs-caption; margin-top: 2px; letter-spacing: $ls-wide; }
+}
+
+// ─────── Today's lessons ───────
+.lesson-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: $sp-2; }
+
+.today-lesson {
+  @include card-clickable;
+  display: flex; align-items: center; gap: $sp-3;
+  padding: $sp-3;
+  &:hover { transform: none; }
+
+  &.is-done {
+    background: $success-soft;
+    .today-lesson__name { color: $text-3; text-decoration: line-through; }
+  }
+
+  &__avatar {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: $fw-bold;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  &__body { flex: 1; min-width: 0; }
+  &__head { display: flex; align-items: center; gap: $sp-2; margin-bottom: 2px; }
+  &__time { font-size: $fs-body-lg; font-weight: $fw-bold; color: $primary; letter-spacing: -0.3px; }
+  &__status { @include chip($success-soft, $success-dark); }
+
+  &__name { @include truncate; @include t-h3; color: $text-1; margin-bottom: 2px; }
+  &__meta { @include t-meta; }
+}
+
+// ─────── Tasks ───────
+.task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: $sp-2; }
+
+.task-card {
+  display: flex; align-items: center; gap: $sp-3;
+  padding: 14px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  border-left: 3px solid $primary;
+  cursor: pointer;
+  transition: all $t $ease-out;
+
+  &:hover { box-shadow: $shadow-md; border-color: $border-strong; }
+
+  &[data-type="tuition"] { border-left-color: $accent; }
+
+  &__icon {
+    width: 40px; height: 40px;
+    border-radius: $radius-md;
+    background: $primary-soft;
+    color: $primary;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &[data-type="tuition"] &__icon { background: $accent-soft; color: $accent-dark; }
+
+  &__body { flex: 1; min-width: 0; }
+  &__title { @include t-h3; margin: 0 0 2px; }
+  &__meta  { @include t-meta; }
+  &__meta--overdue { color: $danger; font-weight: $fw-semi; }
+
+  &__cta {
+    @include btn-secondary(36px);
+    padding: 0 $sp-4;
+    flex-shrink: 0;
+    &--accent {
+      background: $accent; color: #fff; border-color: $accent;
+      &:hover { background: $accent-darker; border-color: $accent-darker; color: #fff; }
+    }
+  }
+}
+
+// ─────── Quick actions ───────
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $sp-2;
+  @include tablet-up { gap: $sp-3; }
+}
+
+.quick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $sp-2;
+  padding: $sp-3 $sp-2;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $t $ease-out;
+
+  &:hover {
+    border-color: $primary;
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+  &:active { transform: scale(0.97); }
+
+  &__icon {
+    width: 44px; height: 44px;
+    border-radius: $radius-md;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  &__label {
+    @include t-meta;
+    font-weight: $fw-semi;
+    color: $text-1;
+    font-size: $fs-sm;
+  }
+}
