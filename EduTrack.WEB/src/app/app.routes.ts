@@ -7,6 +7,7 @@ import { PageComponent } from './pages/system/page/page.component';
 import { RoleComponent } from './pages/system/role/role.component';
 import { UserComponent } from './pages/system/auth/user/user.component';
 import { LoginComponent } from './pages/system/auth/login/login.component';
+import { SignupComponent } from './pages/system/auth/signup/signup.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ConfigJsonComponent } from './pages/system/config-json/config-json.component';
 import { StudentListComponent } from './pages/tutor-domain/student/student-list.component';
@@ -23,10 +24,8 @@ import { StudentTableDemoComponent } from './_demo/student-table/student-table-d
 import { SettingsDemoComponent } from './_demo/settings/settings-demo.component';
 
 export const routes: Routes = [
-  {
-    path: 'login',
-    component: LoginComponent,
-  },
+  { path: 'login',  component: LoginComponent  },
+  { path: 'signup', component: SignupComponent },
   // ─────────────── DESIGN DEMO (mock data, no API) ───────────────
   { path: 'design',                 component: DesignGalleryComponent },
   { path: 'design/onboarding',      component: OnboardingDemoComponent },

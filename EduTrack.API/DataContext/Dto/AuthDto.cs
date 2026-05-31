@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EduTrack.API.DataContext.Dto
 {
@@ -22,6 +19,22 @@ namespace EduTrack.API.DataContext.Dto
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập thông tin!")]
+        public string PasswordConfirm { get; set; }
+    }
+
+    /// <summary>Self-signup cho gia sư — tự động assign Role TUTOR + trả JWT.</summary>
+    public class SignupTutorReq
+    {
+        [Required(ErrorMessage = "Vui lòng nhập email/username")]
+        public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập họ tên")]
+        public string DisplayName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        public string Password { get; set; }
+
+        [Required]
         public string PasswordConfirm { get; set; }
     }
 

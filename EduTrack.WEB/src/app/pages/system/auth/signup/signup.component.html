@@ -1,0 +1,81 @@
+<div class="sg">
+  <!-- Brand panel left (desktop only) -->
+  <aside class="sg__brand">
+    <div class="sg__brand-content">
+      <div class="sg__brand-logo">
+        <span nz-icon nzType="read"></span>
+      </div>
+      <span class="sg__brand-eyebrow">EDUTRACK</span>
+      <h1 class="sg__brand-title">Quản lý gia sư<br>chỉ 5 phút mỗi ngày</h1>
+      <ul class="sg__brand-features">
+        <li><span nz-icon nzType="check-circle"></span> Lịch dạy tự nhắc qua Zalo</li>
+        <li><span nz-icon nzType="check-circle"></span> Học phí cuối tháng tự tính</li>
+        <li><span nz-icon nzType="check-circle"></span> Thu tiền qua VietQR</li>
+      </ul>
+      <div class="sg__brand-foot">14 ngày dùng thử miễn phí. Không cần thẻ.</div>
+    </div>
+  </aside>
+
+  <!-- Form panel right -->
+  <main class="sg__form-wrap">
+    <div class="sg__form">
+      <header class="sg__form-head">
+        <h2 class="sg__form-title">Tạo tài khoản gia sư</h2>
+        <p class="sg__form-sub">Bắt đầu quản lý lớp học của bạn</p>
+      </header>
+
+      <form nz-form [formGroup]="frmGroup" (ngSubmit)="onSubmit()" nzLayout="vertical" class="sg__form-body">
+        <nz-form-item>
+          <nz-form-label nzRequired>Họ và tên</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập tên (≥ 2 ký tự)">
+            <nz-input-group nzPrefixIcon="user">
+              <input type="text" nz-input formControlName="displayName" placeholder="Vd: Cô Mai" autocomplete="name" />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Email hoặc tên đăng nhập</nz-form-label>
+          <nz-form-control nzErrorTip="Tối thiểu 3 ký tự">
+            <nz-input-group nzPrefixIcon="mail">
+              <input type="text" nz-input formControlName="userName" placeholder="email@example.com" autocomplete="username" />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Mật khẩu</nz-form-label>
+          <nz-form-control nzErrorTip="Tối thiểu 6 ký tự">
+            <nz-input-group nzPrefixIcon="lock" [nzSuffix]="pwIcon">
+              <input [type]="showPassword ? 'text' : 'password'" nz-input formControlName="password"
+                     placeholder="Tối thiểu 6 ký tự" autocomplete="new-password" />
+            </nz-input-group>
+            <ng-template #pwIcon>
+              <span nz-icon [nzType]="showPassword ? 'eye-invisible' : 'eye'"
+                    (click)="togglePassword()" class="sg__pw-toggle"></span>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-label nzRequired>Nhập lại mật khẩu</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập lại">
+            <nz-input-group nzPrefixIcon="lock">
+              <input [type]="showPassword ? 'text' : 'password'" nz-input formControlName="passwordConfirm" autocomplete="new-password" />
+            </nz-input-group>
+          </nz-form-control>
+        </nz-form-item>
+
+        <button nz-button nzType="primary" nzSize="large" class="sg__submit"
+                [nzLoading]="isSubmitting" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Đang tạo tài khoản…' : 'Tạo tài khoản miễn phí' }}
+          <span nz-icon nzType="arrow-right" *ngIf="!isSubmitting"></span>
+        </button>
+
+        <p class="sg__form-foot">
+          Đã có tài khoản? <a routerLink="/login">Đăng nhập</a>
+        </p>
+      </form>
+    </div>
+  </main>
+</div>

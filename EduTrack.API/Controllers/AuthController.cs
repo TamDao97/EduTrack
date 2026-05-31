@@ -19,11 +19,7 @@ namespace EduTrack.API.Controllers
             _authService = authService;
         }
 
-        /// <summary>
-        /// Đăng ký  
-        /// </summary>
-        /// <param name="req"></param>
-        /// <returns></returns>
+        /// <summary>Đăng ký user mới — KHÔNG gán role (legacy)</summary>
         [Route("register")]
         [HttpPost]
         public async Task<ActionResult<Response<bool>>> RegisterAsync(RegisterReq req)
@@ -31,11 +27,7 @@ namespace EduTrack.API.Controllers
             return Ok(await _authService.RegisterAsync(req));
         }
 
-        /// <summary>
-        /// Đăng nhập
-        /// </summary>
-        /// <param name="req"></param>
-        /// <returns></returns>
+        /// <summary>Đăng nhập</summary>
         [Route("login")]
         [HttpPost]
         public async Task<ActionResult<Response<CurrentUser>>> LoginAsync(LoginReq req)
@@ -43,11 +35,12 @@ namespace EduTrack.API.Controllers
             return Ok(await _authService.LoginAsync(req));
         }
 
-        [Route("test")]
-        [HttpGet]
-        public async Task<ActionResult<Response<CurrentUser>>> Test()
+        /// <summary>Self-signup cho gia sư — tạo user mới + gán Role TUTOR + trả JWT (auto-login).</summary>
+        [Route("signup-tutor")]
+        [HttpPost]
+        public async Task<ActionResult<Response<CurrentUser>>> SignupTutorAsync(SignupTutorReq req)
         {
-            return Ok("Test api");
+            return Ok(await _authService.SignupTutorAsync(req));
         }
     }
 }

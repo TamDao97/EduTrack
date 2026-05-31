@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { LoginService } from '../../../../services/system/login.service';
 import { SharedModule } from '../../../../shared/modules/shared.module';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -15,7 +15,7 @@ import { finalize } from 'rxjs';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, RouterModule],
 })
 export class LoginComponent extends TdBaseComponent implements OnInit {
   frmGroup!: FormGroup;

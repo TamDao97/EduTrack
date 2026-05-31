@@ -14,6 +14,7 @@ namespace EduTrack.API.Services
     {
         Task<Response<CurrentUser>> LoginAsync(LoginReq req);
         Task<Response<bool>> RegisterAsync(RegisterReq req);
+        Task<Response<CurrentUser>> SignupTutorAsync(SignupTutorReq req);
     }
 
     public class AuthService : IAuthService
@@ -122,6 +123,86 @@ namespace EduTrack.API.Services
             await _unitOfWork.SaveChangesAsync();
 
             return Response<bool>.Success(true, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Self-signup cho gia sư: validate input, tạo User, assign Role TUTOR, trả JWT.
+        /// Role TUTOR phải tồn tại sẵn trong DB (seed qua 2_Seed_InitData.sql).
+        /// </summary>
+        public async Task<Response<CurrentUser>> SignupTutorAsync(SignupTutorReq req)
+        {
+            // Validate
+            if (string.IsNullOrWhiteSpace(req.UserName) || req.UserName.Trim().Length < 3)
+                return Response<CurrentUser>.Error(StatusCode.BadRequest, "Email/Username phải có ít nhất 3 ký tự");
+            if (string.IsNullOrWhiteSpace(req.Password) || req.Password.Length < 6)
+                return Response<CurrentUser>.Error(StatusCode.BadRequest, "Mật khẩu phải có ít nhất 6 ký tự");
+            if (req.Password != req.PasswordConfirm)
+                return Response<CurrentUser>.Error(StatusCode.BadRequest, "Mật khẩu xác nhận không khớp");
+
+            var userName = req.UserName.Trim();
+
+            // Check duplicate
+            var existed = await _userRepos.TableNoTracking.AnyAsync(u => u.UserName == userName);
+            if (existed)
+                return Response<CurrentUser>.Error(StatusCode.BadRequest, "Tài khoản đã tồn tại — vui lòng đăng nhập");
+
+            // Tìm Role TUTOR
+            var tutorRole = await _roleRepos.TableNoTracking.FirstOrDefaultAsync(r => r.Code == RoleCodes.Tutor);
+            if (tutorRole == null)
+                return Response<CurrentUser>.Error(StatusCode.InternalServerError,
+                    "Hệ thống chưa cấu hình vai trò TUTOR — liên hệ quản trị viên");
+
+            // Tạo user + gán role
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = userName,
+                DisplayName = req.DisplayName.Trim(),
+                Email = userName,
+                PasswordHash = Utils.HashPassword(req.Password),
+            };
+
+            var userRole = new UserRole
+            {
+                Id = Guid.NewGuid(),
+                IdUser = user.Id,
+                IdRole = tutorRole.Id,
+            };
+
+            try
+            {
+                await _userRepos.CreateAsync(user);
+                await _userRoleRepos.CreateAsync(userRole);
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                return Response<CurrentUser>.Error(StatusCode.InternalServerError,
+                    "Đăng ký thất bại, vui lòng thử lại");
+            }
+
+            // Generate JWT — auto-login luôn
+            var tokens = JwtHelper.GenerateToken(user.UserName, user.Id.ToString(), _configuration);
+            var permissions = await (from rp in _rolePermissionRepos.TableNoTracking
+                                     where rp.IdRole == tutorRole.Id
+                                     join p in _permissionRepos.TableNoTracking on rp.IdPermission equals p.Id
+                                     select p.PermissionCode).ToListAsync();
+
+            var currentUser = new CurrentUser
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                IsAdmin = false,
+                IsSuper = false,
+                RoleName = tutorRole.Name,
+                AccessToken = tokens.AccessToken,
+                RefreshToken = tokens.RefreshToken,
+                Permissions = permissions,
+            };
+
+            return Response<CurrentUser>.Success(currentUser, StatusCode.Ok.ToDescription());
         }
         #endregion
     }
