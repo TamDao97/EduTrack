@@ -33,7 +33,7 @@
   &__stats {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: $sp-2;
+    gap: 6px;
     position: relative; z-index: 1;
     @include tablet-up { gap: $sp-4; }
   }
@@ -42,27 +42,36 @@
 .stat-pill {
   @include glass;
   border-radius: $radius-md;
-  padding: $sp-3;
+  padding: $sp-2;
   display: flex; align-items: center; gap: $sp-2;
   transition: all $t $ease-out;
+  min-width: 0;
 
-  @include tablet-up { padding: $sp-4; }
+  @include tablet-up { padding: $sp-4; gap: $sp-3; }
   &:hover { background: rgba(255,255,255,0.22); transform: translateY(-2px); }
 
   &__icon {
-    width: 36px; height: 36px;
+    width: 30px; height: 30px;
     background: rgba(255,255,255,0.2);
-    border-radius: $radius;
+    border-radius: $radius-sm;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px; color: #fff;
+    font-size: 13px; color: #fff;
     flex-shrink: 0;
-    @include tablet-up { width: 44px; height: 44px; font-size: 18px; }
+    @include tablet-up { width: 44px; height: 44px; font-size: 18px; border-radius: $radius; }
   }
   &__body { min-width: 0; flex: 1; }
-  &__num  { font-size: 20px; font-weight: $fw-bold; color: #fff; line-height: $lh-tight; @include truncate;
-    @include tablet-up { font-size: 24px; } }
-  &__unit { font-size: $fs-caption; font-weight: $fw-medium; margin-left: 2px; opacity: 0.7; }
-  &__label{ font-size: $fs-caption; color: rgba(255,255,255,0.75); margin-top: 2px; letter-spacing: $ls-wide; }
+  &__num  {
+    font-size: 15px;
+    font-weight: $fw-bold;
+    color: #fff;
+    line-height: $lh-tight;
+    @include truncate;
+    @include tablet-up { font-size: 24px; }
+  }
+  &__unit  { font-size: 10px; font-weight: $fw-medium; margin-left: 1px; opacity: 0.7;
+             @include tablet-up { font-size: $fs-caption; } }
+  &__label { font-size: 10px; color: rgba(255,255,255,0.78); margin-top: 1px; letter-spacing: $ls-wide; @include truncate;
+             @include tablet-up { font-size: $fs-caption; } }
 
   &--active   .stat-pill__icon { background: rgba(82,196,26,0.4); }
   &--paused   .stat-pill__icon { background: rgba(250,173,20,0.4); }
@@ -146,7 +155,7 @@
     border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 4px 10px rgba(91,95,207,0.18);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12); // neutral shadow — match any hash gradient
   }
   &__initials { color: #fff; font-size: $fs-h2; font-weight: $fw-bold; letter-spacing: 0.5px;
                 text-shadow: 0 1px 2px rgba(0,0,0,0.1); }

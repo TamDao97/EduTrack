@@ -302,26 +302,31 @@
   margin: 0 auto $sp-6;
   display: flex; align-items: center; justify-content: center;
 
+  // 2 vòng tròn nền concentric — center bằng top/left 50% + translate
   &::before, &::after {
     content: '';
     position: absolute;
     border-radius: 50%;
     z-index: 0;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
   }
   &::before {
     width: $size; height: $size;
     background: rgba($color, 0.12);
   }
   &::after {
-    width: $size * 0.75; height: $size * 0.75;
-    background: rgba($color, 0.2);
+    width: $size * 0.7; height: $size * 0.7;
+    background: rgba($color, 0.22);
   }
 
+  // Icon ở giữa cùng — vẽ trên cùng (z-index 1)
   > [nz-icon], > svg, > .icon {
     position: relative;
     z-index: 1;
-    font-size: $size * 0.35;
+    font-size: $size * 0.32;
     color: $color;
+    line-height: 1;
   }
 }
 
