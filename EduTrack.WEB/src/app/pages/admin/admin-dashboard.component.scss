@@ -1,0 +1,270 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.ad {
+  @include page-container;
+  padding-bottom: $sp-8;
+  background: $bg;
+
+  // ─── Hero (founder-style, không gradient indigo — màu tối nghiêm túc) ───
+  &__hero {
+    background: linear-gradient(135deg, #1A1F36 0%, #4A5170 100%);
+    padding: $sp-5 $sp-4 $sp-6;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -40%; right: -10%;
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(255,138,101,0.18) 0%, transparent 70%);
+    }
+  }
+
+  &__title-row {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: $sp-5;
+    position: relative; z-index: 1;
+  }
+
+  &__eyebrow { @include t-eyebrow; color: rgba(255,255,255,0.7); display: block; margin-bottom: $sp-2; }
+  &__title   { @include t-display; color: #fff; margin: 0; }
+
+  &__back {
+    @include glass;
+    color: #fff;
+    height: 36px; padding: 0 $sp-3;
+    border-radius: 18px;
+    font-size: $fs-sm; font-weight: $fw-semi;
+    display: inline-flex; align-items: center; gap: $sp-2;
+    text-decoration: none;
+    &:hover { background: rgba(255,255,255,0.28); color: #fff; }
+  }
+
+  // ─── Stats grid ───
+  &__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-3;
+    position: relative; z-index: 1;
+    @include tablet-up { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  // ─── Tabs ───
+  &__tabs {
+    background: $surface;
+    margin-top: -$sp-4;
+    border-radius: $radius-lg $radius-lg 0 0;
+    padding: $sp-3 $sp-4 0;
+    display: flex; gap: $sp-1;
+    border-bottom: 1px solid $border;
+    position: relative; z-index: 2;
+  }
+
+  &__tab {
+    background: transparent;
+    border: none;
+    padding: $sp-3 $sp-4;
+    font-size: $fs-body;
+    font-weight: $fw-semi;
+    color: $text-3;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: $sp-2;
+    border-bottom: 3px solid transparent;
+    transition: all $t-fast;
+
+    &:hover { color: $text-1; }
+    &.is-active {
+      color: $primary;
+      border-bottom-color: $primary;
+    }
+  }
+  &__tab-count {
+    background: $primary-soft;
+    color: $primary-dark;
+    font-size: $fs-caption;
+    font-weight: $fw-bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  // ─── Panel ───
+  &__panel {
+    background: $surface;
+    padding: $sp-4;
+    @include tablet-up { padding: $sp-5 $sp-6; }
+  }
+
+  // ─── Toolbar ───
+  &__toolbar {
+    display: flex; gap: $sp-2;
+    margin-bottom: $sp-4;
+    flex-wrap: wrap;
+  }
+  &__search {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+
+    [nz-icon] {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: $text-3;
+      pointer-events: none;
+    }
+    input {
+      width: 100%;
+      height: 38px;
+      padding: 0 $sp-3 0 36px;
+      border: 1px solid $border;
+      border-radius: $radius;
+      background: $surface;
+      font-size: $fs-sm;
+      outline: none;
+      &:focus { border-color: $primary; box-shadow: $ring-primary; }
+    }
+  }
+  &__select {
+    height: 38px;
+    padding: 0 $sp-3;
+    border: 1px solid $border;
+    border-radius: $radius;
+    background: $surface;
+    font-size: $fs-sm;
+    outline: none;
+    min-width: 140px;
+    &:focus { border-color: $primary; box-shadow: $ring-primary; }
+  }
+
+  // ─── Table ───
+  &__table-wrap {
+    background: $surface;
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    overflow: auto;
+  }
+}
+
+// ═════════ Stat box (in dark hero) ═════════
+.stat-box {
+  @include glass;
+  border-radius: $radius-md;
+  padding: $sp-4;
+  color: #fff;
+
+  &__label {
+    font-size: $fs-caption; font-weight: $fw-bold;
+    letter-spacing: $ls-wider;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: $sp-2;
+  }
+  &__num {
+    font-size: 24px; font-weight: $fw-bold;
+    line-height: $lh-tight;
+    letter-spacing: -0.5px;
+    color: #fff;
+    small {
+      font-size: $fs-caption;
+      font-weight: $fw-normal;
+      opacity: 0.7;
+      margin-left: 2px;
+    }
+  }
+  &__sub {
+    font-size: $fs-caption;
+    color: rgba(255,255,255,0.65);
+    margin-top: $sp-2;
+  }
+
+  &--mrr {
+    background: rgba(255,138,101,0.25);
+    border-color: rgba(255,138,101,0.4);
+    .stat-box__num { color: #FFB199; }
+  }
+}
+
+// ═════════ Table ═════════
+.ad-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $fs-sm;
+
+  thead {
+    background: $bg-strong;
+    th {
+      text-align: left;
+      padding: $sp-3;
+      font-size: 11px;
+      font-weight: $fw-bold;
+      color: $text-2;
+      text-transform: uppercase;
+      letter-spacing: $ls-wide;
+      white-space: nowrap;
+      border-bottom: 1px solid $border;
+    }
+  }
+  tbody {
+    tr {
+      border-bottom: 1px solid $border;
+      &:hover { background: $surface-alt; }
+      &:last-child { border-bottom: none; }
+    }
+    td {
+      padding: $sp-3;
+      vertical-align: middle;
+      color: $text-1;
+      &.num { text-align: right; font-variant-numeric: tabular-nums; }
+      &.actions { text-align: right; white-space: nowrap; }
+      &.small { font-size: $fs-xs; }
+    }
+  }
+}
+
+.t-name { font-weight: $fw-semi; color: $text-1; }
+.t-mail { font-size: $fs-xs; color: $text-3; margin-top: 2px; }
+.empty-row { text-align: center !important; color: $text-3; padding: $sp-12 !important; }
+.text-muted { color: $text-3; }
+.text-danger { color: $danger; font-weight: $fw-semi; }
+.text-warn   { color: $warning-dark; font-weight: $fw-semi; }
+
+// Tags
+.tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: $fw-bold;
+  letter-spacing: $ls-wide;
+
+  &.tag-trial      { background: $primary-soft;   color: $primary-dark; }
+  &.tag-active     { background: $success-soft;   color: $success-dark; }
+  &.tag-expired    { background: $danger-soft;    color: $danger-dark; }
+  &.tag-cancelled  { background: $bg-strong;      color: $text-3; }
+  &.tag-free       { background: $bg-strong;      color: $text-2; }
+  &.tag-basic      { background: $primary-soft;   color: $primary-dark; }
+  &.tag-pro        { background: $accent-soft;    color: $accent-dark; }
+}
+
+.btn-confirm {
+  height: 32px;
+  padding: 0 $sp-3;
+  background: $gradient-accent;
+  color: #fff;
+  border: none;
+  border-radius: $radius;
+  font-size: $fs-xs;
+  font-weight: $fw-semi;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: transform $t-fast;
+  box-shadow: $shadow-accent;
+
+  &:hover { transform: translateY(-1px); }
+  [nz-icon] { font-size: 12px; }
+}

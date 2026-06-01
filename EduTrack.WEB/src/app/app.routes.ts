@@ -16,6 +16,7 @@ import { LessonWeekComponent } from './pages/tutor-domain/lesson/lesson-week.com
 import { NotificationInboxComponent } from './pages/tutor-domain/notification/notification-inbox.component';
 import { TuitionListComponent } from './pages/tutor-domain/tuition/tuition-list.component';
 import { SettingsComponent } from './pages/tutor-domain/settings/settings.component';
+import { AdminDashboardComponent } from './pages/admin/admin-dashboard.component';
 import { DesignGalleryComponent } from './_demo/design-gallery.component';
 import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
 import { DashboardDemoComponent } from './_demo/dashboard/dashboard-demo.component';
@@ -50,6 +51,7 @@ export const routes: Routes = [
       { path: 'inbox',        component: NotificationInboxComponent, canActivate: [AuthGuard] },
       { path: 'tuition',      component: TuitionListComponent,       canActivate: [AuthGuard] },
       { path: 'settings',     component: SettingsComponent,          canActivate: [AuthGuard] },
+      { path: 'admin',        component: AdminDashboardComponent,    canActivate: [AuthGuard] },
     ],
   },
   { path: 'error/:statusCode', component: PageErrorComponent },

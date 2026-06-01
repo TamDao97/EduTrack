@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto;
 using EduTrack.API.DataContext.Entity.Core;
+using EduTrack.API.Services.TutorDomain;
 using EduTrack.API.UnitOfWork;
 using System.Data.SqlTypes;
 using TD.Lib.Common;
@@ -31,10 +32,13 @@ namespace EduTrack.API.Services
         private readonly TD.Lib.Repository.ITDRepository<RolePermission> _rolePermissionRepos;
         #endregion
 
+        private readonly ISubscriptionService _subService;
+
         public AuthService(
             IUnitOfWork unitOfWork
             , IConfiguration configuration
-            , IOptions<AppSettings> appSettings)
+            , IOptions<AppSettings> appSettings
+            , ISubscriptionService subService)
         {
             _configuration = configuration;
             _appSettings = appSettings.Value;
@@ -45,6 +49,7 @@ namespace EduTrack.API.Services
             _permissionRepos = unitOfWork.GetRepository<Permission>();
             _rolePermissionRepos = unitOfWork.GetRepository<RolePermission>();
             _unitOfWork = unitOfWork;
+            _subService = subService;
         }
 
         #region Asp core identity
@@ -174,6 +179,9 @@ namespace EduTrack.API.Services
                 await _userRepos.CreateAsync(user);
                 await _userRoleRepos.CreateAsync(userRole);
                 await _unitOfWork.SaveChangesAsync();
+
+                // Tạo Trial Subscription 14 ngày
+                await _subService.EnsureTrialAsync(user.Id);
             }
             catch (Exception)
             {

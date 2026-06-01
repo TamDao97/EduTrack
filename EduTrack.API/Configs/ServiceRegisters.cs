@@ -85,6 +85,8 @@ namespace EduTrack.API.Configs
             services.AddScoped<ITuitionPeriodService, TuitionPeriodService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<INotificationGenerator, NotificationGenerator>();
+            services.AddScoped<ISubscriptionService, SubscriptionService>();
+            services.AddScoped<IAdminService, AdminService>();
             #endregion
 
             services.AddHttpContextAccessor();

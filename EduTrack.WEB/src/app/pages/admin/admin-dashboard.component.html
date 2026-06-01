@@ -1,0 +1,162 @@
+<div class="ad">
+  <!-- Hero with stats -->
+  <header class="ad__hero">
+    <div class="ad__title-row">
+      <div>
+        <span class="ad__eyebrow">FOUNDER · ADMIN</span>
+        <h1 class="ad__title">Quản lý người dùng + thu phí</h1>
+      </div>
+      <a routerLink="/dashboard" class="ad__back">
+        <span nz-icon nzType="arrow-left"></span>
+        Về app
+      </a>
+    </div>
+
+    <div class="ad__stats" *ngIf="stats">
+      <div class="stat-box stat-box--mrr">
+        <div class="stat-box__label">MRR ƯỚC TÍNH</div>
+        <div class="stat-box__num">{{ fmt(stats.mrrEstimate) }}<small>đ/tháng</small></div>
+        <div class="stat-box__sub">{{ stats.activeCount }} active subscription</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__label">DOANH THU THÁNG NÀY</div>
+        <div class="stat-box__num">{{ fmtCompact(stats.revenueThisMonth) }}<small>đ</small></div>
+        <div class="stat-box__sub">{{ stats.signupsThisMonth }} signup mới tháng này</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__label">TỔNG TUTOR</div>
+        <div class="stat-box__num">{{ stats.totalTutors }}</div>
+        <div class="stat-box__sub">{{ stats.trialCount }} trial · {{ stats.expiredCount }} hết hạn</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box__label">TỔNG DOANH THU</div>
+        <div class="stat-box__num">{{ fmtCompact(stats.revenueLifetime) }}<small>đ</small></div>
+        <div class="stat-box__sub">Lifetime</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Tabs -->
+  <div class="ad__tabs">
+    <button class="ad__tab" [class.is-active]="activeTab === 'tutors'" (click)="switchTab('tutors')">
+      <span nz-icon nzType="team"></span> Tutor list
+      <span class="ad__tab-count">{{ totalTutors }}</span>
+    </button>
+    <button class="ad__tab" [class.is-active]="activeTab === 'payments'" (click)="switchTab('payments')">
+      <span nz-icon nzType="dollar"></span> Lịch sử thanh toán
+    </button>
+  </div>
+
+  <!-- Tutor list -->
+  <section *ngIf="activeTab === 'tutors'" class="ad__panel">
+    <div class="ad__toolbar">
+      <div class="ad__search">
+        <span nz-icon nzType="search"></span>
+        <input type="text" placeholder="Tìm tên / email tutor…"
+               [ngModel]="filter.keyword"
+               (ngModelChange)="onSearch($event)" />
+      </div>
+      <select class="ad__select" [ngModel]="filter.plan" (ngModelChange)="onFilterPlan($event)">
+        <option [ngValue]="null">Tất cả gói</option>
+        <option [ngValue]="PlanCode.Free">Free</option>
+        <option [ngValue]="PlanCode.Basic">Basic</option>
+        <option [ngValue]="PlanCode.Pro">Pro</option>
+      </select>
+      <select class="ad__select" [ngModel]="filter.status" (ngModelChange)="onFilterStatus($event)">
+        <option [ngValue]="null">Mọi trạng thái</option>
+        <option [ngValue]="SubscriptionStatus.Trial">Trial</option>
+        <option [ngValue]="SubscriptionStatus.Active">Active</option>
+        <option [ngValue]="SubscriptionStatus.Expired">Expired</option>
+        <option [ngValue]="SubscriptionStatus.Cancelled">Cancelled</option>
+      </select>
+    </div>
+
+    <div class="ad__table-wrap">
+      <table class="ad-table">
+        <thead>
+          <tr>
+            <th>Tutor</th>
+            <th>Gói</th>
+            <th>Trạng thái</th>
+            <th>Hết hạn</th>
+            <th>Còn</th>
+            <th>HS</th>
+            <th>Buổi T.này</th>
+            <th>Doanh thu</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tutors">
+            <td>
+              <div class="t-name">{{ t.displayName }}</div>
+              <div class="t-mail">{{ t.userName }}</div>
+            </td>
+            <td><span class="tag" [ngClass]="planClass(t.plan)">{{ PlanLabel[t.plan] }}</span></td>
+            <td><span class="tag" [ngClass]="statusClass(t.status)">{{ StatusLabel[t.status] }}</span></td>
+            <td>
+              <span *ngIf="t.status === SubscriptionStatus.Trial">{{ fmtDate(t.trialEndsAt) }}</span>
+              <span *ngIf="t.status === SubscriptionStatus.Active">{{ fmtDate(t.currentPeriodEnd) }}</span>
+              <span *ngIf="t.status === SubscriptionStatus.Expired" class="text-muted">—</span>
+            </td>
+            <td>
+              <span *ngIf="t.daysRemaining !== null && t.daysRemaining !== undefined"
+                    [class.text-danger]="t.daysRemaining < 3"
+                    [class.text-warn]="t.daysRemaining >= 3 && t.daysRemaining < 7">
+                {{ t.daysRemaining > 0 ? t.daysRemaining + 'd' : 'hết' }}
+              </span>
+            </td>
+            <td class="num">{{ t.studentCount }}</td>
+            <td class="num">{{ t.lessonCountThisMonth }}</td>
+            <td class="num">{{ fmtCompact(t.revenueLifetime) }}đ</td>
+            <td class="actions">
+              <button class="btn-confirm" (click)="onConfirmPayment(t)">
+                <span nz-icon nzType="dollar"></span>
+                Xác nhận TT
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="tutors.length === 0 && !isLoading">
+            <td colspan="9" class="empty-row">Chưa có tutor nào — chờ user signup đầu tiên.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Payment history -->
+  <section *ngIf="activeTab === 'payments'" class="ad__panel">
+    <div class="ad__table-wrap">
+      <table class="ad-table">
+        <thead>
+          <tr>
+            <th>Tutor</th>
+            <th>Gói</th>
+            <th>Tháng</th>
+            <th>Số tiền</th>
+            <th>Mã GD</th>
+            <th>Ghi chú</th>
+            <th>Xác nhận lúc</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of payments">
+            <td>
+              <div class="t-name">{{ p.tutorDisplayName }}</div>
+              <div class="t-mail">{{ p.tutorUserName }}</div>
+            </td>
+            <td><span class="tag" [ngClass]="planClass(p.plan)">{{ PlanLabel[p.plan] }}</span></td>
+            <td class="num">{{ p.months }}</td>
+            <td class="num"><strong>{{ fmt(p.amount) }}đ</strong></td>
+            <td class="text-muted small">{{ p.transferRef || '—' }}</td>
+            <td class="text-muted small">{{ p.notes || '—' }}</td>
+            <td>{{ fmtDate(p.confirmedAt) }}</td>
+          </tr>
+          <tr *ngIf="payments.length === 0">
+            <td colspan="7" class="empty-row">Chưa có thanh toán nào được ghi nhận.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

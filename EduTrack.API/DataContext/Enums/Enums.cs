@@ -67,4 +67,36 @@ namespace EduTrack.API.DataContext.Enums
         [Description("Đã huỷ")]
         Cancelled = 4,
     }
+
+    public enum PlanCodeEnums
+    {
+        [Description("Miễn phí")]
+        Free = 1,
+        [Description("Cơ bản")]
+        Basic = 2,
+        [Description("Chuyên nghiệp")]
+        Pro = 3,
+    }
+
+    public enum SubscriptionStatusEnums
+    {
+        [Description("Dùng thử")]
+        Trial = 1,
+        [Description("Đang hoạt động")]
+        Active = 2,
+        [Description("Hết hạn")]
+        Expired = 3,
+        [Description("Đã huỷ")]
+        Cancelled = 4,
+    }
+
+    public enum PaymentStatusEnums
+    {
+        [Description("Chờ xác nhận")]
+        Pending = 1,
+        [Description("Đã xác nhận")]
+        Confirmed = 2,
+        [Description("Hoàn tiền")]
+        Refunded = 3,
+    }
 }

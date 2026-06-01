@@ -1,0 +1,67 @@
+<form nz-form [formGroup]="frmGroup" class="cpf" nzLayout="vertical">
+  <div class="cpf__head" *ngIf="params">
+    <div class="cpf__tutor">{{ params.displayName }}</div>
+    <div class="cpf__email">{{ params.userName }}</div>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Gói thanh toán</nz-form-label>
+    <nz-form-control>
+      <nz-radio-group formControlName="plan" class="cpf__plan-group">
+        <label nz-radio-button [nzValue]="PlanCode.Basic">Cơ bản · 99.000đ/tháng</label>
+        <label nz-radio-button [nzValue]="PlanCode.Pro">Pro · 199.000đ/tháng</label>
+      </nz-radio-group>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Số tháng gia hạn</nz-form-label>
+    <nz-form-control>
+      <div class="cpf__months">
+        <button *ngFor="let m of monthOptions"
+                type="button"
+                class="cpf__month-btn"
+                [class.is-on]="frmGroup.value.months === m"
+                (click)="setMonths(m)">
+          {{ m }} tháng
+        </button>
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Số tiền nhận (đ)</nz-form-label>
+    <nz-form-control nzErrorTip="Phải > 0">
+      <nz-input-number formControlName="amount" [nzMin]="0" [nzStep]="50000" class="cpf__amount"></nz-input-number>
+      <small class="cpf__hint">Tự tính theo Gói × Tháng. Có thể chỉnh nếu tutor chuyển khác số.</small>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Mã giao dịch / Tham chiếu bank</nz-form-label>
+    <nz-form-control>
+      <input nz-input formControlName="transferRef" placeholder="Vd: FT26060114230012345 hoặc ghi tay" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Ghi chú</nz-form-label>
+    <nz-form-control>
+      <textarea nz-input formControlName="notes" rows="2"
+                placeholder="Vd: Tutor chuyển TCB 14:30 — đã đối soát Zalo"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="cpf__warn">
+    <span nz-icon nzType="warning"></span>
+    Sau khi xác nhận, subscription của tutor sẽ được gia hạn thêm {{ frmGroup.value.months }} tháng.
+    Hành động này không undo được — chỉ confirm khi đã thấy tiền trong tài khoản bank.
+  </div>
+
+  <div class="cpf__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      Xác nhận & Gia hạn
+    </button>
+  </div>
+</form>
