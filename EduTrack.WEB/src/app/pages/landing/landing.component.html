@@ -1,0 +1,226 @@
+<div class="ld">
+  <!-- ─── Top nav ─── -->
+  <header class="ld-nav" [class.is-scrolled]="scrolled">
+    <div class="ld-nav__inner">
+      <a class="ld-nav__logo" routerLink="/landing">
+        <span class="ld-nav__logo-icon">📚</span>
+        EduTrack
+      </a>
+      <nav class="ld-nav__links">
+        <a href="#features" class="ld-nav__link">Tính năng</a>
+        <a href="#pricing" class="ld-nav__link">Bảng giá</a>
+        <a href="#faq" class="ld-nav__link">Hỏi đáp</a>
+      </nav>
+      <div class="ld-nav__actions">
+        <button class="ld-nav__btn-ghost" (click)="goLogin()">Đăng nhập</button>
+        <button class="ld-nav__btn-primary" (click)="goSignup()">Dùng thử miễn phí</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Hero ─── -->
+  <section class="ld-hero">
+    <div class="ld-hero__inner">
+      <div class="ld-hero__left">
+        <span class="ld-hero__eyebrow">Dành cho gia sư tự do tại Việt Nam</span>
+        <h1 class="ld-hero__title">
+          Quản lý học sinh, lịch dạy, học phí —
+          <span class="ld-hero__title-hl">trong 1 phần mềm</span>
+        </h1>
+        <p class="ld-hero__sub">
+          Hết Excel rối rắm. Hết quên báo phụ huynh. Hết tính nhầm học phí.
+          EduTrack giúp bạn tập trung vào dạy học, mọi thứ khác để chúng tôi lo.
+        </p>
+        <div class="ld-hero__ctas">
+          <button class="ld-hero__cta-primary" (click)="goSignup()">
+            <span nz-icon nzType="rocket"></span>
+            Dùng thử miễn phí 14 ngày
+          </button>
+          <a href="#features" class="ld-hero__cta-ghost">
+            Xem tính năng
+            <span nz-icon nzType="arrow-down"></span>
+          </a>
+        </div>
+        <div class="ld-hero__trust">
+          <span nz-icon nzType="check-circle"></span> Không cần thẻ thanh toán
+          <span class="ld-hero__trust-sep">·</span>
+          <span nz-icon nzType="check-circle"></span> Cài đặt 2 phút
+          <span class="ld-hero__trust-sep">·</span>
+          <span nz-icon nzType="check-circle"></span> Hỗ trợ tiếng Việt
+        </div>
+      </div>
+
+      <!-- Mockup -->
+      <div class="ld-hero__mockup">
+        <div class="mock-phone">
+          <div class="mock-phone__notch"></div>
+          <div class="mock-phone__screen">
+            <div class="mock-card mock-card--hero">
+              <div class="mock-card__head">
+                <div class="mock-eyebrow">HÔM NAY</div>
+                <h3 class="mock-title">Chào, cô Linh 👋</h3>
+              </div>
+              <div class="mock-stats">
+                <div class="mock-stat">
+                  <div class="mock-stat__num">12</div>
+                  <div class="mock-stat__lbl">Học sinh</div>
+                </div>
+                <div class="mock-stat">
+                  <div class="mock-stat__num">3</div>
+                  <div class="mock-stat__lbl">Buổi hôm nay</div>
+                </div>
+                <div class="mock-stat mock-stat--accent">
+                  <div class="mock-stat__num">5.2tr</div>
+                  <div class="mock-stat__lbl">Học phí T6</div>
+                </div>
+              </div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-lesson">
+                <div class="mock-lesson__time">14:00</div>
+                <div class="mock-lesson__info">
+                  <div class="mock-lesson__name">Bé Minh Anh</div>
+                  <div class="mock-lesson__meta">Toán lớp 5 · 90 phút</div>
+                </div>
+                <div class="mock-lesson__badge">Hôm nay</div>
+              </div>
+              <div class="mock-lesson">
+                <div class="mock-lesson__time">16:30</div>
+                <div class="mock-lesson__info">
+                  <div class="mock-lesson__name">Bé Quang Huy</div>
+                  <div class="mock-lesson__meta">Lý lớp 8 · 60 phút</div>
+                </div>
+                <div class="mock-lesson__badge">Hôm nay</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Floating badge -->
+        <div class="ld-hero__float">
+          <span nz-icon nzType="bell" class="ld-hero__float-icon"></span>
+          <div>
+            <div class="ld-hero__float-title">Nhắc phụ huynh</div>
+            <div class="ld-hero__float-sub">Tự gửi Zalo trước giờ học 30'</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Features ─── -->
+  <section id="features" class="ld-features">
+    <div class="ld-features__inner">
+      <div class="ld-section-head">
+        <span class="ld-section-eyebrow">TÍNH NĂNG</span>
+        <h2 class="ld-section-title">3 việc lớn nhất, làm chuẩn — không thêm thắt</h2>
+        <p class="ld-section-sub">
+          EduTrack tập trung vào 3 nghiệp vụ chính của gia sư, làm cho thật tốt và dễ dùng.
+        </p>
+      </div>
+
+      <div class="ld-features__grid">
+        <div *ngFor="let f of features; let i = index" class="ft-card">
+          <div class="ft-card__num">0{{ i + 1 }}</div>
+          <div class="ft-card__icon" [style.background-color]="f.color + '15'" [style.color]="f.color">
+            <span nz-icon [nzType]="f.icon"></span>
+          </div>
+          <h3 class="ft-card__title">{{ f.title }}</h3>
+          <p class="ft-card__desc">{{ f.desc }}</p>
+          <ul class="ft-card__bullets">
+            <li *ngFor="let b of f.bullets">
+              <span nz-icon nzType="check"></span> {{ b }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Pricing ─── -->
+  <section id="pricing" class="ld-pricing">
+    <div class="ld-pricing__inner">
+      <div class="ld-section-head">
+        <span class="ld-section-eyebrow">BẢNG GIÁ</span>
+        <h2 class="ld-section-title">Giá rõ ràng, không phụ phí ẩn</h2>
+        <p class="ld-section-sub">
+          Chọn gói phù hợp với quy mô. Đổi gói bất cứ lúc nào.
+        </p>
+      </div>
+
+      <div class="ld-pricing__grid">
+        <div *ngFor="let p of pricings" class="pr-card" [class.is-hl]="p.hl">
+          <div class="pr-card__ribbon" *ngIf="p.ribbon">{{ p.ribbon }}</div>
+          <div class="pr-card__name">{{ p.name }}</div>
+          <div class="pr-card__price">
+            <ng-container *ngIf="p.price > 0; else freeTpl">
+              <span class="pr-card__price-currency">đ</span>{{ fmt(p.price) }}
+              <span class="pr-card__price-period">/tháng</span>
+            </ng-container>
+            <ng-template #freeTpl>
+              <span class="pr-card__price-free">0đ</span>
+              <span class="pr-card__price-period">/tháng</span>
+            </ng-template>
+          </div>
+          <p class="pr-card__desc">{{ p.desc }}</p>
+          <ul class="pr-card__features">
+            <li *ngFor="let feat of p.features">
+              <span nz-icon nzType="check-circle"></span> {{ feat }}
+            </li>
+          </ul>
+          <button class="pr-card__cta" [class.is-hl]="p.hl" (click)="goSignup()">
+            {{ p.cta }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ─── -->
+  <section id="faq" class="ld-faq">
+    <div class="ld-faq__inner">
+      <div class="ld-section-head">
+        <span class="ld-section-eyebrow">HỎI ĐÁP</span>
+        <h2 class="ld-section-title">Câu hỏi thường gặp</h2>
+      </div>
+
+      <div class="ld-faq__list">
+        <div *ngFor="let f of faqs; let i = index"
+             class="faq-item" [class.is-open]="f.open">
+          <button class="faq-item__q" (click)="toggleFaq(i)">
+            <span>{{ f.q }}</span>
+            <span nz-icon nzType="down" class="faq-item__chev"></span>
+          </button>
+          <div class="faq-item__a" *ngIf="f.open">{{ f.a }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA Strip ─── -->
+  <section class="ld-cta-strip">
+    <div class="ld-cta-strip__inner">
+      <h2 class="ld-cta-strip__title">Sẵn sàng dạy chuyên nghiệp hơn?</h2>
+      <p class="ld-cta-strip__sub">Dùng thử 14 ngày — không cần thẻ thanh toán. Setup trong 2 phút.</p>
+      <button class="ld-cta-strip__btn" (click)="goSignup()">
+        <span nz-icon nzType="rocket"></span>
+        Bắt đầu miễn phí
+      </button>
+    </div>
+  </section>
+
+  <!-- ─── Footer ─── -->
+  <footer class="ld-footer">
+    <div class="ld-footer__inner">
+      <div class="ld-footer__brand">
+        <span class="ld-footer__logo-icon">📚</span>
+        <strong>EduTrack</strong>
+      </div>
+      <div class="ld-footer__copy">
+        © 2026 EduTrack · Made for Vietnamese tutors with ❤️
+      </div>
+      <div class="ld-footer__links">
+        <a href="mailto:support@edutrack.vn">support&#64;edutrack.vn</a>
+      </div>
+    </div>
+  </footer>
+</div>

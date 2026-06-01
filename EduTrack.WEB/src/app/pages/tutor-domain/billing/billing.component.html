@@ -1,0 +1,135 @@
+<div class="bl">
+  <!-- Hero: tổng quan plan -->
+  <header class="bl__hero" *ngIf="sub">
+    <div class="bl__hero-inner">
+      <span class="bl__eyebrow">Gói thanh toán</span>
+      <h1 class="bl__title">Gói hiện tại</h1>
+
+      <div class="bl__current-card">
+        <div class="bl__current-top">
+          <div>
+            <div class="bl__current-name">
+              <span class="bl__plan-tag" [ngClass]="planClass(sub.plan)">{{ PlanLabel[sub.plan] }}</span>
+              <span class="bl__status-pill" [ngClass]="statusBadgeClass">
+                {{ StatusLabel[sub.status] }}
+              </span>
+            </div>
+            <div class="bl__current-headline" [class.is-urgent]="statusUrgent">
+              <span nz-icon [nzType]="statusUrgent ? 'warning' : 'clock-circle'"></span>
+              {{ statusHeadline }}
+            </div>
+          </div>
+          <div class="bl__current-price" *ngIf="sub.status === SubscriptionStatus.Active">
+            {{ fmt(sub.currentPrice) }}<small>đ/tháng</small>
+          </div>
+          <div class="bl__current-price bl__current-price--trial" *ngIf="sub.status === SubscriptionStatus.Trial">
+            Miễn phí
+          </div>
+        </div>
+
+        <div class="bl__current-bottom" *ngIf="sub.expiresAt">
+          <div class="bl__expire-key">
+            <span *ngIf="sub.status === SubscriptionStatus.Trial">Trial kết thúc</span>
+            <span *ngIf="sub.status === SubscriptionStatus.Active">Hết hạn</span>
+            <span *ngIf="sub.status === SubscriptionStatus.Expired">Đã hết từ</span>
+          </div>
+          <div class="bl__expire-val">{{ fmtDate(sub.expiresAt) }}</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Plan cards -->
+  <section class="bl__plans-wrap">
+    <h2 class="bl__section-title">Chọn gói phù hợp</h2>
+    <div class="bl__plans" *ngIf="sub">
+      <!-- BASIC -->
+      <div class="plan-card" [class.is-current]="isCurrentPlan(PlanCode.Basic)">
+        <div class="plan-card__head">
+          <div class="plan-card__name">Cơ bản</div>
+          <div class="plan-card__price">
+            {{ fmt(sub.basicPrice) }}<small>đ/tháng</small>
+          </div>
+          <div class="plan-card__sub">Phù hợp gia sư có 6-20 học sinh</div>
+        </div>
+        <ul class="plan-card__features">
+          <li><span nz-icon nzType="check"></span> <strong>Tối đa 20 học sinh</strong></li>
+          <li><span nz-icon nzType="check"></span> Lịch dạy + nhắc Zalo</li>
+          <li><span nz-icon nzType="check"></span> Học phí + VietQR</li>
+          <li><span nz-icon nzType="check"></span> Báo cáo cơ bản</li>
+        </ul>
+        <button class="plan-card__cta"
+                *ngIf="!isCurrentPlan(PlanCode.Basic)"
+                (click)="onUpgrade(PlanCode.Basic)">
+          {{ sub.status === SubscriptionStatus.Trial ? 'Đăng ký Cơ bản' : 'Nâng cấp Cơ bản' }}
+        </button>
+        <div class="plan-card__current-badge" *ngIf="isCurrentPlan(PlanCode.Basic)">
+          <span nz-icon nzType="check-circle"></span> Đang dùng
+        </div>
+      </div>
+
+      <!-- PRO -->
+      <div class="plan-card plan-card--pro" [class.is-current]="isCurrentPlan(PlanCode.Pro)">
+        <div class="plan-card__ribbon">PHỔ BIẾN</div>
+        <div class="plan-card__head">
+          <div class="plan-card__name">
+            Chuyên nghiệp
+            <span class="plan-card__pro-icon">⭐</span>
+          </div>
+          <div class="plan-card__price">
+            {{ fmt(sub.proPrice) }}<small>đ/tháng</small>
+          </div>
+          <div class="plan-card__sub">Cho gia sư nhiều HS / mở rộng quy mô</div>
+        </div>
+        <ul class="plan-card__features">
+          <li><span nz-icon nzType="check"></span> <strong>Không giới hạn HS</strong></li>
+          <li><span nz-icon nzType="check"></span> Tất cả tính năng Cơ bản</li>
+          <li><span nz-icon nzType="check"></span> Báo cáo chi tiết, export Excel</li>
+          <li><span nz-icon nzType="check"></span> Hỗ trợ ưu tiên</li>
+        </ul>
+        <button class="plan-card__cta plan-card__cta--pro"
+                *ngIf="!isCurrentPlan(PlanCode.Pro)"
+                (click)="onUpgrade(PlanCode.Pro)">
+          {{ sub.plan === PlanCode.Pro && sub.status === SubscriptionStatus.Active ? 'Gia hạn Pro' : 'Nâng cấp Pro' }}
+        </button>
+        <div class="plan-card__current-badge" *ngIf="isCurrentPlan(PlanCode.Pro)">
+          <span nz-icon nzType="check-circle"></span> Đang dùng
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Payment history -->
+  <section class="bl__history" *ngIf="payments.length > 0">
+    <h2 class="bl__section-title">Lịch sử thanh toán</h2>
+    <div class="bl__history-list">
+      <div *ngFor="let p of payments" class="ph-row">
+        <div class="ph-row__icon" [ngClass]="planClass(p.plan)">
+          <span nz-icon nzType="check-circle"></span>
+        </div>
+        <div class="ph-row__main">
+          <div class="ph-row__title">
+            Gia hạn {{ PlanLabel[p.plan] }} · {{ p.months }} tháng
+          </div>
+          <div class="ph-row__sub">
+            {{ fmtDate(p.confirmedAt) }}
+            <span *ngIf="p.notes" class="ph-row__notes"> · {{ p.notes }}</span>
+          </div>
+        </div>
+        <div class="ph-row__amount">
+          +{{ fmt(p.amount) }}<small>đ</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Empty payments -->
+  <section class="bl__history" *ngIf="!isLoading && payments.length === 0">
+    <h2 class="bl__section-title">Lịch sử thanh toán</h2>
+    <div class="bl__empty">
+      <span nz-icon nzType="inbox"></span>
+      <div>Chưa có giao dịch nào</div>
+      <small>Lịch sử nâng cấp / gia hạn sẽ hiển thị ở đây.</small>
+    </div>
+  </section>
+</div>

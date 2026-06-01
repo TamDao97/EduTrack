@@ -1,3 +1,4 @@
+using EduTrack.API.DataContext.Dto.TutorDomain;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using EduTrack.API.DataContext.Enums;
 using EduTrack.API.UnitOfWork;
@@ -8,12 +9,14 @@ namespace EduTrack.API.Services.TutorDomain
 {
     /// <summary>
     /// Quản lý vòng đời Subscription. Gọi từ AuthService (EnsureTrial khi signup) +
-    /// AdminService (extend khi confirm payment).
+    /// AdminService (extend khi confirm payment) + tutor self-query (/billing).
     /// </summary>
     public interface ISubscriptionService
     {
         Task<Subscription> EnsureTrialAsync(Guid idTutor, int trialDays = 14);
         Task<Subscription?> GetByTutorAsync(Guid idTutor);
+        Task<MySubscriptionDto?> GetMineAsync(Guid idTutor);
+        Task<List<MyPaymentDto>> GetMyPaymentsAsync(Guid idTutor);
         Task ExtendAsync(Guid idSubscription, PlanCodeEnums plan, int months);
         decimal PriceOf(PlanCodeEnums plan);
     }
@@ -22,11 +25,13 @@ namespace EduTrack.API.Services.TutorDomain
     {
         private readonly IUnitOfWork _uow;
         private readonly ITDRepository<Subscription> _repos;
+        private readonly ITDRepository<SubscriptionPayment> _paymentRepos;
 
         public SubscriptionService(IUnitOfWork uow)
         {
             _uow = uow;
             _repos = uow.GetRepository<Subscription>();
+            _paymentRepos = uow.GetRepository<SubscriptionPayment>();
         }
 
         /// <summary>Tạo Trial 14 ngày nếu tutor chưa có sub. Idempotent.</summary>
@@ -51,9 +56,62 @@ namespace EduTrack.API.Services.TutorDomain
         public async Task<Subscription?> GetByTutorAsync(Guid idTutor)
             => await _repos.TableNoTracking.FirstOrDefaultAsync(s => s.IdTutor == idTutor);
 
-        /// <summary>
-        /// Gia hạn: đổi Plan + cộng N tháng vào CurrentPeriodEnd (hoặc từ now nếu chưa active).
-        /// </summary>
+        /// <summary>Tutor xem subscription của chính mình — auto-create Trial nếu chưa có.</summary>
+        public async Task<MySubscriptionDto?> GetMineAsync(Guid idTutor)
+        {
+            var sub = await EnsureTrialAsync(idTutor);
+            var now = DateTime.UtcNow;
+
+            var effectiveStatus = sub.Status;
+            DateTime? expiresAt = null;
+            switch (sub.Status)
+            {
+                case SubscriptionStatusEnums.Trial:
+                    expiresAt = sub.TrialEndsAt;
+                    if (sub.TrialEndsAt < now) effectiveStatus = SubscriptionStatusEnums.Expired;
+                    break;
+                case SubscriptionStatusEnums.Active:
+                    expiresAt = sub.CurrentPeriodEnd;
+                    if (sub.CurrentPeriodEnd == null || sub.CurrentPeriodEnd < now)
+                        effectiveStatus = SubscriptionStatusEnums.Expired;
+                    break;
+            }
+
+            int? daysRemaining = expiresAt.HasValue
+                ? (int)Math.Ceiling((expiresAt.Value - now).TotalDays)
+                : null;
+
+            return new MySubscriptionDto
+            {
+                Id = sub.Id,
+                Plan = sub.Plan,
+                Status = effectiveStatus,
+                TrialEndsAt = sub.TrialEndsAt,
+                CurrentPeriodEnd = sub.CurrentPeriodEnd,
+                ExpiresAt = expiresAt,
+                DaysRemaining = daysRemaining,
+                CurrentPrice = PriceOf(sub.Plan),
+                BasicPrice = PriceOf(PlanCodeEnums.Basic),
+                ProPrice = PriceOf(PlanCodeEnums.Pro),
+            };
+        }
+
+        public async Task<List<MyPaymentDto>> GetMyPaymentsAsync(Guid idTutor)
+        {
+            return await _paymentRepos.TableNoTracking
+                .Where(p => p.IdTutor == idTutor && p.Status == PaymentStatusEnums.Confirmed)
+                .OrderByDescending(p => p.ConfirmedAt ?? p.DateCreated)
+                .Select(p => new MyPaymentDto
+                {
+                    Id = p.Id,
+                    Plan = p.Plan,
+                    Months = p.Months,
+                    Amount = p.Amount,
+                    ConfirmedAt = p.ConfirmedAt,
+                    Notes = p.Notes,
+                }).ToListAsync();
+        }
+
         public async Task ExtendAsync(Guid idSubscription, PlanCodeEnums plan, int months)
         {
             var sub = await _repos.Table.FirstOrDefaultAsync(s => s.Id == idSubscription);

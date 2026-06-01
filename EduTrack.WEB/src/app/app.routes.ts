@@ -17,6 +17,8 @@ import { NotificationInboxComponent } from './pages/tutor-domain/notification/no
 import { TuitionListComponent } from './pages/tutor-domain/tuition/tuition-list.component';
 import { SettingsComponent } from './pages/tutor-domain/settings/settings.component';
 import { AdminDashboardComponent } from './pages/admin/admin-dashboard.component';
+import { BillingComponent } from './pages/tutor-domain/billing/billing.component';
+import { LandingComponent } from './pages/landing/landing.component';
 import { DesignGalleryComponent } from './_demo/design-gallery.component';
 import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
 import { DashboardDemoComponent } from './_demo/dashboard/dashboard-demo.component';
@@ -25,8 +27,9 @@ import { StudentTableDemoComponent } from './_demo/student-table/student-table-d
 import { SettingsDemoComponent } from './_demo/settings/settings-demo.component';
 
 export const routes: Routes = [
-  { path: 'login',  component: LoginComponent  },
-  { path: 'signup', component: SignupComponent },
+  { path: 'login',   component: LoginComponent   },
+  { path: 'signup',  component: SignupComponent  },
+  { path: 'landing', component: LandingComponent },
   // ─────────────── DESIGN DEMO (mock data, no API) ───────────────
   { path: 'design',                 component: DesignGalleryComponent },
   { path: 'design/onboarding',      component: OnboardingDemoComponent },
@@ -51,6 +54,7 @@ export const routes: Routes = [
       { path: 'inbox',        component: NotificationInboxComponent, canActivate: [AuthGuard] },
       { path: 'tuition',      component: TuitionListComponent,       canActivate: [AuthGuard] },
       { path: 'settings',     component: SettingsComponent,          canActivate: [AuthGuard] },
+      { path: 'billing',      component: BillingComponent,           canActivate: [AuthGuard] },
       { path: 'admin',        component: AdminDashboardComponent,    canActivate: [AuthGuard] },
     ],
   },

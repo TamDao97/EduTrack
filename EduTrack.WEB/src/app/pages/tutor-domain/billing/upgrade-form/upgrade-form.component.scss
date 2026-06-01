@@ -1,0 +1,176 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.upf {
+  display: flex; flex-direction: column;
+  gap: $sp-3;
+
+  &__plan {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: $sp-3 $sp-4;
+    background: $primary-soft;
+    border-radius: $radius-md;
+  }
+  &__plan-name {
+    font-size: $fs-h3; font-weight: $fw-bold;
+    color: $primary-dark;
+    display: flex; align-items: center; gap: $sp-2;
+  }
+  &__plan-badge {
+    display: inline-flex; align-items: center;
+    background: $gradient-accent;
+    color: #fff;
+    font-size: 10px; font-weight: $fw-bold;
+    padding: 2px 8px; border-radius: 10px;
+    letter-spacing: $ls-wide;
+  }
+  &__plan-price {
+    font-size: $fs-display; font-weight: $fw-bold;
+    color: $primary-dark;
+    small { font-size: $fs-caption; font-weight: $fw-normal; opacity: 0.7; margin-left: 2px; }
+  }
+
+  &__label {
+    font-size: $fs-caption; font-weight: $fw-bold;
+    color: $text-3;
+    letter-spacing: $ls-wider;
+    margin-bottom: $sp-2;
+  }
+
+  &__chips {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: $sp-2;
+  }
+  &__chip {
+    position: relative;
+    padding: $sp-2 $sp-1;
+    border: 1px solid $border;
+    background: $surface;
+    border-radius: $radius;
+    font-size: $fs-sm; font-weight: $fw-semi;
+    color: $text-2;
+    cursor: pointer;
+    transition: all $t-fast;
+    &:hover { border-color: $primary; color: $primary; }
+    &.is-on { background: $primary; color: #fff; border-color: $primary; box-shadow: $shadow-primary; }
+  }
+  &__chip-save {
+    position: absolute; top: -8px; right: -4px;
+    background: $accent;
+    color: #fff;
+    font-size: 9px; font-weight: $fw-bold;
+    padding: 1px 5px; border-radius: 8px;
+  }
+
+  &__total {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: $sp-3 $sp-4;
+    background: $accent-soft;
+    border-radius: $radius-md;
+    border: 1px dashed $accent;
+  }
+  &__total-label {
+    font-size: $fs-sm; font-weight: $fw-semi;
+    color: $accent-dark;
+  }
+  &__total-amount {
+    font-size: $fs-h2; font-weight: $fw-bold;
+    color: $accent-dark;
+    letter-spacing: -0.5px;
+    small { font-size: $fs-body; font-weight: $fw-normal; opacity: 0.6; margin-left: 2px; }
+  }
+
+  &__pay {
+    display: flex; flex-direction: column; gap: $sp-3;
+    background: $bg;
+    border-radius: $radius-md;
+    padding: $sp-3;
+
+    @include tablet-up {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+  &__qr-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    gap: $sp-1;
+    @include tablet-up { flex: 0 0 200px; }
+  }
+  &__qr {
+    width: 100%; max-width: 220px;
+    height: auto;
+    border-radius: $radius;
+    background: #fff;
+    box-shadow: $shadow;
+  }
+  &__qr-empty {
+    width: 200px; height: 200px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: $sp-1;
+    background: $surface; border: 1px dashed $border;
+    border-radius: $radius;
+    color: $text-3; font-size: $fs-xs;
+    [nz-icon] { font-size: 40px; opacity: 0.4; }
+  }
+  &__qr-hint {
+    font-size: $fs-xs; color: $text-3;
+  }
+
+  &__bank {
+    flex: 1;
+    display: flex; flex-direction: column;
+    gap: $sp-2;
+  }
+  &__bank-row {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: $sp-2;
+    padding: $sp-2 $sp-3;
+    background: $surface;
+    border-radius: $radius;
+    border: 1px solid $border;
+  }
+  &__bank-key {
+    font-size: $fs-caption; font-weight: $fw-bold;
+    color: $text-3;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    flex: 0 0 90px;
+  }
+  &__bank-val {
+    flex: 1; text-align: right;
+    font-size: $fs-sm; color: $text-1;
+    display: inline-flex; align-items: center; justify-content: flex-end; gap: $sp-2;
+    .mono { font-family: monospace; font-weight: $fw-semi; }
+  }
+  &__copy-btn {
+    background: $primary-soft;
+    color: $primary-dark;
+    border: none;
+    padding: 2px 8px;
+    border-radius: $radius-sm;
+    font-size: 11px; font-weight: $fw-semi;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: all $t-fast;
+    &:hover { background: $primary; color: #fff; }
+    &.is-done { background: $success; color: #fff; }
+  }
+
+  &__steps {
+    margin: 0; padding-left: $sp-5;
+    color: $text-2; font-size: $fs-sm;
+    li { padding: 2px 0; }
+    strong { color: $accent-dark; }
+  }
+
+  &__actions {
+    display: flex; gap: $sp-2;
+    margin-top: $sp-2;
+    button { flex: 1; }
+  }
+  &__zalo-btn {
+    background: linear-gradient(135deg, #0068FF 0%, #00A8FF 100%) !important;
+    border: none !important;
+    &:hover, &:focus { opacity: 0.9; }
+  }
+}

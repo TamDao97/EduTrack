@@ -12,18 +12,16 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public string? Email { get; set; }
         public DateTime? SignupAt { get; set; }
 
-        // Subscription
         public Guid? IdSubscription { get; set; }
         public PlanCodeEnums Plan { get; set; }
         public SubscriptionStatusEnums Status { get; set; }
         public DateTime? TrialEndsAt { get; set; }
         public DateTime? CurrentPeriodEnd { get; set; }
-        public int? DaysRemaining { get; set; }     // ngày còn lại của trial hoặc period
+        public int? DaysRemaining { get; set; }
 
-        // Stats
         public int StudentCount { get; set; }
         public int LessonCountThisMonth { get; set; }
-        public decimal RevenueLifetime { get; set; }  // tổng thanh toán tutor đã trả
+        public decimal RevenueLifetime { get; set; }
     }
 
     public class AdminTutorFilter : GridFilterBase
@@ -32,7 +30,6 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public SubscriptionStatusEnums? Status { get; set; }
     }
 
-    /// <summary>Request admin xác nhận thanh toán → extend subscription.</summary>
     public class ConfirmPaymentReq
     {
         public Guid IdTutor { get; set; }
@@ -43,7 +40,6 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public string? Notes { get; set; }
     }
 
-    /// <summary>Tổng quan kinh doanh — count + MRR.</summary>
     public class AdminStatsDto
     {
         public int TotalTutors { get; set; }
@@ -52,8 +48,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public int ExpiredCount { get; set; }
         public int CancelledCount { get; set; }
         public int SignupsThisMonth { get; set; }
-        public decimal MrrEstimate { get; set; }      // Active × giá plan / tháng
-        public decimal RevenueThisMonth { get; set; } // tổng SubscriptionPayment đã confirm tháng này
+        public decimal MrrEstimate { get; set; }
+        public decimal RevenueThisMonth { get; set; }
         public decimal RevenueLifetime { get; set; }
     }
 
@@ -69,5 +65,30 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public string? TransferRef { get; set; }
         public string? Notes { get; set; }
         public DateTime? ConfirmedAt { get; set; }
+    }
+
+    /// <summary>Subscription của tutor đang login — cho /billing page.</summary>
+    public class MySubscriptionDto
+    {
+        public Guid Id { get; set; }
+        public PlanCodeEnums Plan { get; set; }
+        public SubscriptionStatusEnums Status { get; set; }
+        public DateTime? TrialEndsAt { get; set; }
+        public DateTime? CurrentPeriodEnd { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+        public int? DaysRemaining { get; set; }
+        public decimal CurrentPrice { get; set; }
+        public decimal BasicPrice { get; set; }
+        public decimal ProPrice { get; set; }
+    }
+
+    public class MyPaymentDto
+    {
+        public Guid Id { get; set; }
+        public PlanCodeEnums Plan { get; set; }
+        public int Months { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime? ConfirmedAt { get; set; }
+        public string? Notes { get; set; }
     }
 }

@@ -1,0 +1,303 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.bl {
+  @include page-container;
+  padding-bottom: $sp-8;
+  background: $bg;
+
+  // ─── Hero ───
+  &__hero {
+    @include hero-gradient;
+    padding: $sp-5 $sp-4 $sp-8;
+  }
+  &__hero-inner {
+    position: relative; z-index: 1;
+    max-width: 720px; margin: 0 auto;
+  }
+  &__eyebrow { @include t-eyebrow; color: rgba(255,255,255,0.75); display: block; margin-bottom: $sp-2; }
+  &__title   { font-size: $fs-display; font-weight: $fw-bold; color: #fff; margin: 0 0 $sp-4; letter-spacing: $ls-tight; }
+
+  // Current plan summary card (in hero)
+  &__current-card {
+    @include glass;
+    border-radius: $radius-lg;
+    padding: $sp-4;
+  }
+  &__current-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: $sp-2;
+  }
+  &__current-name {
+    display: flex; align-items: center; gap: $sp-2;
+    margin-bottom: $sp-2;
+  }
+  &__plan-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-wide;
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+    &.pl-pro { background: $gradient-accent; }
+    &.pl-basic { background: rgba(255,255,255,0.35); }
+  }
+  &__status-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-wide;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    &.bd-trial    { background: rgba(255,213,79,0.35); border-color: rgba(255,213,79,0.6); }
+    &.bd-active   { background: rgba(76,217,123,0.35); border-color: rgba(76,217,123,0.6); }
+    &.bd-expired  { background: rgba(255,82,82,0.35); border-color: rgba(255,82,82,0.6); }
+    &.bd-cancelled{ background: rgba(255,255,255,0.15); }
+  }
+
+  &__current-headline {
+    font-size: $fs-h3;
+    font-weight: $fw-bold;
+    color: #fff;
+    display: flex; align-items: center; gap: 6px;
+    [nz-icon] { font-size: 16px; }
+    &.is-urgent { color: #FFD8A8; }
+  }
+
+  &__current-price {
+    font-size: 24px; font-weight: $fw-bold;
+    color: #fff;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+    small {
+      font-size: $fs-caption; font-weight: $fw-normal;
+      opacity: 0.7; margin-left: 2px;
+    }
+    &--trial {
+      font-size: $fs-h3;
+      color: #FFE0B2;
+    }
+  }
+
+  &__current-bottom {
+    margin-top: $sp-3;
+    padding-top: $sp-3;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  &__expire-key {
+    font-size: $fs-caption;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+  }
+  &__expire-val {
+    font-size: $fs-body; font-weight: $fw-bold;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // ─── Sections ───
+  &__section-title {
+    font-size: $fs-h3;
+    font-weight: $fw-bold;
+    color: $text-1;
+    margin: 0 0 $sp-4;
+  }
+
+  &__plans-wrap {
+    background: $surface;
+    margin-top: -$sp-4;
+    border-radius: $radius-lg $radius-lg 0 0;
+    padding: $sp-5 $sp-4;
+    @include tablet-up { padding: $sp-6 $sp-6; }
+  }
+  &__plans {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $sp-3;
+    @include tablet-up { grid-template-columns: 1fr 1fr; gap: $sp-4; }
+  }
+
+  &__history {
+    background: $surface;
+    padding: $sp-5 $sp-4;
+    margin-top: $sp-2;
+    @include tablet-up { padding: $sp-6 $sp-6; }
+  }
+
+  &__history-list {
+    display: flex; flex-direction: column; gap: $sp-2;
+  }
+
+  &__empty {
+    text-align: center;
+    padding: $sp-8 $sp-4;
+    color: $text-3;
+    [nz-icon] { font-size: 48px; opacity: 0.3; display: block; margin-bottom: $sp-2; }
+    div { font-size: $fs-body; font-weight: $fw-semi; color: $text-2; margin-bottom: 4px; }
+    small { font-size: $fs-xs; }
+  }
+}
+
+// ═══════════ Plan card ═══════════
+.plan-card {
+  position: relative;
+  background: $surface;
+  border: 2px solid $border;
+  border-radius: $radius-lg;
+  padding: $sp-5 $sp-4;
+  display: flex; flex-direction: column;
+  transition: all $t-fast;
+
+  &:hover { border-color: $primary; transform: translateY(-2px); box-shadow: $shadow-md; }
+
+  &.is-current {
+    border-color: $success;
+    background: linear-gradient(180deg, $success-soft 0%, $surface 60%);
+  }
+
+  &--pro {
+    border-color: $accent;
+    background: linear-gradient(180deg, $accent-soft 0%, $surface 50%);
+    &:hover { border-color: $accent-dark; }
+  }
+
+  &__ribbon {
+    position: absolute;
+    top: -10px; left: 50%; transform: translateX(-50%);
+    background: $gradient-accent;
+    color: #fff;
+    padding: 4px 16px;
+    border-radius: 12px;
+    font-size: 10px; font-weight: $fw-bold;
+    letter-spacing: $ls-wider;
+    box-shadow: $shadow-accent;
+  }
+
+  &__head {
+    text-align: center;
+    margin-bottom: $sp-4;
+  }
+  &__name {
+    font-size: $fs-h3; font-weight: $fw-bold;
+    color: $text-1;
+    margin-bottom: $sp-2;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  &__pro-icon { font-size: 18px; }
+  &__price {
+    font-size: 32px; font-weight: $fw-bold;
+    color: $text-1;
+    letter-spacing: -1px;
+    line-height: 1;
+    small {
+      font-size: $fs-sm; font-weight: $fw-normal;
+      color: $text-3; margin-left: 2px;
+    }
+  }
+  &__sub {
+    margin-top: $sp-2;
+    font-size: $fs-xs;
+    color: $text-3;
+  }
+
+  &__features {
+    list-style: none; margin: 0 0 $sp-4; padding: 0;
+    flex: 1;
+    li {
+      display: flex; align-items: center; gap: $sp-2;
+      padding: 6px 0;
+      font-size: $fs-sm;
+      color: $text-2;
+      [nz-icon] {
+        color: $success;
+        background: $success-soft;
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 10px;
+        flex-shrink: 0;
+      }
+      strong { color: $text-1; }
+    }
+  }
+
+  &__cta {
+    height: 44px;
+    width: 100%;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $fs-body;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-wide;
+    cursor: pointer;
+    transition: all $t-fast;
+    box-shadow: $shadow-primary;
+
+    &:hover { transform: translateY(-1px); box-shadow: $shadow-md; }
+    &--pro { background: $gradient-accent; box-shadow: $shadow-accent; }
+  }
+
+  &__current-badge {
+    display: inline-flex; align-items: center; gap: $sp-2;
+    justify-content: center;
+    height: 44px;
+    background: $success-soft;
+    color: $success-dark;
+    border-radius: $radius-md;
+    font-size: $fs-sm;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-wide;
+    [nz-icon] { font-size: 18px; }
+  }
+}
+
+// ═══════════ Payment history row ═══════════
+.ph-row {
+  display: flex; align-items: center; gap: $sp-3;
+  padding: $sp-3;
+  background: $bg;
+  border-radius: $radius-md;
+  border: 1px solid $border;
+  transition: background $t-fast;
+  &:hover { background: $surface-alt; }
+
+  &__icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: $primary-soft;
+    color: $primary-dark;
+    [nz-icon] { font-size: 18px; }
+    &.pl-pro   { background: $accent-soft; color: $accent-dark; }
+    &.pl-basic { background: $primary-soft; color: $primary-dark; }
+    &.pl-free  { background: $bg-strong; color: $text-3; }
+  }
+  &__main { flex: 1; min-width: 0; }
+  &__title {
+    font-size: $fs-body; font-weight: $fw-semi;
+    color: $text-1;
+  }
+  &__sub {
+    font-size: $fs-xs;
+    color: $text-3;
+    margin-top: 2px;
+  }
+  &__notes { color: $text-3; }
+  &__amount {
+    font-size: $fs-h3; font-weight: $fw-bold;
+    color: $success-dark;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    small { font-size: $fs-caption; opacity: 0.7; margin-left: 1px; }
+  }
+}

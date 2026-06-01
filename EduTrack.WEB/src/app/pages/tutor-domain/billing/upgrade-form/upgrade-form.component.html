@@ -1,0 +1,108 @@
+<div class="upf" *ngIf="params">
+  <!-- Plan summary -->
+  <div class="upf__plan">
+    <div class="upf__plan-name">
+      Gói {{ PlanLabel[plan] }}
+      <span class="upf__plan-badge" *ngIf="plan === PlanCode.Pro">⭐ Pro</span>
+    </div>
+    <div class="upf__plan-price">
+      {{ fmt(pricePerMonth) }}<small>đ/tháng</small>
+    </div>
+  </div>
+
+  <!-- Months chip -->
+  <div class="upf__months">
+    <div class="upf__label">Số tháng gia hạn</div>
+    <div class="upf__chips">
+      <button *ngFor="let m of monthOptions"
+              type="button"
+              class="upf__chip"
+              [class.is-on]="selectedMonths === m"
+              (click)="setMonths(m)">
+        {{ m }} tháng
+        <span *ngIf="m >= 6" class="upf__chip-save">-10%</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Total -->
+  <div class="upf__total">
+    <div class="upf__total-label">Tổng thanh toán</div>
+    <div class="upf__total-amount">{{ fmt(totalAmount) }}<small>đ</small></div>
+  </div>
+
+  <!-- QR + Bank -->
+  <div class="upf__pay">
+    <div class="upf__qr-wrap">
+      <img *ngIf="qrUrl" [src]="qrUrl" alt="VietQR" class="upf__qr" />
+      <div *ngIf="!qrUrl" class="upf__qr-empty">
+        <span nz-icon nzType="qrcode"></span>
+        QR chưa tạo được
+      </div>
+      <div class="upf__qr-hint">Quét QR bằng app ngân hàng</div>
+    </div>
+
+    <div class="upf__bank">
+      <div class="upf__bank-row">
+        <div class="upf__bank-key">Ngân hàng</div>
+        <div class="upf__bank-val">{{ founder.bankName }}</div>
+      </div>
+      <div class="upf__bank-row">
+        <div class="upf__bank-key">Số tài khoản</div>
+        <div class="upf__bank-val">
+          <span class="mono">{{ founder.bankAccountNumber }}</span>
+          <button class="upf__copy-btn"
+                  [class.is-done]="copyDone === 'acc'"
+                  (click)="copy(founder.bankAccountNumber, 'acc')">
+            <span nz-icon [nzType]="copyDone === 'acc' ? 'check' : 'copy'"></span>
+            {{ copyDone === 'acc' ? 'OK' : 'Copy' }}
+          </button>
+        </div>
+      </div>
+      <div class="upf__bank-row">
+        <div class="upf__bank-key">Chủ TK</div>
+        <div class="upf__bank-val">{{ founder.bankAccountHolder }}</div>
+      </div>
+      <div class="upf__bank-row">
+        <div class="upf__bank-key">Số tiền</div>
+        <div class="upf__bank-val">
+          <strong>{{ fmt(totalAmount) }}đ</strong>
+          <button class="upf__copy-btn"
+                  [class.is-done]="copyDone === 'amt'"
+                  (click)="copy(totalAmount.toString(), 'amt')">
+            <span nz-icon [nzType]="copyDone === 'amt' ? 'check' : 'copy'"></span>
+            {{ copyDone === 'amt' ? 'OK' : 'Copy' }}
+          </button>
+        </div>
+      </div>
+      <div class="upf__bank-row">
+        <div class="upf__bank-key">Nội dung CK</div>
+        <div class="upf__bank-val">
+          <span class="mono">{{ transferContent }}</span>
+          <button class="upf__copy-btn"
+                  [class.is-done]="copyDone === 'note'"
+                  (click)="copy(transferContent, 'note')">
+            <span nz-icon [nzType]="copyDone === 'note' ? 'check' : 'copy'"></span>
+            {{ copyDone === 'note' ? 'OK' : 'Copy' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <ol class="upf__steps">
+    <li>Quét QR bằng app ngân hàng (hoặc copy info chuyển thủ công)</li>
+    <li>Chuyển khoản đúng <strong>nội dung CK</strong> ở trên</li>
+    <li>Nhắn Zalo cho team để xác nhận — gia hạn ngay sau khi đối soát</li>
+  </ol>
+
+  <!-- Actions -->
+  <div class="upf__actions">
+    <button type="button" nz-button nzSize="large" (click)="onClose()">Đóng</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" class="upf__zalo-btn" (click)="openZalo()">
+      <span nz-icon nzType="message"></span>
+      Đã chuyển, nhắn Zalo
+    </button>
+  </div>
+</div>
