@@ -89,12 +89,8 @@ namespace EduTrack.API.Services
         public async Task<Response<List<PageTreeNode>>> GetPageTreeByUserLoginAsync()
         {
             var datas = await BuildPageTreeByUserLogin();
-
-            //Chỉ lấy những menu cấp 1 mà có menu con
-            datas = datas.Where(r => r.Children != null && r.Children.Count > 0).ToList();
-
-            // ============= GÁN SỐ THỨ TỰ =============
-            AssignOrderNumber(datas);
+            // EduTrack dùng menu phẳng — KHÔNG filter leaf root như OrderDebt.
+            // (Trước đây có filter `Where(Children.Count > 0)` cắt sạch menu một cấp.)
             return Response<List<PageTreeNode>>.Success(datas, StatusCode.Ok.ToDescription());
         }
 
@@ -130,9 +126,12 @@ namespace EduTrack.API.Services
         private async Task<List<PageTreeNode>> BuildPageTreeByUserLogin()
         {
             var userLogin = await _userContextService.GetCurrentUserAsync();
+            // Super xem tất cả; user thường xem các page có matching permission HOẶC page không có PermissionCode (public).
+            // Khác bản OrderDebt: bỏ check `!IdParent.HasValue` (rò rỉ trang ADMIN cho tutor thường).
             List<Page> flatPages = await _pageRepos.TableNoTracking.Where(r => userLogin.IsSuper
-                                                                || (userLogin.Permissions != null && userLogin.Permissions.Contains(r.PermissionCode))
-                                                                || !r.IdParent.HasValue).OrderBy(r => r.Order).ToListAsync();
+                                                                || (r.PermissionCode == null || r.PermissionCode == "")
+                                                                || (userLogin.Permissions != null && userLogin.Permissions.Contains(r.PermissionCode)))
+                                                                .OrderBy(r => r.Order).ToListAsync();
 
             var lookup = flatPages.ToLookup(r => r.IdParent);
 

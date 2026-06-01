@@ -1,55 +1,71 @@
+/* ───────────── Hamburger (mobile only) ───────────── */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 12px; left: 12px;
+  z-index: 1100;
+  width: 40px; height: 40px;
+  border: none;
+  background: #1A1F36;
+  color: #fff;
+  border-radius: 10px;
+  align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.hamburger:active { transform: scale(0.95); }
+
+/* ───────────── Backdrop overlay ───────────── */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 999;
+  animation: backdrop-in 0.18s ease-out;
+}
+@keyframes backdrop-in { from { opacity: 0 } to { opacity: 1 } }
+
+/* ───────────── Mobile breakpoint (<768px) ───────────── */
+@media (max-width: 767.98px) {
+  .hamburger { display: inline-flex; }
+
+  /* Sidebar ẩn off-screen mặc định */
+  :host ::ng-deep .sidebar.sidebar-mini {
+    transform: translateX(-100%);
+    transition: transform 0.22s ease-out;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+  }
+  /* Khi wrapper có .sidebar-open thì trượt vào */
+  .wrapper.sidebar-open :host ::ng-deep .sidebar.sidebar-mini,
+  .sidebar-open ::ng-deep .sidebar.sidebar-mini {
+    transform: translateX(0);
+  }
+
+  .wrapper.sidebar-open .sidebar-backdrop { display: block; }
+}
+
+/* ───────────── Rocket spinner (giữ nguyên) ───────────── */
 @keyframes flyUp {
-  0% {
-    transform: translateY(0) rotate(-5deg) scale(1);
-    filter: drop-shadow(0 0 3px #00bcd4);
-  }
-  30% {
-    transform: translateY(-5px) rotate(5deg) scale(1.03);
-    filter: drop-shadow(0 0 6px #00e5ff);
-  }
-  60% {
-    transform: translateY(-10px) rotate(-5deg) scale(1.05);
-    filter: drop-shadow(0 0 12px #00bcd4);
-  }
-  100% {
-    transform: translateY(-20px) rotate(5deg) scale(1.1);
-    filter: drop-shadow(0 0 20px #00e5ff);
-  }
+  0%   { transform: translateY(0) rotate(-5deg) scale(1);   filter: drop-shadow(0 0 3px #00bcd4); }
+  30%  { transform: translateY(-5px) rotate(5deg) scale(1.03);   filter: drop-shadow(0 0 6px #00e5ff); }
+  60%  { transform: translateY(-10px) rotate(-5deg) scale(1.05); filter: drop-shadow(0 0 12px #00bcd4); }
+  100% { transform: translateY(-20px) rotate(5deg) scale(1.1);   filter: drop-shadow(0 0 20px #00e5ff); }
 }
-
 @keyframes flame {
-  0% {
-    height: 14px;
-    opacity: 0.6;
-    transform: translateX(-50%) scaleY(1);
-  }
-  100% {
-    height: 24px;
-    opacity: 1;
-    transform: translateX(-50%) scaleY(1.2);
-  }
+  0%   { height: 14px; opacity: 0.6; transform: translateX(-50%) scaleY(1); }
+  100% { height: 24px; opacity: 1;   transform: translateX(-50%) scaleY(1.2); }
 }
-
 .rocket-container {
-  display: flex;
-  flex-direction: column; /* sắp xếp theo cột */
-  align-items: center; /* căn giữa theo chiều ngang */
-  justify-content: center; /* căn giữa theo chiều dọc (nếu container có chiều cao) */
-  gap: 8px; /* khoảng cách giữa rocket và text */
-  height: 100%; /* giúp căn giữa nếu parent có chiều cao cố định */
-  text-align: center;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px; height: 100%; text-align: center;
 }
-
-.rocket-container p {
-  margin: 0;
-  font-size: 18px;
-  color: #00bcd4;
-  font-weight: 500;
-}
-
+.rocket-container p { margin: 0; font-size: 18px; color: #00bcd4; font-weight: 500; }
 .rocket {
-  width: 64px;
-  height: 64px;
+  width: 64px; height: 64px;
   animation: flyUp 0.6s ease-in-out infinite alternate;
   transition: transform 0.3s ease;
 }

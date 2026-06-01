@@ -31,6 +31,33 @@ const BANK_BINS: Record<string, string> = {
   'momo':        'momo',
 };
 
+/**
+ * List ngân hàng hiển thị trong dropdown — tên chuẩn + BIN cố định.
+ * Dùng order phổ biến VN: 5 NH lớn lên trước, rồi alphabet.
+ */
+export const BANK_OPTIONS: Array<{ value: string; label: string; bin: string }> = [
+  { value: 'Vietcombank',  label: 'Vietcombank (VCB)',     bin: '970436' },
+  { value: 'Techcombank',  label: 'Techcombank (TCB)',     bin: '970407' },
+  { value: 'BIDV',         label: 'BIDV',                  bin: '970418' },
+  { value: 'Vietinbank',   label: 'Vietinbank (CTG)',      bin: '970415' },
+  { value: 'MB Bank',      label: 'MB Bank (MB)',          bin: '970422' },
+  { value: 'ACB',          label: 'ACB',                   bin: '970416' },
+  { value: 'Agribank',     label: 'Agribank',              bin: '970405' },
+  { value: 'VPBank',       label: 'VPBank',                bin: '970432' },
+  { value: 'TPBank',       label: 'TPBank',                bin: '970423' },
+  { value: 'Sacombank',    label: 'Sacombank (STB)',       bin: '970403' },
+  { value: 'HDBank',       label: 'HDBank',                bin: '970437' },
+  { value: 'MSB',          label: 'MSB',                   bin: '970426' },
+  { value: 'OCB',          label: 'OCB',                   bin: '970448' },
+  { value: 'VIB',          label: 'VIB',                   bin: '970441' },
+  { value: 'SHB',          label: 'SHB',                   bin: '970443' },
+  { value: 'Eximbank',     label: 'Eximbank',              bin: '970431' },
+  { value: 'SeABank',      label: 'SeABank',               bin: '970440' },
+  { value: 'LPBank',       label: 'LPBank (LienVietPost)', bin: '970449' },
+  { value: 'Cake',         label: 'Cake by VPBank',        bin: '546034' },
+  { value: 'Timo',         label: 'Timo',                  bin: '963388' },
+];
+
 /** Trả về BIN từ tên ngân hàng (case-insensitive, fuzzy). Null nếu không match. */
 export function lookupBankBin(bankName: string | undefined | null): string | null {
   if (!bankName) return null;

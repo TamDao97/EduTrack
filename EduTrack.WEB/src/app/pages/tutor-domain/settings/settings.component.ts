@@ -10,7 +10,7 @@ import { StatusResponseMessage, StatusResponseTitle } from '../../../shared/util
 import { StatusCode } from '../../../shared/utils/enums';
 import { TdBaseComponent } from '../../../shared/utils/extends-components/td-base.component';
 import { AuthService } from '../../../shared/utils/services/auth.service';
-import { lookupBankBin } from '../../../shared/utils/vietqr';
+import { BANK_OPTIONS, lookupBankBin } from '../../../shared/utils/vietqr';
 
 @Component({
   selector: 'app-settings',
@@ -25,6 +25,7 @@ export class SettingsComponent extends TdBaseComponent implements OnInit {
   private _profileService = inject(TutorProfileService);
   private _router = inject(Router);
 
+  bankOptions = BANK_OPTIONS;
   frmGroup!: FormGroup;
   tutorDisplayName = '';
   isLoading = false;

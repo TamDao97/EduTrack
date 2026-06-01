@@ -20,7 +20,48 @@
       <h1 class="dash__title">{{ greeting }}<br><span class="dash__name">{{ tutorName }} 👋</span></h1>
     </div>
 
-    <div class="dash__stats">
+    <!-- Onboarding card khi chưa có HS nào -->
+    <div *ngIf="!isLoading && activeStudentsCount === 0" class="onboard-card">
+      <div class="onboard-card__head">
+        <span class="onboard-card__emoji">🚀</span>
+        <div>
+          <div class="onboard-card__eyebrow">BẮT ĐẦU NHANH</div>
+          <h2 class="onboard-card__title">3 bước để dùng EduTrack hiệu quả</h2>
+        </div>
+      </div>
+      <ol class="onboard-steps">
+        <li class="onboard-step is-current">
+          <span class="onboard-step__num">1</span>
+          <div class="onboard-step__body">
+            <div class="onboard-step__title">Thêm học sinh đầu tiên</div>
+            <div class="onboard-step__sub">Tạo HS + phụ huynh + học phí/buổi</div>
+          </div>
+          <button class="onboard-step__cta" (click)="goStudent()">
+            Thêm HS <span nz-icon nzType="arrow-right"></span>
+          </button>
+        </li>
+        <li class="onboard-step">
+          <span class="onboard-step__num">2</span>
+          <div class="onboard-step__body">
+            <div class="onboard-step__title">Tạo lịch dạy tuần</div>
+            <div class="onboard-step__sub">Xếp lịch cố định, hệ thống tự nhắc</div>
+          </div>
+        </li>
+        <li class="onboard-step">
+          <span class="onboard-step__num">3</span>
+          <div class="onboard-step__body">
+            <div class="onboard-step__title">Chốt học phí cuối tháng</div>
+            <div class="onboard-step__sub">Tự sinh QR + gửi link Zalo cho PH</div>
+          </div>
+        </li>
+      </ol>
+      <div class="onboard-card__foot">
+        <span nz-icon nzType="gift"></span>
+        Bạn đang dùng <strong>14 ngày dùng thử</strong> miễn phí — toàn quyền truy cập.
+      </div>
+    </div>
+
+    <div class="dash__stats" *ngIf="activeStudentsCount > 0 || isLoading">
       <div class="qs-pill" (click)="goTuition()">
         <span class="qs-pill__icon" style="background: rgba(82,196,26,0.4)"><span nz-icon nzType="dollar"></span></span>
         <div class="qs-pill__body">

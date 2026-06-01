@@ -240,6 +240,13 @@
 
 .fab { @include btn-fab; }
 
+// Pager — căn giữa cuối list, cách FAB bằng padding-bottom
+.pager {
+  display: flex;
+  justify-content: center;
+  padding: $sp-4 $sp-4 $sp-6;
+}
+
 :host ::ng-deep .menu-danger {
   color: $danger !important;
   [nz-icon] { color: $danger; }

@@ -172,6 +172,20 @@
     </li>
   </ul>
 
+  <!-- Pagination -->
+  <div class="pager" *ngIf="totalRecord > filter.pageSize">
+    <nz-pagination
+      [nzPageIndex]="filter.pageNumber"
+      [nzPageSize]="filter.pageSize"
+      [nzTotal]="totalRecord"
+      [nzPageSizeOptions]="[12, 24, 48]"
+      [nzShowSizeChanger]="true"
+      nzSize="small"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+    ></nz-pagination>
+  </div>
+
   <!-- ─────── Floating Add Button (mobile) ─────── -->
   <button class="fab" (click)="onAdd()" *ngIf="students.length > 0" aria-label="Thêm học sinh">
     <span nz-icon nzType="plus"></span>

@@ -21,15 +21,21 @@ namespace EduTrack.API.Services.TutorDomain
     {
         public NotificationService(IUnitOfWork uow, IUserContextService ctx) : base(uow, ctx) { }
 
-        /// <summary>Inbox: nhắc còn Pending hoặc đã Sent trong 7 ngày, sort sớm nhất trước.</summary>
+        /// <summary>
+        /// Inbox = "việc cần làm BÂY GIỜ":
+        /// - Pending mà <see cref="Notification.ScheduledAt"/> ≤ now (đã đến giờ nhắc)
+        /// - Hoặc đã Sent trong 7 ngày (cho tutor xem lịch sử gần)
+        /// Sort: Pending trước, theo ScheduledAt cũ nhất.
+        /// </summary>
         public async Task<Response<List<NotificationDto>>> GetInboxAsync()
         {
             var idTutor = await GetCurrentTutorIdAsync();
-            var since = DateTime.UtcNow.AddDays(-7);
+            var now = DateTime.UtcNow;
+            var since = now.AddDays(-7);
 
             var list = await _repos.TableNoTracking
                 .Where(n => n.IdTutor == idTutor
-                         && (n.Status == NotificationStatusEnums.Pending
+                         && ((n.Status == NotificationStatusEnums.Pending && n.ScheduledAt <= now)
                           || (n.Status == NotificationStatusEnums.Sent && n.SentAt >= since)))
                 .OrderBy(n => n.Status) // Pending trước
                 .ThenBy(n => n.ScheduledAt)

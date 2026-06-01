@@ -30,7 +30,17 @@ export class StudentListComponent extends TdBaseComponent implements OnInit {
   students: IStudentDetail[] = [];
   totalRecord = 0;
   isLoading = false;
-  filter: IStudentGridFilter = { ...defaultGridFilter(), pageSize: 50, status: null };
+  filter: IStudentGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null };
+
+  onPageChange(page: number) {
+    this.filter.pageNumber = page;
+    this.loadData();
+  }
+  onPageSizeChange(size: number) {
+    this.filter.pageSize = size;
+    this.filter.pageNumber = 1;
+    this.loadData();
+  }
 
   /** Bộ màu avatar — chọn theo hash của tên để mỗi HS có 1 màu cố định nhưng đa dạng. */
   private avatarPalette = [

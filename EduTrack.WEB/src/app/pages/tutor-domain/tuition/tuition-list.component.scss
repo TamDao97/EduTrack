@@ -224,3 +224,9 @@
 }
 
 .fab { @include btn-fab; }
+
+.pager {
+  display: flex;
+  justify-content: center;
+  padding: $sp-4 $sp-4 $sp-6;
+}

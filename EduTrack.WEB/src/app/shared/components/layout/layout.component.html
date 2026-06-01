@@ -1,11 +1,20 @@
-<div class="wrapper">
+<div class="wrapper" [class.sidebar-open]="sidebarOpen">
+  <!-- Hamburger button — only mobile, fixed top-left corner -->
+  <button class="hamburger" (click)="toggleSidebar()" aria-label="Menu">
+    <span nz-icon [nzType]="sidebarOpen ? 'close' : 'menu'"></span>
+  </button>
+
+  <!-- Backdrop — đóng sidebar khi click ngoài (mobile) -->
+  <div class="sidebar-backdrop" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
   <app-sidebar></app-sidebar>
+
   <div class="main-panel">
     <main class="page-outlet">
       <router-outlet></router-outlet>
     </main>
     <ngx-spinner type="" [fullScreen]="true" bdColor="rgba(0,0,0,0.2)">
-      <div><nz-spin> </nz-spin></div>
+      <div><nz-spin></nz-spin></div>
     </ngx-spinner>
   </div>
 </div>

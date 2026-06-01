@@ -33,7 +33,10 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   totalRecord = 0;
   isLoading = false;
   bankInfo: { bankName?: string; accountNumber?: string; accountHolder?: string } = {};
-  filter: ITuitionPeriodGridFilter = { ...defaultGridFilter(), pageSize: 50, status: null };
+  filter: ITuitionPeriodGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null };
+
+  onPageChange(page: number) { this.filter.pageNumber = page; this.reload(); }
+  onPageSizeChange(size: number) { this.filter.pageSize = size; this.filter.pageNumber = 1; this.reload(); }
 
   statusTabs: { value: TuitionStatus | null; label: string; dot?: string }[] = [
     { value: null, label: 'Tất cả' },

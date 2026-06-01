@@ -133,6 +133,20 @@
     </li>
   </ul>
 
+  <!-- Pagination -->
+  <div class="pager" *ngIf="totalRecord > filter.pageSize">
+    <nz-pagination
+      [nzPageIndex]="filter.pageNumber"
+      [nzPageSize]="filter.pageSize"
+      [nzTotal]="totalRecord"
+      [nzPageSizeOptions]="[12, 24, 48]"
+      [nzShowSizeChanger]="true"
+      nzSize="small"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+    ></nz-pagination>
+  </div>
+
   <!-- FAB (mobile only) -->
   <button class="fab" *ngIf="periods.length > 0" (click)="onClose()" aria-label="Chốt kỳ mới">
     <span nz-icon nzType="plus"></span>

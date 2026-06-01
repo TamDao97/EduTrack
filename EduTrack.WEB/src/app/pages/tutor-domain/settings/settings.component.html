@@ -25,10 +25,13 @@
       <div class="ss__card ss__card--accent">
         <div class="ss__field">
           <label>Ngân hàng</label>
-          <input nz-input formControlName="bankName" placeholder="Vd: Techcombank, Vietcombank, MB Bank…" />
-          <small class="ss__warn" *ngIf="bankNotRecognized">
-            ⚠ Không nhận diện ngân hàng — có thể không tự sinh được QR. Kiểm tra chính tả.
-          </small>
+          <nz-select formControlName="bankName"
+                     nzPlaceHolder="Chọn ngân hàng"
+                     nzShowSearch
+                     nzAllowClear>
+            <nz-option *ngFor="let b of bankOptions" [nzValue]="b.value" [nzLabel]="b.label"></nz-option>
+          </nz-select>
+          <small class="ss__hint">Chọn từ danh sách để VietQR sinh chính xác.</small>
         </div>
         <div class="ss__field">
           <label>Số tài khoản</label>
