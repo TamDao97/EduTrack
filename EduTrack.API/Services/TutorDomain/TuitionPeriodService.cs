@@ -25,14 +25,16 @@ namespace EduTrack.API.Services.TutorDomain
         private readonly ITDRepository<Student> _studentRepos;
         private readonly ITDRepository<Parent> _parentRepos;
         private readonly INotificationGenerator _notiGen;
+        private readonly ISubscriptionService _subService;
 
-        public TuitionPeriodService(IUnitOfWork unitOfWork, IUserContextService userContext, INotificationGenerator notiGen)
+        public TuitionPeriodService(IUnitOfWork unitOfWork, IUserContextService userContext, INotificationGenerator notiGen, ISubscriptionService subService)
             : base(unitOfWork, userContext)
         {
             _lessonRepos = unitOfWork.GetRepository<Lesson>();
             _studentRepos = unitOfWork.GetRepository<Student>();
             _parentRepos = unitOfWork.GetRepository<Parent>();
             _notiGen = notiGen;
+            _subService = subService;
         }
 
         public async Task<Response<TuitionPeriodDto>> OpenOrGetAsync(Guid idStudent, int month, int year)
@@ -41,6 +43,10 @@ namespace EduTrack.API.Services.TutorDomain
                 return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Tháng/năm không hợp lệ");
 
             var idTutor = await GetCurrentTutorIdAsync();
+
+            var subErr = await _subService.CheckCanWriteAsync(idTutor);
+            if (subErr != null) return Response<TuitionPeriodDto>.Error(StatusCode.Forbidden, subErr);
+
             var studentOk = await _studentRepos.TableNoTracking
                 .AnyAsync(s => s.Id == idStudent && s.IdTutor == idTutor);
             if (!studentOk)
@@ -73,6 +79,10 @@ namespace EduTrack.API.Services.TutorDomain
         public async Task<Response<TuitionPeriodDto>> CloseAsync(Guid id, decimal adjustment, string? notes)
         {
             var idTutor = await GetCurrentTutorIdAsync();
+
+            var subErr = await _subService.CheckCanWriteAsync(idTutor);
+            if (subErr != null) return Response<TuitionPeriodDto>.Error(StatusCode.Forbidden, subErr);
+
             var period = await _repos.Table.FirstOrDefaultAsync(t => t.Id == id && t.IdTutor == idTutor);
             if (period == null)
                 return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy kỳ học phí");

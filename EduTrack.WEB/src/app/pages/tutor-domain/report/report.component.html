@@ -1,0 +1,97 @@
+<div class="rp">
+  <header class="rp__hero">
+    <div class="rp__hero-inner">
+      <span class="rp__eyebrow">Báo cáo</span>
+      <h1 class="rp__title">Toàn cảnh việc dạy của bạn</h1>
+
+      <div class="rp__stats" *ngIf="report">
+        <div class="rp-stat">
+          <div class="rp-stat__label">TỔNG HS HOẠT ĐỘNG</div>
+          <div class="rp-stat__num">{{ report.summary.totalStudents }}</div>
+        </div>
+        <div class="rp-stat">
+          <div class="rp-stat__label">TỔNG BUỔI ĐÃ DẠY</div>
+          <div class="rp-stat__num">{{ report.summary.lessonsDoneLifetime }}</div>
+        </div>
+        <div class="rp-stat rp-stat--accent">
+          <div class="rp-stat__label">DOANH THU</div>
+          <div class="rp-stat__num">{{ fmtCompact(report.summary.revenueLifetime) }}<small>đ</small></div>
+        </div>
+        <div class="rp-stat rp-stat--warn">
+          <div class="rp-stat__label">CÒN PHẢI THU</div>
+          <div class="rp-stat__num">{{ fmtCompact(report.summary.outstandingTotal) }}<small>đ</small></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Bar chart -->
+  <section class="rp__section" *ngIf="report">
+    <div class="rp__section-head">
+      <h2 class="rp__section-title">
+        <span nz-icon nzType="bar-chart"></span> 6 tháng gần nhất
+      </h2>
+
+      <div class="rp__metric-tabs">
+        <button class="rp__tab" [class.is-on]="metric === 'lessons'"  (click)="setMetric('lessons')">Buổi</button>
+        <button class="rp__tab" [class.is-on]="metric === 'revenue'"  (click)="setMetric('revenue')">Doanh thu</button>
+        <button class="rp__tab" [class.is-on]="metric === 'collected'" (click)="setMetric('collected')">Đã thu</button>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="chart__y-axis">
+        <span>{{ metric === 'lessons' ? maxValue : fmtCompact(maxValue) }}</span>
+        <span>{{ metric === 'lessons' ? Math.round(maxValue/2) : fmtCompact(maxValue/2) }}</span>
+        <span>0</span>
+      </div>
+      <div class="chart__bars">
+        <div *ngFor="let p of report.months" class="chart-bar" [class.is-now]="isCurrentMonth(p)">
+          <div class="chart-bar__val" *ngIf="valOf(p) > 0">
+            {{ metric === 'lessons' ? valOf(p) : fmtCompact(valOf(p)) }}
+          </div>
+          <div class="chart-bar__fill"
+               [style.height.%]="barHeight(p)"
+               [class.is-empty]="valOf(p) === 0">
+          </div>
+          <div class="chart-bar__label">{{ monthLabel(p) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-legend">
+      <span class="chart-legend__dot"></span>
+      <span class="chart-legend__txt">{{ metricLabel }} · 6 tháng</span>
+    </div>
+  </section>
+
+  <!-- Top students -->
+  <section class="rp__section" *ngIf="report && report.topStudents.length > 0">
+    <div class="rp__section-head">
+      <h2 class="rp__section-title">
+        <span nz-icon nzType="trophy"></span> Top học sinh
+      </h2>
+    </div>
+
+    <ul class="top-list">
+      <li *ngFor="let s of report.topStudents; let i = index" class="top-row">
+        <div class="top-row__rank" [attr.data-rank]="i + 1">{{ i + 1 }}</div>
+        <div class="top-row__body">
+          <div class="top-row__name">{{ s.fullName }}</div>
+          <div class="top-row__meta">{{ s.lessonsDone }} buổi</div>
+        </div>
+        <div class="top-row__amount">
+          {{ fmtCompact(s.revenue) }}<small>đ</small>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="rp__section rp__empty" *ngIf="report && report.topStudents.length === 0 && !isLoading">
+    <div class="rp__empty-inner">
+      <span nz-icon nzType="bar-chart"></span>
+      <div>Chưa có dữ liệu báo cáo</div>
+      <small>Sau khi chốt vài kỳ học phí, số liệu sẽ xuất hiện ở đây.</small>
+    </div>
+  </section>
+</div>

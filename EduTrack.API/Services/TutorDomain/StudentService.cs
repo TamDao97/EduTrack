@@ -19,18 +19,25 @@ namespace EduTrack.API.Services.TutorDomain
     public class StudentService : TutorScopedBaseService<Student, StudentDto>, IStudentService
     {
         private readonly ITDRepository<Parent> _parentRepos;
+        private readonly ISubscriptionService _subService;
 
-        public StudentService(IUnitOfWork unitOfWork, IUserContextService userContext)
+        public StudentService(IUnitOfWork unitOfWork, IUserContextService userContext, ISubscriptionService subService)
             : base(unitOfWork, userContext)
         {
             _parentRepos = unitOfWork.GetRepository<Parent>();
+            _subService = subService;
         }
 
         public override async Task<Response<StudentDto>> CreateAsync(Student entity)
         {
             var idTutor = await GetCurrentTutorIdAsync();
 
-            // Parent phải thuộc tutor này
+            // 1) Quota + active subscription
+            var currentCount = await _repos.TableNoTracking.CountAsync(s => s.IdTutor == idTutor);
+            var quotaErr = await _subService.CheckCanAddStudentAsync(idTutor, currentCount);
+            if (quotaErr != null) return Response<StudentDto>.Error(StatusCode.Forbidden, quotaErr);
+
+            // 2) Parent phải thuộc tutor này
             var parentOk = await _parentRepos.TableNoTracking
                 .AnyAsync(p => p.Id == entity.IdParent && p.IdTutor == idTutor);
             if (!parentOk)

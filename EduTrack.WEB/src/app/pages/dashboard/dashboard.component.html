@@ -1,4 +1,19 @@
 <div class="dash">
+  <!-- Subscription banner -->
+  <div *ngIf="showSubBanner" class="sub-banner" [attr.data-kind]="subBannerKind" (click)="goBilling()">
+    <div class="sub-banner__icon">
+      <span nz-icon [nzType]="subBannerKind === 'danger' ? 'warning' : 'clock-circle'"></span>
+    </div>
+    <div class="sub-banner__body">
+      <div class="sub-banner__title">{{ subBannerTitle }}</div>
+      <div class="sub-banner__msg">{{ subBannerMsg }}</div>
+    </div>
+    <button class="sub-banner__cta" (click)="goBilling(); $event.stopPropagation()">
+      {{ subBannerKind === 'danger' ? 'Nâng cấp ngay' : 'Xem gói' }}
+      <span nz-icon nzType="arrow-right"></span>
+    </button>
+  </div>
+
   <header class="dash__hero">
     <div class="dash__greeting">
       <span class="dash__eyebrow">{{ todayLabel }}</span>

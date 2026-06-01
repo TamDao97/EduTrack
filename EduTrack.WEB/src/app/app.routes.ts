@@ -1,6 +1,7 @@
 import { Page404Component } from './shared/components/page-404/page-404.component';
 import { LayoutComponent } from './shared/components/layout/layout.component';
 import { AuthGuard } from './shared/utils/auth/auth-guard';
+import { SuperGuard } from './shared/utils/auth/super-guard';
 import { PageErrorComponent } from './shared/components/page-error/page-error.component';
 import { Routes } from '@angular/router';
 import { PageComponent } from './pages/system/page/page.component';
@@ -18,6 +19,7 @@ import { TuitionListComponent } from './pages/tutor-domain/tuition/tuition-list.
 import { SettingsComponent } from './pages/tutor-domain/settings/settings.component';
 import { AdminDashboardComponent } from './pages/admin/admin-dashboard.component';
 import { BillingComponent } from './pages/tutor-domain/billing/billing.component';
+import { ReportComponent } from './pages/tutor-domain/report/report.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { DesignGalleryComponent } from './_demo/design-gallery.component';
 import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
@@ -55,7 +57,8 @@ export const routes: Routes = [
       { path: 'tuition',      component: TuitionListComponent,       canActivate: [AuthGuard] },
       { path: 'settings',     component: SettingsComponent,          canActivate: [AuthGuard] },
       { path: 'billing',      component: BillingComponent,           canActivate: [AuthGuard] },
-      { path: 'admin',        component: AdminDashboardComponent,    canActivate: [AuthGuard] },
+      { path: 'report',       component: ReportComponent,            canActivate: [AuthGuard] },
+      { path: 'admin',        component: AdminDashboardComponent,    canActivate: [AuthGuard, SuperGuard] },
     ],
   },
   { path: 'error/:statusCode', component: PageErrorComponent },

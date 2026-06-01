@@ -1,3 +1,21 @@
-<p>
-  {{ statusMessage }}
-</p>
+<div class="err">
+  <div class="err__inner">
+    <div class="err__illu">
+      <div class="err__illu-bg"></div>
+      <div class="err__illu-num">{{ numLabel }}</div>
+      <div class="err__illu-emoji">{{ emoji }}</div>
+    </div>
+    <h1 class="err__title">{{ title }}</h1>
+    <p class="err__sub">{{ message }}</p>
+    <div class="err__actions">
+      <button class="err__btn-ghost" (click)="goBack()">
+        <span nz-icon nzType="arrow-left"></span>
+        Quay lại
+      </button>
+      <button class="err__btn-primary" (click)="isUnauth ? goLogin() : goHome()">
+        <span nz-icon [nzType]="isUnauth ? 'login' : 'home'"></span>
+        {{ isUnauth ? 'Đăng nhập lại' : 'Về dashboard' }}
+      </button>
+    </div>
+  </div>
+</div>

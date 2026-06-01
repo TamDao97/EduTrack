@@ -6,6 +6,9 @@ import { ILessonDetail, LessonStatus } from '../../interfaces/ILesson';
 import { INotification, NotificationStatus } from '../../interfaces/INotification';
 import { StudentStatus } from '../../interfaces/IStudent';
 import { ITuitionPeriodDetail, TuitionStatus } from '../../interfaces/ITuitionPeriod';
+import { IMySubscription } from '../../interfaces/IBilling';
+import { SubscriptionStatus } from '../../interfaces/IAdmin';
+import { BillingService } from '../../services/tutor-domain/billing.service';
 import { LessonService } from '../../services/tutor-domain/lesson.service';
 import { NotificationService } from '../../services/tutor-domain/notification.service';
 import { StudentService } from '../../services/tutor-domain/student.service';
@@ -28,12 +31,16 @@ export class DashboardComponent extends TdBaseComponent implements OnInit {
   private _notiService = inject(NotificationService);
   private _studentService = inject(StudentService);
   private _tuitionService = inject(TuitionPeriodService);
+  private _billingService = inject(BillingService);
 
   todayLessons: ILessonDetail[] = [];
   pendingNotifications: INotification[] = [];
   outstandingPeriods: ITuitionPeriodDetail[] = [];
   activeStudentsCount = 0;
   isLoading = false;
+
+  sub: IMySubscription | null = null;
+  SubscriptionStatus = SubscriptionStatus;
 
   tutorName = '';
   todayLabel = this.buildTodayLabel();
@@ -57,9 +64,11 @@ export class DashboardComponent extends TdBaseComponent implements OnInit {
       inbox: this._notiService.getInbox(),
       students: this._studentService.gridLoadData({ keyword: '', pageNumber: 1, pageSize: 500, status: StudentStatus.Active }),
       tuition: this._tuitionService.gridLoadData({ keyword: '', pageNumber: 1, pageSize: 200 }),
+      sub: this._billingService.getMine(),
     }).pipe(finalize(() => this.isLoading = false))
       .subscribe({
-        next: ({ week, inbox, students, tuition }) => {
+        next: ({ week, inbox, students, tuition, sub }) => {
+          if (sub?.status === StatusCode.Ok) this.sub = sub.data;
           if (week?.status === StatusCode.Ok) {
             const todayIso = this.toISODate(today);
             const list: ILessonDetail[] = (week.data || [])
@@ -102,6 +111,38 @@ export class DashboardComponent extends TdBaseComponent implements OnInit {
   goInbox()   { this._router.navigate(['/inbox']); }
   goTuition() { this._router.navigate(['/tuition']); }
   goStudent() { this._router.navigate(['/student']); }
+  goBilling() { this._router.navigate(['/billing']); }
+
+  /** Show banner khi: Expired, hoặc Trial còn ≤3 ngày, hoặc Active còn ≤7 ngày. */
+  get showSubBanner(): boolean {
+    if (!this.sub) return false;
+    if (this.sub.status === SubscriptionStatus.Expired) return true;
+    const d = this.sub.daysRemaining ?? 999;
+    if (this.sub.status === SubscriptionStatus.Trial && d <= 3) return true;
+    if (this.sub.status === SubscriptionStatus.Active && d <= 7) return true;
+    return false;
+  }
+  get subBannerKind(): 'danger' | 'warn' {
+    if (!this.sub) return 'warn';
+    return this.sub.status === SubscriptionStatus.Expired ? 'danger' : 'warn';
+  }
+  get subBannerTitle(): string {
+    if (!this.sub) return '';
+    if (this.sub.status === SubscriptionStatus.Expired) return 'Subscription đã hết hạn';
+    const d = this.sub.daysRemaining ?? 0;
+    if (this.sub.status === SubscriptionStatus.Trial) {
+      return d <= 0 ? 'Trial đã hết' : `Còn ${d} ngày dùng thử`;
+    }
+    return d <= 0 ? 'Gói đã hết hạn' : `Gói còn ${d} ngày`;
+  }
+  get subBannerMsg(): string {
+    if (!this.sub) return '';
+    if (this.sub.status === SubscriptionStatus.Expired)
+      return 'Bạn không thể thêm HS / buổi học / kỳ học phí cho đến khi nâng cấp.';
+    if (this.sub.status === SubscriptionStatus.Trial)
+      return 'Sau khi hết trial bạn sẽ không thể thêm HS / buổi mới — nâng cấp ngay để giữ liền mạch.';
+    return 'Gia hạn sớm để không gián đoạn việc dạy.';
+  }
 
   buildGreeting(): string {
     const h = new Date().getHours();

@@ -13,14 +13,14 @@ import { finalize } from 'rxjs';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.scss'],
   standalone: true,
   imports: [SharedModule, RouterModule],
 })
 export class LoginComponent extends TdBaseComponent implements OnInit {
   frmGroup!: FormGroup;
-
   isLoading = false;
+  showPassword = false;
 
   constructor(
     private _router: Router,
@@ -33,23 +33,19 @@ export class LoginComponent extends TdBaseComponent implements OnInit {
 
   ngOnInit() {
     this.frmGroup = this._fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required]],
       password: [null, [Validators.required, Validators.minLength(6)]],
     });
   }
 
+  togglePassword() { this.showPassword = !this.showPassword; }
+
   onSubmit() {
-    // Kiểm tra xem form có hợp lệ không
     if (!this.validateForm(this.frmGroup)) return;
 
     this.isLoading = true;
-    let payload = this.frmGroup.value;
-    this._loginService.login(payload)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false; // luôn chạy dù success hay error
-        })
-      )
+    this._loginService.login(this.frmGroup.value)
+      .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (rs) => {
           if (rs.status == StatusCode.Ok) {
@@ -60,9 +56,7 @@ export class LoginComponent extends TdBaseComponent implements OnInit {
             this._toastService.error(StatusResponseTitle.ERROR, rs.message);
           }
         },
-        error: (err) => {
-          this._toastService.error('ERROR', 'Có lỗi xảy ra khi đăng nhập');
-        }
+        error: () => this._toastService.error('ERROR', 'Có lỗi xảy ra khi đăng nhập'),
       });
   }
 }

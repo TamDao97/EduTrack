@@ -19,6 +19,20 @@ namespace EduTrack.API.Services.TutorDomain
         Task<List<MyPaymentDto>> GetMyPaymentsAsync(Guid idTutor);
         Task ExtendAsync(Guid idSubscription, PlanCodeEnums plan, int months);
         decimal PriceOf(PlanCodeEnums plan);
+
+        /// <summary>Giới hạn HS theo gói. Free=5, Basic=20, Pro=không giới hạn.</summary>
+        int MaxStudentsOf(PlanCodeEnums plan);
+
+        /// <summary>
+        /// Kiểm tra tutor có còn quyền ghi không (Trial chưa hết, Active chưa hết hạn).
+        /// Trả null nếu OK; trả message nếu bị chặn — caller dùng làm Response.Error.
+        /// </summary>
+        Task<string?> CheckCanWriteAsync(Guid idTutor);
+
+        /// <summary>
+        /// Kiểm tra có thể thêm 1 HS nữa không. Combines CheckCanWrite + quota check.
+        /// </summary>
+        Task<string?> CheckCanAddStudentAsync(Guid idTutor, int currentStudentCount);
     }
 
     public class SubscriptionService : ISubscriptionService
@@ -142,5 +156,65 @@ namespace EduTrack.API.Services.TutorDomain
             PlanCodeEnums.Pro => 199_000m,
             _ => 0,
         };
+
+        public int MaxStudentsOf(PlanCodeEnums plan) => plan switch
+        {
+            PlanCodeEnums.Free => 5,
+            PlanCodeEnums.Basic => 20,
+            PlanCodeEnums.Pro => int.MaxValue,
+            _ => 5,
+        };
+
+        /// <summary>
+        /// Trả null = OK. Trả message = đang bị chặn.
+        /// Auto-ensure Trial — tutor mới luôn có 14 ngày dùng thử trước khi bị block.
+        /// </summary>
+        public async Task<string?> CheckCanWriteAsync(Guid idTutor)
+        {
+            var sub = await EnsureTrialAsync(idTutor);
+            var now = DateTime.UtcNow;
+
+            switch (sub.Status)
+            {
+                case SubscriptionStatusEnums.Trial:
+                    if (sub.TrialEndsAt < now)
+                        return "Thời gian dùng thử 14 ngày đã hết. Vui lòng nâng cấp gói để tiếp tục.";
+                    return null;
+
+                case SubscriptionStatusEnums.Active:
+                    if (sub.CurrentPeriodEnd.HasValue && sub.CurrentPeriodEnd.Value < now)
+                        return "Subscription đã hết hạn. Vui lòng gia hạn để tiếp tục.";
+                    return null;
+
+                case SubscriptionStatusEnums.Expired:
+                case SubscriptionStatusEnums.Cancelled:
+                    return "Subscription đã hết hạn. Vui lòng nâng cấp gói để tiếp tục.";
+
+                default:
+                    return null;
+            }
+        }
+
+        public async Task<string?> CheckCanAddStudentAsync(Guid idTutor, int currentStudentCount)
+        {
+            // 1) Phải còn hạn dùng đã
+            var writeErr = await CheckCanWriteAsync(idTutor);
+            if (writeErr != null) return writeErr;
+
+            // 2) Check quota theo plan
+            var sub = await EnsureTrialAsync(idTutor);
+            // Trial dùng quota của Basic (=20) — đó là mục đích của trial cho user dùng thử full feature
+            var effectivePlan = sub.Status == SubscriptionStatusEnums.Trial
+                ? PlanCodeEnums.Basic
+                : sub.Plan;
+            var max = MaxStudentsOf(effectivePlan);
+            if (currentStudentCount >= max)
+            {
+                return max == int.MaxValue
+                    ? "Không thể thêm học sinh."
+                    : $"Gói hiện tại chỉ cho phép tối đa {max} học sinh. Bạn đã có {currentStudentCount}. Nâng cấp gói để thêm.";
+            }
+            return null;
+        }
     }
 }

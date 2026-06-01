@@ -24,18 +24,24 @@ namespace EduTrack.API.Services.TutorDomain
         private readonly ITDRepository<Student> _studentRepos;
         private readonly ITDRepository<Parent> _parentRepos;
         private readonly INotificationGenerator _notiGen;
+        private readonly ISubscriptionService _subService;
 
-        public LessonService(IUnitOfWork unitOfWork, IUserContextService userContext, INotificationGenerator notiGen)
+        public LessonService(IUnitOfWork unitOfWork, IUserContextService userContext, INotificationGenerator notiGen, ISubscriptionService subService)
             : base(unitOfWork, userContext)
         {
             _studentRepos = unitOfWork.GetRepository<Student>();
             _parentRepos = unitOfWork.GetRepository<Parent>();
             _notiGen = notiGen;
+            _subService = subService;
         }
 
         public override async Task<Response<LessonDto>> CreateAsync(Lesson entity)
         {
             var idTutor = await GetCurrentTutorIdAsync();
+
+            var subErr = await _subService.CheckCanWriteAsync(idTutor);
+            if (subErr != null) return Response<LessonDto>.Error(StatusCode.Forbidden, subErr);
+
             var student = await _studentRepos.TableNoTracking
                 .FirstOrDefaultAsync(s => s.Id == entity.IdStudent && s.IdTutor == idTutor);
             if (student == null)
@@ -78,6 +84,10 @@ namespace EduTrack.API.Services.TutorDomain
         public async Task<Response<int>> BulkCreateRecurringAsync(LessonBulkCreateReq req)
         {
             var idTutor = await GetCurrentTutorIdAsync();
+
+            var subErr = await _subService.CheckCanWriteAsync(idTutor);
+            if (subErr != null) return Response<int>.Error(StatusCode.Forbidden, subErr);
+
             var student = await _studentRepos.TableNoTracking
                 .FirstOrDefaultAsync(s => s.Id == req.IdStudent && s.IdTutor == idTutor);
             if (student == null)

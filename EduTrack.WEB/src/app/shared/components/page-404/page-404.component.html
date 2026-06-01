@@ -1,3 +1,24 @@
-<p>
-  page-404 works!
-</p>
+<div class="err">
+  <div class="err__inner">
+    <div class="err__illu">
+      <div class="err__illu-bg"></div>
+      <div class="err__illu-num">404</div>
+      <div class="err__illu-emoji">🧐</div>
+    </div>
+    <h1 class="err__title">Hông tìm thấy trang</h1>
+    <p class="err__sub">
+      Đường link bạn vào không tồn tại — hoặc đã bị xoá / đổi tên.
+      Quay lại trang chính nào.
+    </p>
+    <div class="err__actions">
+      <button class="err__btn-ghost" (click)="goBack()">
+        <span nz-icon nzType="arrow-left"></span>
+        Quay lại
+      </button>
+      <button class="err__btn-primary" (click)="goHome()">
+        <span nz-icon nzType="home"></span>
+        Về dashboard
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,49 @@
 @use 'palette' as *;
 @use 'mixins' as *;
 
+// ─── Subscription banner (above hero) ───
+.sub-banner {
+  display: flex; align-items: center; gap: $sp-3;
+  padding: $sp-3 $sp-4;
+  cursor: pointer;
+  transition: filter $t-fast;
+  &:hover { filter: brightness(1.05); }
+
+  &[data-kind="warn"] {
+    background: linear-gradient(135deg, #FFC960 0%, #FAAD14 100%);
+    color: #663C00;
+  }
+  &[data-kind="danger"] {
+    background: linear-gradient(135deg, #FF8A8A 0%, #F5222D 100%);
+    color: #fff;
+  }
+
+  &__icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  &__body { flex: 1; min-width: 0; }
+  &__title { font-size: $fs-body; font-weight: $fw-bold; }
+  &__msg   { font-size: $fs-xs; opacity: 0.85; margin-top: 2px; }
+  &__cta {
+    background: rgba(255,255,255,0.95);
+    color: $text-1;
+    border: none;
+    padding: 6px 14px;
+    border-radius: $radius;
+    font-size: $fs-xs; font-weight: $fw-bold;
+    display: inline-flex; align-items: center; gap: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background $t-fast;
+    &:hover { background: #fff; }
+  }
+}
+
 .dash {
   @include page-container;
   padding-bottom: $sp-8;

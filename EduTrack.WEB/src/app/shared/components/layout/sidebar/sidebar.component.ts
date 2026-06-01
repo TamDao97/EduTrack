@@ -41,6 +41,7 @@ export class SidebarComponent implements OnInit {
     'lesson':      { type: 'calendar',  color: '#0c8599' },
     'inbox':       { type: 'bell',      color: '#faad14' },
     'tuition':     { type: 'dollar',    color: '#c92a2a' },
+    'report':      { type: 'bar-chart', color: '#0F766E' },
     'billing':     { type: 'credit-card', color: '#7C3AED' },
     'settings':    { type: 'setting',   color: '#475569' },
     'admin':       { type: 'crown',     color: '#1A1F36' },
