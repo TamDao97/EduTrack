@@ -9,6 +9,8 @@ import { RoleComponent } from './pages/system/role/role.component';
 import { UserComponent } from './pages/system/auth/user/user.component';
 import { LoginComponent } from './pages/system/auth/login/login.component';
 import { SignupComponent } from './pages/system/auth/signup/signup.component';
+import { ForgotPasswordComponent } from './pages/system/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/system/auth/reset-password/reset-password.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ConfigJsonComponent } from './pages/system/config-json/config-json.component';
 import { StudentListComponent } from './pages/tutor-domain/student/student-list.component';
@@ -29,9 +31,11 @@ import { StudentTableDemoComponent } from './_demo/student-table/student-table-d
 import { SettingsDemoComponent } from './_demo/settings/settings-demo.component';
 
 export const routes: Routes = [
-  { path: 'login',   component: LoginComponent   },
-  { path: 'signup',  component: SignupComponent  },
-  { path: 'landing', component: LandingComponent },
+  { path: 'login',           component: LoginComponent           },
+  { path: 'signup',          component: SignupComponent          },
+  { path: 'forgot-password', component: ForgotPasswordComponent  },
+  { path: 'reset-password',  component: ResetPasswordComponent   },
+  { path: 'landing',         component: LandingComponent         },
   // ─────────────── DESIGN DEMO (mock data, no API) ───────────────
   { path: 'design',                 component: DesignGalleryComponent },
   { path: 'design/onboarding',      component: OnboardingDemoComponent },

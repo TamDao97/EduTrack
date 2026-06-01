@@ -10,5 +10,6 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public string? BankAccountHolder { get; set; }
         public string? Subjects { get; set; }
         public string? Bio { get; set; }
+        public string? AvatarUrl { get; set; }
     }
 }

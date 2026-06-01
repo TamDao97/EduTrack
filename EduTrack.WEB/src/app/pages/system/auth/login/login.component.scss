@@ -154,6 +154,16 @@
     color: $text-3;
     a { color: $primary; font-weight: $fw-semi; }
   }
+  &__forgot {
+    text-align: right;
+    margin: -$sp-3 0 $sp-2;
+    a {
+      font-size: $fs-sm; font-weight: $fw-semi;
+      color: $primary;
+      text-decoration: none;
+      &:hover { color: $primary-dark; text-decoration: underline; }
+    }
+  }
   &__pw-toggle {
     color: $text-3;
     cursor: pointer;

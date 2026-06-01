@@ -4,7 +4,17 @@
     <h1 class="ss__title">Cài đặt</h1>
 
     <div class="ss__profile">
-      <div class="ss__avatar">{{ initials(tutorDisplayName) }}</div>
+      <label class="ss__avatar" [class.is-loading]="isUploadingAvatar">
+        <img *ngIf="avatarSrc" [src]="avatarSrc" alt="Avatar" class="ss__avatar-img" />
+        <span *ngIf="!avatarSrc">{{ initials(tutorDisplayName) }}</span>
+        <span class="ss__avatar-edit" [class.is-loading]="isUploadingAvatar" title="Đổi ảnh">
+          <span nz-icon [nzType]="isUploadingAvatar ? 'loading' : 'camera'"></span>
+        </span>
+        <input type="file" accept="image/*" hidden (change)="onAvatarPick($event)" />
+      </label>
+      <button type="button" class="ss__avatar-remove" *ngIf="avatarSrc" (click)="removeAvatar()">
+        <span nz-icon nzType="delete"></span> Xoá ảnh
+      </button>
       <div class="ss__profile-name">{{ tutorDisplayName }}</div>
     </div>
   </header>

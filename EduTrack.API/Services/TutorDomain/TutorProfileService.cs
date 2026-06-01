@@ -60,6 +60,7 @@ namespace EduTrack.API.Services.TutorDomain
                     BankAccountHolder = dto.BankAccountHolder,
                     Subjects = dto.Subjects,
                     Bio = dto.Bio,
+                    AvatarUrl = dto.AvatarUrl,
                 };
                 await _repos.CreateAsync(entity);
             }
@@ -70,12 +71,14 @@ namespace EduTrack.API.Services.TutorDomain
                 entity.BankAccountHolder = dto.BankAccountHolder;
                 entity.Subjects = dto.Subjects;
                 entity.Bio = dto.Bio;
+                entity.AvatarUrl = dto.AvatarUrl;
 
                 entity.MarkDirty(nameof(entity.BankName));
                 entity.MarkDirty(nameof(entity.BankAccountNumber));
                 entity.MarkDirty(nameof(entity.BankAccountHolder));
                 entity.MarkDirty(nameof(entity.Subjects));
                 entity.MarkDirty(nameof(entity.Bio));
+                entity.MarkDirty(nameof(entity.AvatarUrl));
             }
             await _unitOfWork.SaveChangesAsync();
             return Response<TutorProfileDto>.Success(AutoMapperGeneric.Map<TutorProfile, TutorProfileDto>(entity), StatusCode.Ok.ToDescription());

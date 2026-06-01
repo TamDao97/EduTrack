@@ -17,4 +17,14 @@ export class LoginService {
   signupTutor(payload: { userName: string; displayName: string; password: string; passwordConfirm: string }): Observable<IResponse> {
     return this.httpClient.post<IResponse>(`${this.apiUrl}/signup-tutor`, payload);
   }
+
+  /** Gửi email reset password (link 1h). Luôn trả Success bất kể email có tồn tại — không leak. */
+  forgotPassword(email: string): Observable<IResponse> {
+    return this.httpClient.post<IResponse>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  /** Xác nhận token + đặt mật khẩu mới. */
+  resetPassword(payload: { token: string; newPassword: string }): Observable<IResponse> {
+    return this.httpClient.post<IResponse>(`${this.apiUrl}/reset-password`, payload);
+  }
 }

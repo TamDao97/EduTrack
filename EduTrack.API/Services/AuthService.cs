@@ -3,9 +3,11 @@ using Microsoft.Extensions.Options;
 using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto;
 using EduTrack.API.DataContext.Entity.Core;
+using EduTrack.API.Services.Common;
 using EduTrack.API.Services.TutorDomain;
 using EduTrack.API.UnitOfWork;
 using System.Data.SqlTypes;
+using System.Security.Cryptography;
 using TD.Lib.Common;
 using TD.Lib.Helper;
 
@@ -16,6 +18,8 @@ namespace EduTrack.API.Services
         Task<Response<CurrentUser>> LoginAsync(LoginReq req);
         Task<Response<bool>> RegisterAsync(RegisterReq req);
         Task<Response<CurrentUser>> SignupTutorAsync(SignupTutorReq req);
+        Task<Response<bool>> ForgotPasswordAsync(ForgotPasswordReq req);
+        Task<Response<bool>> ResetPasswordAsync(ResetPasswordReq req);
     }
 
     public class AuthService : IAuthService
@@ -33,12 +37,15 @@ namespace EduTrack.API.Services
         #endregion
 
         private readonly ISubscriptionService _subService;
+        private readonly IEmailService _emailService;
+        private readonly TD.Lib.Repository.ITDRepository<PasswordResetToken> _resetRepos;
 
         public AuthService(
             IUnitOfWork unitOfWork
             , IConfiguration configuration
             , IOptions<AppSettings> appSettings
-            , ISubscriptionService subService)
+            , ISubscriptionService subService
+            , IEmailService emailService)
         {
             _configuration = configuration;
             _appSettings = appSettings.Value;
@@ -48,8 +55,10 @@ namespace EduTrack.API.Services
             _userRoleRepos = unitOfWork.GetRepository<UserRole>();
             _permissionRepos = unitOfWork.GetRepository<Permission>();
             _rolePermissionRepos = unitOfWork.GetRepository<RolePermission>();
+            _resetRepos = unitOfWork.GetRepository<PasswordResetToken>();
             _unitOfWork = unitOfWork;
             _subService = subService;
+            _emailService = emailService;
         }
 
         #region Asp core identity
@@ -211,6 +220,102 @@ namespace EduTrack.API.Services
             };
 
             return Response<CurrentUser>.Success(currentUser, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Sinh token reset password 1h + gửi email link `/reset-password?token=xxx`.
+        /// Luôn trả Success bất kể email tồn tại hay không — không leak thông tin user.
+        /// Token cũ chưa dùng của cùng user bị mark UsedAt=now để vô hiệu hoá.
+        /// </summary>
+        public async Task<Response<bool>> ForgotPasswordAsync(ForgotPasswordReq req)
+        {
+            if (string.IsNullOrWhiteSpace(req.Email))
+                return Response<bool>.Error(StatusCode.BadRequest, "Vui lòng nhập email");
+
+            var email = req.Email.Trim();
+            var user = await _userRepos.Table.FirstOrDefaultAsync(u => u.UserName == email || u.Email == email);
+            if (user == null)
+            {
+                // Không leak — vẫn báo success
+                return Response<bool>.Success(true, "Nếu email tồn tại, link reset đã được gửi.");
+            }
+
+            // Vô hiệu hoá token cũ
+            var oldTokens = await _resetRepos.Table
+                .Where(t => t.IdUser == user.Id && t.UsedAt == null)
+                .ToListAsync();
+            var now = DateTime.UtcNow;
+            foreach (var old in oldTokens)
+            {
+                old.UsedAt = now;
+                old.MarkDirty(nameof(old.UsedAt));
+            }
+
+            // Sinh token mới 64 ký tự url-safe
+            var rng = RandomNumberGenerator.Create();
+            var bytes = new byte[32];
+            rng.GetBytes(bytes);
+            var token = Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+            var resetToken = new PasswordResetToken
+            {
+                Id = Guid.NewGuid(),
+                IdUser = user.Id,
+                Token = token,
+                ExpiresAt = now.AddHours(1),
+            };
+            await _resetRepos.CreateAsync(resetToken);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Gửi email
+            var webUrl = _configuration["App:WebUrl"] ?? "http://localhost:4200";
+            var link = $"{webUrl.TrimEnd('/')}/reset-password?token={token}";
+            var displayName = string.IsNullOrEmpty(user.DisplayName) ? user.UserName : user.DisplayName;
+            var html = $@"
+<div style='font-family:Inter,Segoe UI,sans-serif;max-width:520px;margin:0 auto;padding:32px;background:#F7F8FC;color:#1A1F36'>
+  <h2 style='color:#5B5FCF;margin:0 0 12px'>🔐 Reset mật khẩu EduTrack</h2>
+  <p>Xin chào {displayName},</p>
+  <p>Bạn (hoặc ai đó dùng email này) vừa yêu cầu đặt lại mật khẩu. Bấm nút dưới để tạo mật khẩu mới — link có hiệu lực <strong>1 giờ</strong>.</p>
+  <p style='text-align:center;margin:28px 0'>
+    <a href='{link}' style='background:linear-gradient(135deg,#5B5FCF,#7C3AED);color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block'>Đặt lại mật khẩu</a>
+  </p>
+  <p style='font-size:13px;color:#8A91A8'>Nếu nút không hoạt động, copy link vào trình duyệt:<br><span style='word-break:break-all;color:#4549B8'>{link}</span></p>
+  <hr style='border:none;border-top:1px solid #E8EAF3;margin:24px 0'>
+  <p style='font-size:12px;color:#8A91A8'>Nếu bạn không yêu cầu reset, hãy bỏ qua email này. Mật khẩu sẽ không bị thay đổi.</p>
+</div>";
+            await _emailService.SendAsync(user.Email ?? user.UserName!, "Reset mật khẩu EduTrack", html);
+
+            return Response<bool>.Success(true, "Nếu email tồn tại, link reset đã được gửi.");
+        }
+
+        /// <summary>
+        /// Nhận token + mật khẩu mới → verify token còn hạn + chưa dùng → đổi password user.
+        /// </summary>
+        public async Task<Response<bool>> ResetPasswordAsync(ResetPasswordReq req)
+        {
+            if (string.IsNullOrWhiteSpace(req.Token))
+                return Response<bool>.Error(StatusCode.BadRequest, "Token không hợp lệ");
+            if (string.IsNullOrWhiteSpace(req.NewPassword) || req.NewPassword.Length < 6)
+                return Response<bool>.Error(StatusCode.BadRequest, "Mật khẩu phải có ít nhất 6 ký tự");
+
+            var now = DateTime.UtcNow;
+            var entry = await _resetRepos.Table.FirstOrDefaultAsync(t =>
+                t.Token == req.Token && t.UsedAt == null && t.ExpiresAt > now);
+            if (entry == null)
+                return Response<bool>.Error(StatusCode.BadRequest, "Link đã hết hạn hoặc không hợp lệ. Vui lòng tạo yêu cầu mới.");
+
+            var user = await _userRepos.Table.FirstOrDefaultAsync(u => u.Id == entry.IdUser);
+            if (user == null)
+                return Response<bool>.Error(StatusCode.NotFound, "User không tồn tại");
+
+            user.PasswordHash = Utils.HashPassword(req.NewPassword);
+            user.MarkDirty(nameof(user.PasswordHash));
+
+            entry.UsedAt = now;
+            entry.MarkDirty(nameof(entry.UsedAt));
+
+            await _unitOfWork.SaveChangesAsync();
+            return Response<bool>.Success(true, "Đặt lại mật khẩu thành công. Đăng nhập với mật khẩu mới.");
         }
         #endregion
     }

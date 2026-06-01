@@ -32,6 +32,7 @@ namespace EduTrack.API.DataContext
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<EduTrack.API.DataContext.Entity.Core.File> Files { get; set; }
         public DbSet<ConfigJson> ConfigJsons { get; set; }
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
         #endregion
 
         #region Tutor domain
@@ -94,6 +95,9 @@ namespace EduTrack.API.DataContext
             modelBuilder.Entity<Subscription>().HasIndex(s => s.IdTutor).IsUnique();
             modelBuilder.Entity<SubscriptionPayment>().HasIndex(p => new { p.IdTutor, p.DateCreated });
             modelBuilder.Entity<SubscriptionPayment>().Property(p => p.Amount).HasColumnType("decimal(18,0)");
+
+            modelBuilder.Entity<PasswordResetToken>().HasIndex(t => t.Token).IsUnique();
+            modelBuilder.Entity<PasswordResetToken>().HasIndex(t => new { t.IdUser, t.UsedAt });
 
             // Tiền tệ — VND nguyên, decimal(18,0)
             modelBuilder.Entity<Student>().Property(s => s.PerLessonRate).HasColumnType("decimal(18,0)");

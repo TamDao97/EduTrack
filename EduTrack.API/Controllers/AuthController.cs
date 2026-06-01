@@ -42,5 +42,21 @@ namespace EduTrack.API.Controllers
         {
             return Ok(await _authService.SignupTutorAsync(req));
         }
+
+        /// <summary>Yêu cầu reset password — gửi email link 1h. Luôn trả Success (không leak email).</summary>
+        [Route("forgot-password")]
+        [HttpPost]
+        public async Task<ActionResult<Response<bool>>> ForgotPasswordAsync(ForgotPasswordReq req)
+        {
+            return Ok(await _authService.ForgotPasswordAsync(req));
+        }
+
+        /// <summary>Đặt lại mật khẩu bằng token nhận qua email.</summary>
+        [Route("reset-password")]
+        [HttpPost]
+        public async Task<ActionResult<Response<bool>>> ResetPasswordAsync(ResetPasswordReq req)
+        {
+            return Ok(await _authService.ResetPasswordAsync(req));
+        }
     }
 }

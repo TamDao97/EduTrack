@@ -66,6 +66,9 @@ namespace EduTrack.API.DataContext.Enums
         Read = 3,
         [Description("Đã huỷ")]
         Cancelled = 4,
+        /// <summary>Quá hạn 72h chưa được gửi → marked Missed bởi background dispatcher.</summary>
+        [Description("Đã bỏ lỡ")]
+        Missed = 5,
     }
 
     public enum PlanCodeEnums

@@ -38,6 +38,18 @@ namespace EduTrack.API.DataContext.Dto
         public string PasswordConfirm { get; set; }
     }
 
+    public class ForgotPasswordReq
+    {
+        [Required(ErrorMessage = "Vui lòng nhập email")]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordReq
+    {
+        [Required] public string Token { get; set; } = string.Empty;
+        [Required, MinLength(6)] public string NewPassword { get; set; } = string.Empty;
+    }
+
     public class CurrentUser
     {
         public Guid Id { get; set; }

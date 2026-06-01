@@ -1,4 +1,5 @@
 using EduTrack.API.DataContext;
+using EduTrack.API.Jobs;
 using EduTrack.API.Services;
 using EduTrack.API.Services.Common;
 using EduTrack.API.Services.TutorDomain;
@@ -75,6 +76,7 @@ namespace EduTrack.API.Configs
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IUserContextService, UserContextService>();
             services.AddScoped<ExcelService>();
+            services.AddScoped<IEmailService, EmailService>();
             #endregion
 
             #region Tutor domain
@@ -92,6 +94,10 @@ namespace EduTrack.API.Configs
 
             services.AddHttpContextAccessor();
             services.AddSingleton<DapperContext>();
+
+            #region Background jobs
+            services.AddHostedService<NotificationDispatcherJob>();
+            #endregion
         }
     }
 }

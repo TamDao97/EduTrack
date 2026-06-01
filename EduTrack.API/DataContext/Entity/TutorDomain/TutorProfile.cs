@@ -25,5 +25,9 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
         public string? Subjects { get; set; }
 
         public string? Bio { get; set; }
+
+        /// <summary>Path tới ảnh đại diện đã upload qua FileService (vd: "/uploads/images/abc.png").</summary>
+        [MaxLength(500)]
+        public string? AvatarUrl { get; set; }
     }
 }

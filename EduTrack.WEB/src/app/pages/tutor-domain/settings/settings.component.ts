@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
+import { environment } from '../../../../environment';
+import { IResponse } from '../../../shared/interfaces/IResponse';
 import { TutorProfileService } from '../../../services/tutor-domain/tutor-profile.service';
 import { SharedModule } from '../../../shared/modules/shared.module';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -27,6 +30,9 @@ export class SettingsComponent extends TdBaseComponent implements OnInit {
 
   bankOptions = BANK_OPTIONS;
   frmGroup!: FormGroup;
+  isUploadingAvatar = false;
+  fileUrl = environment.fileUrl;
+  private _http = inject(HttpClient);
   tutorDisplayName = '';
   isLoading = false;
   isSubmitting = false;
@@ -45,6 +51,7 @@ export class SettingsComponent extends TdBaseComponent implements OnInit {
     this.frmGroup = this._fb.group({
       id: [null],
       idUser: [null],
+      avatarUrl: [null],
       // Bank info — quan trọng nhất, vào group đầu
       bankName: [''],
       bankAccountNumber: [''],
@@ -53,6 +60,50 @@ export class SettingsComponent extends TdBaseComponent implements OnInit {
       subjects: [''],
       bio: [''],
     });
+  }
+
+  /** Url đầy đủ để render avatar — null nếu chưa có. */
+  get avatarSrc(): string | null {
+    const path = this.frmGroup?.value?.avatarUrl;
+    return path ? `${this.fileUrl}${path}` : null;
+  }
+
+  /** User pick file → upload qua /api/file/upload → patch avatarUrl bằng filePath. */
+  onAvatarPick(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!/image\/(png|jpe?g|gif|webp)/i.test(file.type)) {
+      this._toast.warning(StatusResponseTitle.WARNING, 'Vui lòng chọn file ảnh (PNG/JPG/GIF)');
+      input.value = '';
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this._toast.warning(StatusResponseTitle.WARNING, 'Ảnh quá 2MB — nén lại trước khi upload');
+      input.value = '';
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    this.isUploadingAvatar = true;
+    this._http.post<IResponse>(`${environment.apiUrl}/file/upload`, formData)
+      .pipe(finalize(() => { this.isUploadingAvatar = false; input.value = ''; }))
+      .subscribe({
+        next: rs => {
+          if (rs.status === StatusCode.Ok && rs.data?.filePath) {
+            this.frmGroup.patchValue({ avatarUrl: rs.data.filePath });
+            this._toast.success(StatusResponseTitle.SUCCESS, 'Upload ảnh thành công — nhớ bấm Lưu');
+          } else {
+            this._toast.error(StatusResponseTitle.ERROR, rs.message || 'Upload thất bại');
+          }
+        },
+        error: () => this._toast.error(StatusResponseTitle.ERROR, 'Upload thất bại'),
+      });
+  }
+
+  removeAvatar() {
+    this.frmGroup.patchValue({ avatarUrl: null });
   }
 
   loadProfile() {

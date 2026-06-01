@@ -67,6 +67,10 @@
           </nz-form-control>
         </nz-form-item>
 
+        <p class="lg__forgot">
+          <a routerLink="/forgot-password">Quên mật khẩu?</a>
+        </p>
+
         <button nz-button nzType="primary" nzSize="large" class="lg__submit"
                 [nzLoading]="isLoading" [disabled]="isLoading">
           {{ isLoading ? 'Đang đăng nhập…' : 'Đăng nhập' }}
