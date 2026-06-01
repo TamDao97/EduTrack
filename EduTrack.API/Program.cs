@@ -5,55 +5,69 @@ using TD.Lib.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ─────────── Bind PORT từ env var (Render/Railway/Heroku) ───────────
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://+:{port}");
+}
+
+// ─────────── Services ───────────
 builder.Services.LibRegisters(builder.Configuration);
 builder.Services.DataContextRegisters(builder.Configuration);
 builder.Services.DependencyInjection(builder.Configuration);
 
 builder.Services.AddControllers(options =>
 {
-    // Thiết lập route template mặc định cho tất cả controller
     options.Conventions.Add(new RouteTokenTransformerConvention(new EndpointTransformerCustom()));
 });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Đăng ký CORS policy
+// ─────────── CORS — đọc origin từ Configuration ───────────
+// Set env var Cors__AllowedOrigins = "http://localhost:4200,https://edutrack.vercel.app"
+var corsOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? "http://localhost:4200")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+    .Select(s => s.Trim())
+    .ToArray();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-                   "http://localhost:4200"
-               ) // domain FE
+        policy.WithOrigins(corsOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); // nếu cần cookie/token
+              .AllowCredentials();
     });
 });
 
-// Set EPPlus 8 License
+// EPPlus license
 ExcelPackage.License.SetNonCommercialPersonal("EduTrack");
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-// Enable Swagger for all environments (not just development)
+// ─────────── Pipeline ───────────
+// Swagger luôn bật (cả prod) cho phép tutor xem API docs
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "EduTrack API V1");
-    c.RoutePrefix = "swagger"; // Access at /swagger/index.html
+    c.RoutePrefix = "swagger";
 });
 
-// Dùng CORS policy ở đây
 app.UseCors("AllowFrontend");
 
-app.UseStaticFiles(); // Để truy cập wwwroot/uploads
-app.UseHttpsRedirection();
+app.UseStaticFiles(); // wwwroot/uploads
+// Behind Render/Vercel LB → KHÔNG dùng UseHttpsRedirection (proxy đã terminate SSL)
+// app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Health check endpoint cho Render
+app.MapGet("/health", () => Results.Ok(new { status = "ok", time = DateTime.UtcNow }));
+
 app.Run();

@@ -1,0 +1,30 @@
+# ═════════════════════════ Render.com Blueprint ═════════════════════════
+# Khai báo BE service tự deploy mỗi khi push main branch.
+# Cách dùng: ở dashboard Render → "New Blueprint" → connect GitHub repo →
+# Render đọc file này → tạo service.
+#
+# Set env vars TRỰC TIẾP trong Render dashboard SAU khi tạo service (đừng
+# commit secret vào file này):
+#   - ConnectionStrings__EduTrackDbContextConnection
+#   - Jwt__Key
+#   - Cors__AllowedOrigins
+# ══════════════════════════════════════════════════════════════════════
+services:
+  - type: web
+    name: edutrack-api
+    runtime: docker
+    dockerfilePath: ./EduTrack.API/Dockerfile
+    dockerContext: .
+    plan: free                       # 750h/month, sleeps 15min idle
+    healthCheckPath: /health
+    autoDeploy: true                 # tự redeploy mỗi push develop branch
+    branch: develop
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: Jwt__Issuer
+        value: https://edutrack.app
+      - key: Jwt__Audience
+        value: edutrack.app
+      # Sensitive vars (Connection string, Jwt:Key, Cors origins) — set ở dashboard
+      # và đánh dấu "secret"

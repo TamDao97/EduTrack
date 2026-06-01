@@ -1,0 +1,15 @@
+**/bin
+**/obj
+**/Publish
+**/.vs
+**/.idea
+**/.vscode
+**/*.user
+**/*.suo
+Migrations/*.cs.bak
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+.git
+.gitignore
+README.md
+*.md
