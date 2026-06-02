@@ -22,7 +22,7 @@ namespace EduTrack.API.Controllers
             _configJsonService = configJsonService;
         }
 
-        [TDPermission("GetOrgConfigAsync", "Xem cấu hình chung đơn vị", $"{RoleCodes.SupperAdmin}, {RoleCodes.Admin}")]
+        [TDPermission("GetOrgConfigAsync", "Xem cấu hình chung đơn vị", $"{RoleCodes.SupperAdmin}")]
         [TDAuthorize]
         [Route("get-org-config")]
         [HttpGet]
@@ -31,7 +31,7 @@ namespace EduTrack.API.Controllers
             return Ok(await _configJsonService.GetOrgConfigAsync());
         }
 
-        [TDPermission("SaveOrgConfigAsync", "Lưu cấu hình chung đơn vị", $"{RoleCodes.SupperAdmin}, {RoleCodes.Admin}")]
+        [TDPermission("SaveOrgConfigAsync", "Lưu cấu hình chung đơn vị", $"{RoleCodes.SupperAdmin}")]
         [TDAuthorize]
         [Route("save-org-config")]
         [HttpPost]
