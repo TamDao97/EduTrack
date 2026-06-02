@@ -31,7 +31,7 @@ namespace EduTrack.API.Controllers
         /// Xem danh sách
         /// </summary>
         /// <returns></returns>
-        [TDPermission("GetPageTreeAsync", "Xem danh sách", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetPageTreeAsync", "Xem danh sách")]
         [TDAuthorize]
         [Route("get-page-tree")]
         [HttpGet]
@@ -57,7 +57,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [TDPermission("GetByIdAsync", "Xem chi tiết", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetByIdAsync", "Xem chi tiết")]
         [TDAuthorize]
         [Route("get-by-id/{id:Guid}")]
         [HttpGet]
@@ -71,7 +71,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="dtoReq"></param>
         /// <returns></returns>
-        [TDPermission("CreateAsync", "Thêm mới", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("CreateAsync", "Thêm mới")]
         [TDAuthorize]
         [Route("create")]
         [HttpPost]
@@ -86,7 +86,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="dtoReq"></param>
         /// <returns></returns>
-        [TDPermission("UpdateAsync", "Cập nhật thông tin", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("UpdateAsync", "Cập nhật thông tin")]
         [TDAuthorize]
         [Route("update")]
         [HttpPost]
@@ -101,7 +101,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [TDPermission("DeleteAsync", "Xóa", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("DeleteAsync", "Xóa")]
         [TDAuthorize]
         [Route("delete/{id:Guid}")]
         [HttpPost]

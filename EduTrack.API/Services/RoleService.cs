@@ -163,7 +163,7 @@ namespace EduTrack.API.Services
                         ModuleOrder = moduleAttribute.Order,
                         PermissionCode = $"{controller.Name}_{permissionAttribute.PermissionCode}",
                         Description = permissionAttribute.Description,
-                        RoleCodes = string.Join(";", permissionAttribute.RoleCodes),
+                        RoleCodes = string.Join(";", permissionAttribute.RoleCodes ?? string.Empty),
                     };
                     lstPermissionAdd.Add(permission);
 

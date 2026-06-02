@@ -41,7 +41,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="reqDto"></param>
         /// <returns></returns>
-        [TDPermission("CreateAsync", "Tạo tài khoản", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("CreateAsync", "Tạo tài khoản")]
         [TDAuthorize]
         [Route("create")]
         [HttpPost]
@@ -55,7 +55,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="reqDto"></param>
         /// <returns></returns>
-        [TDPermission("UpdateAsync", "Cập nhật tài khoản", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("UpdateAsync", "Cập nhật tài khoản")]
         [TDAuthorize]
         [Route("update")]
         [HttpPost]
@@ -69,7 +69,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [TDPermission("DeleteAsync", "Xóa tài khoản", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("DeleteAsync", "Xóa tài khoản")]
         [TDAuthorize]
         [Route("delete/{id}")]
         [HttpPost]
@@ -83,7 +83,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [TDPermission("GetByIdAsync", "Xem chi tiết tài khoản", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetByIdAsync", "Xem chi tiết tài khoản")]
         [TDAuthorize]
         [Route("get-by-id/{id}")]
         [HttpGet]
@@ -97,7 +97,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        [TDPermission("GetByFilterAsync", "Xem danh sách tài khoản", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetByFilterAsync", "Xem danh sách tài khoản")]
         [TDAuthorize]
         [Route("get-by-filter")]
         [HttpPost]

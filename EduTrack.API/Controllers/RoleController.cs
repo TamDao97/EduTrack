@@ -33,7 +33,7 @@ namespace EduTrack.API.Controllers
         /// Lấy tất cả quyền
         /// </summary>
         /// <returns></returns>
-        [TDPermission("GetAllAsync", "Lấy tất cả quyền", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetAllAsync", "Lấy tất cả quyền")]
         [TDAuthorize]
         [Route("get-all")]
         [HttpGet]
@@ -47,7 +47,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        [TDPermission("GetByFilterAsync", "Xem danh sách quyền", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetByFilterAsync", "Xem danh sách quyền")]
         [TDAuthorize]
         [Route("get-by-filter")]
         [HttpPost]
@@ -60,7 +60,7 @@ namespace EduTrack.API.Controllers
         /// Quét module chức năng
         /// </summary>
         /// <returns></returns>
-        [TDPermission("ScanPermissionAsync", "Quét module chức năng", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("ScanPermissionAsync", "Quét module chức năng")]
         [TDAuthorize]
         [Route("scan-permission")]
         [HttpPost]
@@ -85,7 +85,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="idRole"></param>
         /// <returns></returns>
-        [TDPermission("GetPermissionByRoleAsync", "Xem module chức năng theo quyền", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetPermissionByRoleAsync", "Xem module chức năng theo quyền")]
         [TDAuthorize]
         [Route("get-permission-by-role/{idRole}")]
         [HttpGet]
@@ -99,7 +99,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="dtoReq"></param>
         /// <returns></returns>
-        [TDPermission("AddPermissionByRoleAsync", "Thêm module chức năng cho quyền", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("AddPermissionByRoleAsync", "Thêm module chức năng cho quyền")]
         [TDAuthorize]
         [Route("add-permission-by-role")]
         [HttpPost]
@@ -113,7 +113,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [TDPermission("GetByIdAsync", "Xem chi tiết", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("GetByIdAsync", "Xem chi tiết")]
         [TDAuthorize]
         [Route("get-by-id/{id:Guid}")]
         [HttpGet]
@@ -127,7 +127,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="dtoReq"></param>
         /// <returns></returns>
-        [TDPermission("CreateAsync", "Thêm mới", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("CreateAsync", "Thêm mới")]
         [TDAuthorize]
         [Route("create")]
         [HttpPost]
@@ -142,7 +142,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="dtoReq"></param>
         /// <returns></returns>
-        [TDPermission("UpdateAsync", "Cập nhật thông tin", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("UpdateAsync", "Cập nhật thông tin")]
         [TDAuthorize]
         [Route("update")]
         [HttpPost]
@@ -157,7 +157,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [TDPermission("DeleteAsync", "Xóa", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("DeleteAsync", "Xóa")]
         [TDAuthorize]
         [Route("delete/{id:Guid}")]
         [HttpPost]
@@ -171,7 +171,7 @@ namespace EduTrack.API.Controllers
         /// </summary>
         /// <param name="ids"></param>
         /// <returns></returns>
-        [TDPermission("DeleteManyAsync", "Xóa nhiều", $"{RoleCodes.SupperAdmin}")]
+        [TDPermission("DeleteManyAsync", "Xóa nhiều")]
         [TDAuthorize]
         [Route("delete-many")]
         [HttpPost]

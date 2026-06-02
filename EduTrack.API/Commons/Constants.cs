@@ -19,7 +19,8 @@ namespace EduTrack.API.Commons
 
     public class RoleCodes
     {
-        public const string SupperAdmin = "SUPPER_ADMIN";
+        // Founder/super KHÔNG dùng role — định danh bằng cờ User.IsSuper (bypass [TDPermission]).
+        // Giữ lại Admin chỉ để tính cờ User.IsAdmin (xem UserService); Tutor là role nghiệp vụ thật.
         public const string Admin = "ADMIN";
         public const string Tutor = "TUTOR";
     }
