@@ -1,5 +1,6 @@
 using EduTrack.API.Configs;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using TD.Lib.Config;
 
@@ -48,19 +49,22 @@ ExcelPackage.License.SetNonCommercialPersonal("EduTrack");
 
 var app = builder.Build();
 
-// ─────────── Seed nền tảng (role core + tài khoản founder IsSuper) ───────────
-// Idempotent. Yêu cầu DB đã được migrate trước (xem RUN_LOCAL.md). Lỗi seed không chặn boot.
+// ─────────── Auto-migrate + Seed nền tảng (role core + founder IsSuper) ───────────
+// Tự áp mọi migration còn thiếu lúc boot (vd AddBillingDomain tạo bảng Subscriptions)
+// rồi seed. Idempotent. Lỗi không chặn boot nhưng được log để biết.
 using (var scope = app.Services.CreateScope())
 {
+    var sp = scope.ServiceProvider;
     try
     {
-        await EduTrack.API.Configs.DataSeeder.SeedAsync(scope.ServiceProvider);
+        sp.GetRequiredService<EduTrack.API.DataContext.EduTrackDbContext>().Database.Migrate();
+        await EduTrack.API.Configs.DataSeeder.SeedAsync(sp);
     }
     catch (Exception ex)
     {
-        scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
-            .CreateLogger("DataSeeder")
-            .LogWarning(ex, "Bỏ qua seed nền tảng (DB chưa migrate?).");
+        sp.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("Startup")
+            .LogWarning(ex, "Lỗi auto-migrate / seed nền tảng.");
     }
 }
 
