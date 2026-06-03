@@ -183,6 +183,10 @@ namespace EduTrack.API.Services
                 IdRole = tutorRole.Id,
             };
 
+            // Toàn bộ signup phải NGUYÊN TỬ: bọc trong 1 transaction để nếu bất kỳ bước nào
+            // (tạo Trial, sinh JWT, query quyền) lỗi → rollback luôn user/userRole, tránh
+            // tài khoản mồ côi (server báo lỗi nhưng tài khoản vẫn được tạo).
+            using var transaction = await _unitOfWork.Context.Database.BeginTransactionAsync();
             try
             {
                 await _userRepos.CreateAsync(user);
@@ -191,35 +195,37 @@ namespace EduTrack.API.Services
 
                 // Tạo Trial Subscription 14 ngày
                 await _subService.EnsureTrialAsync(user.Id);
+
+                // Generate JWT — auto-login luôn
+                var tokens = JwtHelper.GenerateToken(user.UserName, user.Id.ToString(), _configuration);
+                var permissions = await (from rp in _rolePermissionRepos.TableNoTracking
+                                         where rp.IdRole == tutorRole.Id
+                                         join p in _permissionRepos.TableNoTracking on rp.IdPermission equals p.Id
+                                         select p.PermissionCode).ToListAsync();
+
+                var currentUser = new CurrentUser
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    DisplayName = user.DisplayName,
+                    Email = user.Email,
+                    IsAdmin = false,
+                    IsSuper = false,
+                    RoleName = tutorRole.Name,
+                    AccessToken = tokens.AccessToken,
+                    RefreshToken = tokens.RefreshToken,
+                    Permissions = permissions,
+                };
+
+                await transaction.CommitAsync();
+                return Response<CurrentUser>.Success(currentUser, StatusCode.Ok.ToDescription());
             }
             catch (Exception)
             {
+                await transaction.RollbackAsync();
                 return Response<CurrentUser>.Error(StatusCode.InternalServerError,
                     "Đăng ký thất bại, vui lòng thử lại");
             }
-
-            // Generate JWT — auto-login luôn
-            var tokens = JwtHelper.GenerateToken(user.UserName, user.Id.ToString(), _configuration);
-            var permissions = await (from rp in _rolePermissionRepos.TableNoTracking
-                                     where rp.IdRole == tutorRole.Id
-                                     join p in _permissionRepos.TableNoTracking on rp.IdPermission equals p.Id
-                                     select p.PermissionCode).ToListAsync();
-
-            var currentUser = new CurrentUser
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                DisplayName = user.DisplayName,
-                Email = user.Email,
-                IsAdmin = false,
-                IsSuper = false,
-                RoleName = tutorRole.Name,
-                AccessToken = tokens.AccessToken,
-                RefreshToken = tokens.RefreshToken,
-                Permissions = permissions,
-            };
-
-            return Response<CurrentUser>.Success(currentUser, StatusCode.Ok.ToDescription());
         }
 
         /// <summary>
