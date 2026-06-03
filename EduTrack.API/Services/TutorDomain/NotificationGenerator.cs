@@ -43,9 +43,10 @@ namespace EduTrack.API.Services.TutorDomain
 
             var lessonStart = lesson.ScheduledDate.Date.Add(lesson.StartTime);
 
-            // 2 mốc nhắc: tối hôm trước 19h00 (tương đối T-1ngày 19h) + 1h trước buổi
-            var eveningBefore = lesson.ScheduledDate.Date.AddDays(-1).AddHours(19);
-            var hourBefore = lessonStart.AddHours(-1);
+            // 2 mốc nhắc (giờ buổi học nhập theo VN(+7) → quy về UTC để ScheduledAt khớp với
+            // DateTime.UtcNow dùng ở GetInbox + NotificationDispatcherJob): tối hôm trước 19h + 1h trước buổi.
+            var eveningBefore = VnToUtc(lesson.ScheduledDate.Date.AddDays(-1).AddHours(19));
+            var hourBefore = VnToUtc(lessonStart.AddHours(-1));
 
             var dayName = LocalizeDayOfWeek(lesson.ScheduledDate.DayOfWeek);
             var dateStr = lesson.ScheduledDate.ToString("dd/MM/yyyy");
@@ -110,6 +111,10 @@ namespace EduTrack.API.Services.TutorDomain
         }
 
         #region helpers
+        /// <summary>VN không có DST → offset cố định +7. Quy giờ VN (wall-clock buổi học) về UTC.</summary>
+        private const int VnOffsetHours = 7;
+        private static DateTime VnToUtc(DateTime vn) => vn.AddHours(-VnOffsetHours);
+
         private async Task<(Student? student, Parent? parent)> GetStudentParentAsync(Guid idStudent)
         {
             var student = await _studentRepos.TableNoTracking.FirstOrDefaultAsync(s => s.Id == idStudent);
