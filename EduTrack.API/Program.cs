@@ -59,6 +59,9 @@ using (var scope = app.Services.CreateScope())
     {
         sp.GetRequiredService<EduTrack.API.DataContext.EduTrackDbContext>().Database.Migrate();
         await EduTrack.API.Configs.DataSeeder.SeedAsync(sp);
+        // Quét lại Permission từ [TDPermission] + gán cho role (TUTOR…) — để quyền luôn khớp code,
+        // tránh tutor bị 403 vì DB chưa được "Quét module" thủ công.
+        await sp.GetRequiredService<EduTrack.API.Services.IRoleService>().ScanPermissionAsync();
     }
     catch (Exception ex)
     {
