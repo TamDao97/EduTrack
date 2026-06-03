@@ -6,21 +6,9 @@
   padding-bottom: $sp-8;
   background: $bg;
 
-  // ─── Hero (founder-style, không gradient indigo — màu tối nghiêm túc) ───
+  // ─── Hero (Clean SaaS: sáng, không nền tối) ───
   &__hero {
-    background: linear-gradient(135deg, #1A1F36 0%, #4A5170 100%);
-    padding: $sp-5 $sp-4 $sp-6;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: -40%; right: -10%;
-      width: 320px; height: 320px;
-      background: radial-gradient(circle, rgba(255,138,101,0.18) 0%, transparent 70%);
-    }
+    padding: $sp-5 $sp-4 $sp-4;
   }
 
   &__title-row {
@@ -29,8 +17,8 @@
     position: relative; z-index: 1;
   }
 
-  &__eyebrow { @include t-eyebrow; color: rgba(255,255,255,0.7); display: block; margin-bottom: $sp-2; }
-  &__title   { @include t-display; color: #fff; margin: 0; }
+  &__eyebrow { @include t-eyebrow; color: $text-3; display: block; margin-bottom: $sp-2; }
+  &__title   { @include t-display; color: $text-1; margin: 0; }
 
   &__back {
     @include glass;
@@ -48,7 +36,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $sp-3;
-    position: relative; z-index: 1;
+    margin-top: $sp-4;
     @include tablet-up { grid-template-columns: repeat(4, 1fr); }
   }
 
@@ -120,7 +108,7 @@
       height: 38px;
       padding: 0 $sp-3 0 36px;
       border: 1px solid $border;
-      border-radius: $radius;
+      border-radius: 0;
       background: $surface;
       font-size: $fs-sm;
       outline: none;
@@ -131,7 +119,7 @@
     height: 38px;
     padding: 0 $sp-3;
     border: 1px solid $border;
-    border-radius: $radius;
+    border-radius: 0;
     background: $surface;
     font-size: $fs-sm;
     outline: none;
@@ -139,50 +127,51 @@
     &:focus { border-color: $primary; box-shadow: $ring-primary; }
   }
 
-  // ─── Table ───
+  // ─── Table (Clean SaaS: phẳng, không viền hộp) ───
   &__table-wrap {
     background: $surface;
-    border: 1px solid $border;
-    border-radius: $radius-md;
     overflow: auto;
   }
 }
 
 // ═════════ Stat box (in dark hero) ═════════
 .stat-box {
-  @include glass;
+  background: $surface;
+  border: 1px solid $border;
   border-radius: $radius-md;
   padding: $sp-4;
-  color: #fff;
 
   &__label {
     font-size: $fs-caption; font-weight: $fw-bold;
     letter-spacing: $ls-wider;
-    color: rgba(255,255,255,0.75);
+    text-transform: uppercase;
+    color: $text-3;
     margin-bottom: $sp-2;
   }
   &__num {
     font-size: 24px; font-weight: $fw-bold;
     line-height: $lh-tight;
     letter-spacing: -0.5px;
-    color: #fff;
+    color: $text-1;
     small {
       font-size: $fs-caption;
       font-weight: $fw-normal;
-      opacity: 0.7;
+      color: $text-3;
       margin-left: 2px;
     }
   }
   &__sub {
     font-size: $fs-caption;
-    color: rgba(255,255,255,0.65);
+    color: $text-3;
     margin-top: $sp-2;
   }
 
+  // Card nhấn (MRR) → tông indigo nhạt
   &--mrr {
-    background: rgba(255,138,101,0.25);
-    border-color: rgba(255,138,101,0.4);
-    .stat-box__num { color: #FFB199; }
+    background: $primary-soft;
+    border-color: $primary-soft;
+    .stat-box__label { color: $primary-dark; }
+    .stat-box__num   { color: $primary-dark; }
   }
 }
 
@@ -193,15 +182,14 @@
   font-size: $fs-sm;
 
   thead {
-    background: $bg-strong;
     th {
       text-align: left;
-      padding: $sp-3;
+      padding: $sp-2 $sp-4 $sp-3;
       font-size: 11px;
       font-weight: $fw-bold;
-      color: $text-2;
+      color: $text-3;
       text-transform: uppercase;
-      letter-spacing: $ls-wide;
+      letter-spacing: $ls-wider;
       white-space: nowrap;
       border-bottom: 1px solid $border;
     }
@@ -213,7 +201,7 @@
       &:last-child { border-bottom: none; }
     }
     td {
-      padding: $sp-3;
+      padding: $sp-3 $sp-4;
       vertical-align: middle;
       color: $text-1;
       &.num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -254,7 +242,7 @@
   background: $gradient-accent;
   color: #fff;
   border: none;
-  border-radius: $radius;
+  border-radius: 0;
   font-size: $fs-xs;
   font-weight: $fw-semi;
   cursor: pointer;
