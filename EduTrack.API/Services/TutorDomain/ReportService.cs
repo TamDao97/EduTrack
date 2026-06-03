@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto.TutorDomain;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using EduTrack.API.DataContext.Enums;
@@ -40,8 +41,8 @@ namespace EduTrack.API.Services.TutorDomain
             if (cu == null) return Response<TutorReportDto>.Error(StatusCode.Unauthorized, "Chưa đăng nhập");
             var idTutor = cu.Id;
 
-            // ── 6 tháng gần nhất (oldest → newest) ──
-            var today = DateTime.UtcNow;
+            // ── 6 tháng gần nhất (oldest → newest) — neo theo lịch VN ──
+            var today = AppTime.VnNow;
             var anchors = new List<(int Year, int Month)>();
             var start = new DateTime(today.Year, today.Month, 1).AddMonths(-5);
             for (int i = 0; i < 6; i++)

@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto.TutorDomain;
 using EduTrack.API.DataContext.Entity.Core;
 using EduTrack.API.DataContext.Entity.TutorDomain;
@@ -91,8 +92,9 @@ namespace EduTrack.API.Services.TutorDomain
                 .Select(g => new { IdTutor = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.IdTutor, x => x.Count);
 
-            var now = DateTime.UtcNow;
-            var monthStart = new DateTime(now.Year, now.Month, 1);
+            var now = DateTime.UtcNow;                 // instant — dùng cho days-remaining (so với CurrentPeriodEnd UTC)
+            var vnNow = AppTime.VnNow;                 // civil — để xác định "tháng này" theo lịch VN
+            var monthStart = new DateTime(vnNow.Year, vnNow.Month, 1);
             var lessonCountsThisMonth = await _lessonRepos.TableNoTracking
                 .Where(l => tutorIds.Contains(l.IdTutor) && l.ScheduledDate >= monthStart)
                 .GroupBy(l => l.IdTutor)

@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using EduTrack.API.DataContext.Enums;
@@ -106,7 +107,7 @@ namespace EduTrack.API.Jobs
 
         private async Task TrySendDailyDigestAsync(EduTrackDbContext db, IEmailService email, DateTime nowUtc, CancellationToken ct)
         {
-            var nowIct = nowUtc.AddHours(7);
+            var nowIct = AppTime.UtcToVn(nowUtc);
             if (nowIct.Hour < DigestHourIct) return;
             var todayIct = DateOnly.FromDateTime(nowIct);
             if (_lastDigestSentDateIct == todayIct) return;

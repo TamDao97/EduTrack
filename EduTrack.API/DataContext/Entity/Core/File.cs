@@ -9,7 +9,7 @@ namespace EduTrack.API.DataContext.Entity.Core
         public string FileType { get; set; }
         public long FileSize { get; set; }
         public Guid UploadedBy { get; set; }
-        public DateTime UploadedAt { get; set; } = DateTime.Now;
+        public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
         public bool IsDeleted { get; set; } = false;
     }
 }
