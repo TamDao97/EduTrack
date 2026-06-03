@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ICurrentUser } from '../../../interfaces/ICurrentUser';
 import { AuthService } from '../../../utils/services/auth.service';
@@ -12,6 +13,7 @@ import { ConfigJsonComponent } from '../../../../pages/system/config-json/config
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
   standalone: true,
+  imports: [CommonModule],
 })
 export class HeaderComponent extends TdBaseComponent implements OnInit {
   currentUser: ICurrentUser;
@@ -68,6 +70,11 @@ export class HeaderComponent extends TdBaseComponent implements OnInit {
     ).afterClose.subscribe((result: any) => {
       // console.log(result);
     });
+  }
+
+  /** Founder (IsSuper) quay lại Platform Console từ workspace gia sư. */
+  goToAdmin() {
+    this._router.navigate(['/admin']);
   }
 
   onLogout() {

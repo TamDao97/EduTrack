@@ -1,14 +1,28 @@
-<form nz-form [formGroup]="frmGroup">
-    <nz-form-item>
+<div class="ad">
+  <!-- Hero header (đồng bộ Platform Console) -->
+  <header class="ad__hero">
+    <div class="ad__title-row">
+      <div>
+        <span class="ad__eyebrow">FOUNDER · CẤU HÌNH</span>
+        <h1 class="ad__title">Cấu hình hệ thống</h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="ad__panel">
+    <form nz-form [formGroup]="frmGroup">
+      <nz-form-item>
         <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired>Tên ứng dụng</nz-form-label>
         <nz-form-control [nzSm]="18" [nzXs]="24" nzErrorTip="Vui lòng nhập thông tin!">
-            <input nz-input formControlName="appName" placeholder="Nhập tên hiển thị của ứng dụng" />
+          <input nz-input formControlName="appName" placeholder="Nhập tên hiển thị của ứng dụng" />
         </nz-form-control>
-    </nz-form-item>
-</form>
-<div class="row">
-    <div class="col-md-12 col-lg-12 d-flex justify-content-end">
+      </nz-form-item>
+    </form>
+    <div class="row">
+      <div class="col-md-12 col-lg-12 d-flex justify-content-end">
         <button nz-button [nzType]="'primary'" (click)="onSave()">Lưu</button>
         <button class="ms-2" nz-button [nzType]="'primary'" nzDanger (click)="onClose()">Đóng</button>
+      </div>
     </div>
+  </section>
 </div>

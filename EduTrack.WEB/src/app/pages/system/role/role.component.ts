@@ -10,7 +10,7 @@ import { keyPage } from '../../../shared/utils/constants';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
-  styleUrls: ['./role.component.scss'],
+  styleUrls: ['./role.component.scss', '../../admin/admin-dashboard.component.scss'],
   standalone: true,
   imports: [SharedModule, RoleGridComponent, PermissionSetupComponent]
 })

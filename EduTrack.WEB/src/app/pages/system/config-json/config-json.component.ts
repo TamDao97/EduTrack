@@ -13,7 +13,7 @@ import { finalize, forkJoin } from 'rxjs';
 @Component({
   selector: 'app-config-json',
   templateUrl: './config-json.component.html',
-  styleUrl: './config-json.component.css',
+  styleUrls: ['./config-json.component.css', '../../admin/admin-dashboard.component.scss'],
   standalone: true,
   imports: [SharedModule],
 })

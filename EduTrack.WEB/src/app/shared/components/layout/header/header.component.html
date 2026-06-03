@@ -33,6 +33,13 @@
         </div> -->
       </nav>
       <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+        <!-- Founder: lối quay lại Platform Console (chỉ hiện với super) -->
+        <li class="nav-item d-flex align-items-center me-2" *ngIf="currentUser?.isSuper">
+          <button class="btn btn-warning btn-sm fw-bold" (click)="goToAdmin()"
+            title="Về Platform Console (Founder)">
+            <i class="fas fa-crown me-1"></i> Trang quản trị
+          </button>
+        </li>
         <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
           <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false"
             aria-haspopup="true">
@@ -328,6 +335,10 @@
                   <a class="dropdown-item" href="javascript:void(0);" (click)="onSettings()">Cài đặt hệ thống</a>
                   <a class="dropdown-item" href="javascript:void(0);" (click)="onEditProfile()">Thông tin cá nhân</a>
                   <a class="dropdown-item" href="javascript:void(0);" (click)="onChangePassword()">Đổi mật khẩu</a>
+                  <a class="dropdown-item fw-bold text-warning" href="javascript:void(0);"
+                    *ngIf="currentUser?.isSuper" (click)="goToAdmin()">
+                    <i class="fas fa-crown me-2"></i>Về trang quản trị
+                  </a>
                   <!-- <a class="dropdown-item" href="#">Inbox</a>
                   <div class="dropdown-divider"></div>
                   <a class="dropdown-item" href="#">Account Setting</a> -->

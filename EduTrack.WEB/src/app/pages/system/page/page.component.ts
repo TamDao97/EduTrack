@@ -13,7 +13,7 @@ import { ITree } from '../../../shared/interfaces/ITree';
 @Component({
   selector: 'app-page',
   templateUrl: './page.component.html',
-  styleUrls: ['./page.component.scss'],
+  styleUrls: ['./page.component.scss', '../../admin/admin-dashboard.component.scss'],
   standalone: true,
   imports: [SharedModule],
 })

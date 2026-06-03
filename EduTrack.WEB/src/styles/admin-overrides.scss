@@ -1,0 +1,120 @@
+@use 'palette' as *;
+
+/* ============================================================
+   Platform Console — đồng nhất ng-zorro trong khu admin (.ad__panel)
+   với tông founder/design-system. Global nhưng SCOPE bằng .ad__panel
+   nên không ảnh hưởng workspace gia sư. Selector .ant-* + .ad__panel
+   có specificity cao hơn ng-zorro mặc định nên luôn thắng.
+   ============================================================ */
+
+.ad__panel {
+
+  /* ───────── Table ───────── */
+  .ant-table {
+    background: $surface;
+    font-size: $fs-sm;
+    color: $text-1;
+    border-radius: $radius-md;
+  }
+  .ant-table-container,
+  .ant-table-content {
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    overflow: hidden;
+  }
+  .ant-table-thead > tr > th {
+    background: $bg-strong;
+    color: $text-2;
+    font-size: 11px;
+    font-weight: $fw-bold;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    padding: $sp-3;
+    border-bottom: 1px solid $border;
+    white-space: nowrap;
+    &::before { display: none !important; }   /* bỏ vạch ngăn dọc mặc định */
+  }
+  .ant-table-tbody > tr > td {
+    padding: $sp-3;
+    border-bottom: 1px solid $border;
+    color: $text-1;
+  }
+  .ant-table-tbody > tr:last-child > td { border-bottom: none; }
+  .ant-table-tbody > tr:hover > td,
+  .ant-table-tbody > tr.ant-table-row:hover > td { background: $surface-alt; }
+
+  /* ───────── Inputs / search ───────── */
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-number,
+  .ant-select-selector,
+  .ant-picker {
+    border-radius: $radius;
+    border-color: $border;
+    &:hover { border-color: $primary; }
+    &:focus,
+    &.ant-input-affix-wrapper-focused,
+    &.ant-select-focused { border-color: $primary; box-shadow: $ring-primary; }
+  }
+  /* input-group (ô tìm kiếm + nút) bo góc gọn 2 đầu */
+  .ant-input-group .ant-input { border-top-left-radius: $radius; border-bottom-left-radius: $radius; }
+  .ant-input-group-addon { background: transparent; border: none; padding: 0; }
+
+  /* ───────── Buttons ───────── */
+  .ant-btn {
+    border-radius: $radius;
+    font-weight: $fw-semi;
+    box-shadow: none;
+  }
+  .ant-btn-primary {
+    background: $primary;
+    border-color: $primary;
+    &:hover,
+    &:focus { background: $primary-dark; border-color: $primary-dark; }
+  }
+  .ant-btn-dangerous.ant-btn-primary { background: $danger; border-color: $danger; }
+
+  /* ───────── Pagination ───────── */
+  .ant-pagination-item { border-radius: $radius; }
+  .ant-pagination-item-active {
+    border-color: $primary;
+    a { color: $primary; }
+  }
+  .ant-pagination-item:hover a,
+  .ant-pagination-prev:hover .ant-pagination-item-link,
+  .ant-pagination-next:hover .ant-pagination-item-link { color: $primary; border-color: $primary; }
+
+  /* ───────── Tabs ───────── */
+  .ant-tabs-tab:hover { color: $text-1; }
+  .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn { color: $primary; font-weight: $fw-semi; }
+  .ant-tabs-ink-bar { background: $primary; }
+
+  /* ───────── Inner cards (page menu tree/form) ───────── */
+  .ant-card {
+    border: 1px solid $border;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+  }
+  .ant-card-head {
+    min-height: auto;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $border;
+    font-weight: $fw-semi;
+    color: $text-1;
+  }
+  .ant-card-body { padding: $sp-4; }
+
+  /* ───────── Form ───────── */
+  .ant-form-item-label > label {
+    color: $text-2;
+    font-weight: $fw-semi;
+  }
+
+  /* ───────── Tree ───────── */
+  .ant-tree { font-size: $fs-sm; color: $text-1; }
+  .ant-tree .ant-tree-node-content-wrapper:hover { background: $surface-alt; }
+  .ant-tree .ant-tree-node-selected { background: $primary-soft !important; }
+
+  /* ───────── Tags (ng-zorro nz-tag) ───────── */
+  .ant-tag { border-radius: 12px; font-weight: $fw-semi; border: none; }
+}
