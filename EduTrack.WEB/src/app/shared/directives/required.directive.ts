@@ -53,7 +53,6 @@ export class RequiredDirective implements Validator {
 
   private hideError() {
     const error = this.el.nativeElement.nextElementSibling;
-    console.log('Error element:', error); // Kiểm tra phần tử lỗi có đúng không
     if (error && error.classList.contains('error-message')) {
       this.renderer.removeChild(this.el.nativeElement.parentNode, error);
     }

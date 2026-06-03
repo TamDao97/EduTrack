@@ -46,7 +46,6 @@ export class PageComponent extends TdBaseGridComponent implements OnInit {
       isTab: [false],
       isHomePage: [false],
     });
-    debugger
     this.getPageTree();
   }
 
@@ -64,19 +63,13 @@ export class PageComponent extends TdBaseGridComponent implements OnInit {
   }
 
   onDrop(event: any): void {
-    console.log('Drop event:', event);
     const dragNode = event.dragNode;
     const dropNode = event.node;
-
-    console.log('Kéo node:', dragNode?.title);
-    console.log('Thả vào node:', dropNode?.title);
-
     // 👇 Ví dụ xử lý: gọi API cập nhật vị trí hoặc cập nhật lại mảng nodes
     // this.updateTreeStructure(dragNode, dropNode, dropPosition);
   }
 
   onNodeClick(event: any): void {
-    console.log('Clicked node:', event.node);
     this._pageService
       .getById(event.node.key)
       .subscribe((rs: IResponse) => {

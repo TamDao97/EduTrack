@@ -61,11 +61,7 @@ export class FilterModalComponent implements OnInit {
 
   onDateRangeChange(e: any) { }
 
-  onDateRangeOk(result: Date | Date[] | null): void {
-    console.log('onOk', result);
-  }
+  onDateRangeOk(result: Date | Date[] | null): void { }
 
-  onCalendarChange(result: Array<Date | null>): void {
-    console.log('onCalendarChange', result);
-  }
+  onCalendarChange(result: Array<Date | null>): void { }
 }
