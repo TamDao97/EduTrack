@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
 import {
-  IAdminPaymentRow, IAdminStats, IAdminTutorFilter, ITutorWithSub,
+  IAdminStats, IAdminTutorFilter, ITutorWithSub,
   PlanCode, PlanLabel, PlanPrice, StatusLabel, SubscriptionStatus,
 } from '../../interfaces/IAdmin';
 import { AdminService } from '../../services/admin/admin.service';
@@ -14,7 +13,6 @@ import { ToastService } from '../../shared/services/toast.service';
 import { StatusResponseTitle } from '../../shared/utils/constants';
 import { StatusCode } from '../../shared/utils/enums';
 import { TdBaseComponent } from '../../shared/utils/extends-components/td-base.component';
-import { AuthService } from '../../shared/utils/services/auth.service';
 import { ConfirmPaymentFormComponent } from './confirm-payment-form/confirm-payment-form.component';
 
 @Component({
@@ -34,34 +32,16 @@ export class AdminDashboardComponent extends TdBaseComponent implements OnInit {
 
   private _service = inject(AdminService);
   private _toast = inject(ToastService);
-  private _router = inject(Router);
-
-  activeTab: 'tutors' | 'payments' = 'tutors';
 
   stats: IAdminStats | null = null;
   tutors: ITutorWithSub[] = [];
-  payments: IAdminPaymentRow[] = [];
   totalTutors = 0;
-  totalPayments = 0;
   isLoading = false;
 
   filter: IAdminTutorFilter = { ...defaultGridFilter(), pageSize: 50, plan: null, status: null };
-  paymentFilter = { ...defaultGridFilter(), pageSize: 50 };
 
+  // Quyền truy cập (isSuper) đã được SuperGuard ở route cha /admin đảm bảo.
   ngOnInit() {
-    // Check super admin role
-    const auth = AuthService.getAuthStorage();
-    if (auth) {
-      const u = JSON.parse(auth);
-      if (!u.isSuper) {
-        this._toast.error(StatusResponseTitle.ERROR, 'Trang chỉ dành cho Super Admin');
-        this._router.navigate(['/dashboard']);
-        return;
-      }
-    } else {
-      this._router.navigate(['/login']);
-      return;
-    }
     this.loadAll();
   }
 
@@ -78,20 +58,6 @@ export class AdminDashboardComponent extends TdBaseComponent implements OnInit {
           this.totalTutors = tutors.data?.totalRecord ?? 0;
         }
       });
-  }
-
-  loadPayments() {
-    this._service.getPayments(this.paymentFilter).subscribe(rs => {
-      if (rs.status === StatusCode.Ok) {
-        this.payments = rs.data?.data ?? [];
-        this.totalPayments = rs.data?.totalRecord ?? 0;
-      }
-    });
-  }
-
-  switchTab(t: 'tutors' | 'payments') {
-    this.activeTab = t;
-    if (t === 'payments' && this.payments.length === 0) this.loadPayments();
   }
 
   reloadTutors() {
@@ -115,7 +81,6 @@ export class AdminDashboardComponent extends TdBaseComponent implements OnInit {
       if (rs?.saved) {
         this._toast.success(StatusResponseTitle.SUCCESS, 'Đã ghi nhận + gia hạn subscription');
         this.reloadTutors();
-        this.loadPayments();
       }
     });
   }

@@ -1,0 +1,54 @@
+<div class="console" [class.nav-open]="sidebarOpen">
+  <!-- Topbar -->
+  <header class="console__topbar">
+    <button class="console__burger" (click)="toggleSidebar()" aria-label="Menu">
+      <span nz-icon [nzType]="sidebarOpen ? 'close' : 'menu'"></span>
+    </button>
+
+    <div class="console__brand">
+      <span class="console__logo" nz-icon nzType="crown" nzTheme="outline"></span>
+      <div class="console__brand-text">
+        <strong>Nền tảng EduTrack</strong>
+        <small>Bảng điều hành chủ nền tảng</small>
+      </div>
+    </div>
+
+    <div class="console__spacer"></div>
+
+    <button class="console__app-link" (click)="goToTutorApp()">
+      <span nz-icon nzType="appstore"></span>
+      <span class="console__app-link-text">Trang gia sư</span>
+    </button>
+
+    <div class="console__user" *ngIf="currentUser">
+      <div class="console__user-meta">
+        <strong>{{ currentUser.displayName || currentUser.userName }}</strong>
+        <small>Founder</small>
+      </div>
+      <button class="console__logout" (click)="onLogout()" aria-label="Đăng xuất">
+        <span nz-icon nzType="logout"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Backdrop (mobile) -->
+  <div class="console__backdrop" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
+
+  <div class="console__body">
+    <!-- Side nav -->
+    <nav class="console__nav">
+      <a *ngFor="let n of navs"
+         class="console__nav-item"
+         [routerLink]="n.url"
+         routerLinkActive="is-active">
+        <span class="console__nav-icon" nz-icon [nzType]="n.icon"></span>
+        <span class="console__nav-label">{{ n.label }}</span>
+      </a>
+    </nav>
+
+    <!-- Content -->
+    <main class="console__content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

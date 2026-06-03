@@ -132,6 +132,20 @@ npm start
 
 ---
 
+## Đăng nhập Platform Console (founder / chủ nền tảng)
+
+Founder là tài khoản vận hành nền tảng (`IsSuper=true`) — thấy khu `/admin/*` (doanh thu, danh sách tutor, thanh toán, quản trị hệ thống), khác hẳn workspace gia sư.
+
+- **Tự động**: khi `dotnet run`, `DataSeeder` đọc khối `Founder` trong `appsettings.json` và tạo sẵn tài khoản nếu chưa có.
+  - Email: `founder@edutrack.vn` · Password: `Founder@123` (đổi trong `appsettings.json`; prod để trống và set env var `Founder__Password`).
+- Sau khi login bằng tài khoản này → tự chuyển tới `/admin/dashboard` (gia sư thường vào `/dashboard`).
+- **Nâng 1 user có sẵn thành founder** (thủ công): bỏ comment block "4. Founder" trong `2_Seed_InitData.sql`, sửa `@founderEmail`, chạy lại — hoặc nhanh gọn:
+  ```sql
+  UPDATE Users SET IsSuper = 1 WHERE UserName = N'<email_user>' AND IsDeleted = 0;
+  ```
+
+---
+
 ## Checklist test sau khi vào app
 
 1. [ ] **Dashboard** `/dashboard` — thấy trang chào mừng

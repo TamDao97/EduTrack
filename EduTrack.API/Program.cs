@@ -48,6 +48,22 @@ ExcelPackage.License.SetNonCommercialPersonal("EduTrack");
 
 var app = builder.Build();
 
+// ─────────── Seed nền tảng (role core + tài khoản founder IsSuper) ───────────
+// Idempotent. Yêu cầu DB đã được migrate trước (xem RUN_LOCAL.md). Lỗi seed không chặn boot.
+using (var scope = app.Services.CreateScope())
+{
+    try
+    {
+        await EduTrack.API.Configs.DataSeeder.SeedAsync(scope.ServiceProvider);
+    }
+    catch (Exception ex)
+    {
+        scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("DataSeeder")
+            .LogWarning(ex, "Bỏ qua seed nền tảng (DB chưa migrate?).");
+    }
+}
+
 // ─────────── Pipeline ───────────
 // Swagger luôn bật (cả prod) cho phép tutor xem API docs
 app.UseSwagger();

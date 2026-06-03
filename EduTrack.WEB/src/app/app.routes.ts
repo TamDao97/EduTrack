@@ -19,7 +19,9 @@ import { LessonWeekComponent } from './pages/tutor-domain/lesson/lesson-week.com
 import { NotificationInboxComponent } from './pages/tutor-domain/notification/notification-inbox.component';
 import { TuitionListComponent } from './pages/tutor-domain/tuition/tuition-list.component';
 import { SettingsComponent } from './pages/tutor-domain/settings/settings.component';
+import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './pages/admin/admin-dashboard.component';
+import { AdminPaymentsComponent } from './pages/admin/admin-payments.component';
 import { BillingComponent } from './pages/tutor-domain/billing/billing.component';
 import { ReportComponent } from './pages/tutor-domain/report/report.component';
 import { LandingComponent } from './pages/landing/landing.component';
@@ -50,10 +52,6 @@ export const routes: Routes = [
     children: [
       { path: '',             redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard',    component: DashboardComponent,         canActivate: [AuthGuard] },
-      { path: 'page',         component: PageComponent,              canActivate: [AuthGuard] },
-      { path: 'user',         component: UserComponent,              canActivate: [AuthGuard] },
-      { path: 'role',         component: RoleComponent,              canActivate: [AuthGuard] },
-      { path: 'config-json',  component: ConfigJsonComponent,        canActivate: [AuthGuard] },
       { path: 'student',      component: StudentListComponent,       canActivate: [AuthGuard] },
       { path: 'student/:id',  component: StudentDetailComponent,     canActivate: [AuthGuard] },
       { path: 'lesson',       component: LessonWeekComponent,        canActivate: [AuthGuard] },
@@ -62,9 +60,28 @@ export const routes: Routes = [
       { path: 'settings',     component: SettingsComponent,          canActivate: [AuthGuard] },
       { path: 'billing',      component: BillingComponent,           canActivate: [AuthGuard] },
       { path: 'report',       component: ReportComponent,            canActivate: [AuthGuard] },
-      { path: 'admin',        component: AdminDashboardComponent,    canActivate: [AuthGuard, SuperGuard] },
     ],
   },
+  // ─────────── Platform Console (founder, IsSuper) — shell + nav riêng ───────────
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [AuthGuard, SuperGuard],
+    children: [
+      { path: '',          redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'payments',  component: AdminPaymentsComponent },
+      { path: 'users',     component: UserComponent },
+      { path: 'roles',     component: RoleComponent },
+      { path: 'pages',     component: PageComponent },
+      { path: 'config',    component: ConfigJsonComponent },
+    ],
+  },
+  // Back-compat: link cũ → khu admin mới
+  { path: 'user',        redirectTo: 'admin/users',  pathMatch: 'full' },
+  { path: 'role',        redirectTo: 'admin/roles',  pathMatch: 'full' },
+  { path: 'page',        redirectTo: 'admin/pages',  pathMatch: 'full' },
+  { path: 'config-json', redirectTo: 'admin/config', pathMatch: 'full' },
   { path: 'error/:statusCode', component: PageErrorComponent },
   { path: '**', component: Page404Component },
 ];

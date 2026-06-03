@@ -1,0 +1,159 @@
+@use 'palette' as *;
+
+// ─── Founder console palette (đồng bộ với hero founder ở admin-dashboard) ───
+$cs-dark:    #1A1F36;
+$cs-dark-2:  #2A3050;
+$cs-accent:  #FF8A65;
+$cs-text:    rgba(255, 255, 255, 0.92);
+$cs-muted:   rgba(255, 255, 255, 0.55);
+$cs-rail-w:  232px;
+$cs-topbar-h: 60px;
+
+:host { display: block; }
+
+.console {
+  min-height: 100vh;
+  background: $bg;
+
+  // ─── Topbar ───
+  &__topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: $cs-topbar-h;
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: 0 $sp-4;
+    background: linear-gradient(135deg, $cs-dark 0%, $cs-dark-2 100%);
+    color: $cs-text;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+  }
+
+  &__burger {
+    display: none;
+    width: 38px; height: 38px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  &__brand { display: flex; align-items: center; gap: $sp-3; }
+  &__logo {
+    font-size: 22px;
+    color: $cs-accent;
+    background: rgba(255, 138, 101, 0.14);
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  &__brand-text {
+    display: flex; flex-direction: column; line-height: 1.2;
+    strong { font-size: $fs-h3; font-weight: $fw-bold; color: #fff; }
+    small  { font-size: 11px; color: $cs-muted; }
+  }
+
+  &__spacer { flex: 1; }
+
+  &__app-link {
+    display: inline-flex; align-items: center; gap: $sp-2;
+    height: 36px; padding: 0 $sp-3;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: transparent;
+    color: $cs-text;
+    border-radius: 18px;
+    font-size: $fs-sm; font-weight: $fw-semi;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    &:hover { background: rgba(255, 255, 255, 0.1); }
+  }
+
+  &__user { display: flex; align-items: center; gap: $sp-3; }
+  &__user-meta {
+    display: flex; flex-direction: column; text-align: right; line-height: 1.2;
+    strong { font-size: $fs-sm; color: #fff; }
+    small  { font-size: 11px; color: $cs-accent; font-weight: $fw-semi; }
+  }
+  &__logout {
+    width: 36px; height: 36px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    &:hover { background: rgba(245, 34, 45, 0.6); }
+  }
+
+  // ─── Body = nav rail + content ───
+  &__body {
+    display: flex;
+    align-items: stretch;
+    min-height: calc(100vh - #{$cs-topbar-h});
+  }
+
+  &__nav {
+    flex: 0 0 $cs-rail-w;
+    width: $cs-rail-w;
+    background: $cs-dark;
+    padding: $sp-4 $sp-3;
+    display: flex; flex-direction: column; gap: $sp-2;
+  }
+
+  &__nav-item {
+    display: flex; align-items: center; gap: $sp-3;
+    height: 44px; padding: 0 $sp-3;
+    border-radius: 10px;
+    color: $cs-muted;
+    font-size: $fs-sm; font-weight: $fw-semi;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover { background: rgba(255, 255, 255, 0.06); color: $cs-text; }
+
+    &.is-active {
+      background: rgba(255, 138, 101, 0.16);
+      color: #fff;
+      .console__nav-icon { color: $cs-accent; }
+    }
+  }
+  &__nav-icon { font-size: 18px; width: 20px; text-align: center; }
+
+  &__content {
+    flex: 1;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  &__backdrop { display: none; }
+}
+
+// ─── Mobile (<768px): nav trượt off-screen ───
+@media (max-width: 767.98px) {
+  .console__burger { display: inline-flex; }
+  .console__app-link-text { display: none; }
+
+  .console__body { display: block; }
+
+  .console__nav {
+    position: fixed;
+    top: $cs-topbar-h; left: 0; bottom: 0;
+    z-index: 60;
+    width: $cs-rail-w;
+    transform: translateX(-100%);
+    transition: transform 0.22s ease-out;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+  }
+  .console.nav-open .console__nav { transform: translateX(0); }
+
+  .console__backdrop {
+    position: fixed;
+    inset: $cs-topbar-h 0 0 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 55;
+  }
+  .console.nav-open .console__backdrop { display: block; }
+}

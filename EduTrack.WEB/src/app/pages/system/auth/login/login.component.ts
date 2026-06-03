@@ -50,7 +50,8 @@ export class LoginComponent extends TdBaseComponent implements OnInit {
         next: (rs) => {
           if (rs.status == StatusCode.Ok) {
             AuthService.setAuthStorage(rs.data);
-            this._router.navigate(['/dashboard']);
+            // Founder (IsSuper) vào Platform Console; gia sư vào workspace.
+            this._router.navigate([rs.data?.isSuper ? '/admin/dashboard' : '/dashboard']);
             this._toastService.success(StatusResponseTitle.SUCCESS, rs.message);
           } else {
             this._toastService.error(StatusResponseTitle.ERROR, rs.message);
