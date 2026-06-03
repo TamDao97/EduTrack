@@ -6,7 +6,7 @@ import { IResponse } from '../../shared/interfaces/IResponse';
 
 @Injectable({ providedIn: 'root' })
 export class ReportService {
-  apiUrl = `${environment.apiUrl}/tutorreport`;
+  apiUrl = `${environment.apiUrl}/tutor-report`;
   constructor(private _http: HttpClient) {}
 
   getMyReport(): Observable<IResponse> {

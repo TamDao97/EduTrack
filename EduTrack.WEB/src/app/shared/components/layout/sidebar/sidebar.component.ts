@@ -9,6 +9,8 @@ import { SharedModule } from '../../../modules/shared.module';
 import { IMenu } from '../../../interfaces/ITree';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { AuthService } from '../../../utils/services/auth.service';
+import { ICurrentUser } from '../../../interfaces/ICurrentUser';
 
 @Component({
   selector: 'app-sidebar',
@@ -19,6 +21,9 @@ import { filter } from 'rxjs';
 })
 export class SidebarComponent implements OnInit {
   menuItems: IMenu[] = [];
+
+  /** Founder (IsSuper) → hiện nút quay lại Platform Console ở đáy rail. */
+  isSuper = false;
 
   /** Menu hover hiện tại — null khi không hover gì → ẩn flyout */
   hoveredMenu: IMenu | null = null;
@@ -112,6 +117,10 @@ export class SidebarComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    const authStr = AuthService.getAuthStorage();
+    if (authStr) {
+      try { this.isSuper = !!(JSON.parse(authStr) as ICurrentUser).isSuper; } catch { this.isSuper = false; }
+    }
     this.getPageTreeByUserLogin();
     // Cập nhật active menu khi route đổi
     this._router.events
@@ -180,6 +189,12 @@ export class SidebarComponent implements OnInit {
   }
   onFlyoutLeave(): void {
     this.hoveredMenu = null;
+  }
+
+  /** Founder quay lại Platform Console từ workspace gia sư. */
+  goToAdmin(): void {
+    this.hoveredMenu = null;
+    this._router.navigate(['/admin']);
   }
 
   /** Click 1 item → ẩn flyout + navigate (nếu có url) */

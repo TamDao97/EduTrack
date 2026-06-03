@@ -6,7 +6,7 @@ import { IResponse } from '../../shared/interfaces/IResponse';
 
 @Injectable({ providedIn: 'root' })
 export class TutorProfileService {
-  apiUrl = `${environment.apiUrl}/tutorprofile`;
+  apiUrl = `${environment.apiUrl}/tutor-profile`;
   constructor(private _http: HttpClient) {}
 
   getMyProfile(): Observable<IResponse> {

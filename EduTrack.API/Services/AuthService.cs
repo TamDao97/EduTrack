@@ -40,16 +40,19 @@ namespace EduTrack.API.Services
         private readonly ISubscriptionService _subService;
         private readonly IEmailService _emailService;
         private readonly TD.Lib.Repository.ITDRepository<PasswordResetToken> _resetRepos;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             IUnitOfWork unitOfWork
             , IConfiguration configuration
             , IOptions<AppSettings> appSettings
             , ISubscriptionService subService
-            , IEmailService emailService)
+            , IEmailService emailService
+            , ILogger<AuthService> logger)
         {
             _configuration = configuration;
             _appSettings = appSettings.Value;
+            _logger = logger;
 
             _userRepos = unitOfWork.GetRepository<User>();
             _roleRepos = unitOfWork.GetRepository<Role>();
@@ -184,20 +187,37 @@ namespace EduTrack.API.Services
                 IdRole = tutorRole.Id,
             };
 
-            // Toàn bộ signup phải NGUYÊN TỬ: bọc trong 1 transaction để nếu bất kỳ bước nào
-            // (tạo Trial, sinh JWT, query quyền) lỗi → rollback luôn user/userRole, tránh
-            // tài khoản mồ côi (server báo lỗi nhưng tài khoản vẫn được tạo).
-            using var transaction = await _unitOfWork.Context.Database.BeginTransactionAsync();
+            // Phần GHI của signup phải NGUYÊN TỬ: user + userRole + Trial trong 1 transaction,
+            // lỗi bất kỳ bước nào → rollback hết, tránh tài khoản mồ côi.
+            // DbContext bật EnableRetryOnFailure ⇒ transaction thủ công BẮT BUỘC bọc trong
+            // execution strategy (nếu không EF ném InvalidOperationException). Theo đúng pattern
+            // đã dùng ở UserService.
             try
             {
-                await _userRepos.CreateAsync(user);
-                await _userRoleRepos.CreateAsync(userRole);
-                await _unitOfWork.SaveChangesAsync();
+                var strategy = _unitOfWork.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
+                {
+                    using var trans = await _unitOfWork.BeginTransactionAsync();
+                    try
+                    {
+                        await _userRepos.CreateAsync(user);
+                        await _userRoleRepos.CreateAsync(userRole);
+                        await _unitOfWork.SaveChangesAsync();
 
-                // Tạo Trial Subscription 14 ngày
-                await _subService.EnsureTrialAsync(user.Id);
+                        // Tạo Trial Subscription 14 ngày (idempotent)
+                        await _subService.EnsureTrialAsync(user.Id);
 
-                // Generate JWT — auto-login luôn
+                        await trans.CommitAsync();
+                    }
+                    catch
+                    {
+                        await trans.RollbackAsync();
+                        throw; // ném lại để strategy retry nếu lỗi transient
+                    }
+                });
+
+                // Đã commit xong → sinh JWT (auto-login) + lấy quyền. Đây là thao tác read-only,
+                // để ngoài transaction cho gọn (không cần retriable).
                 var tokens = JwtHelper.GenerateToken(user.UserName, user.Id.ToString(), _configuration);
                 var permissions = await (from rp in _rolePermissionRepos.TableNoTracking
                                          where rp.IdRole == tutorRole.Id
@@ -218,12 +238,11 @@ namespace EduTrack.API.Services
                     Permissions = permissions,
                 };
 
-                await transaction.CommitAsync();
                 return Response<CurrentUser>.Success(currentUser, StatusCode.Ok.ToDescription());
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                _logger.LogError(ex, "SignupTutorAsync thất bại cho user {UserName}", userName);
                 return Response<CurrentUser>.Error(StatusCode.InternalServerError,
                     "Đăng ký thất bại, vui lòng thử lại");
             }

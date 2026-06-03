@@ -7,7 +7,7 @@ import { TdBaseService } from '../../shared/utils/services/td-base.service';
 
 @Injectable({ providedIn: 'root' })
 export class TuitionPeriodService extends TdBaseService {
-  override apiUrl = `${environment.apiUrl}/tuitionperiod`;
+  override apiUrl = `${environment.apiUrl}/tuition-period`;
   constructor(httpClient: HttpClient) { super(httpClient); }
 
   /** Lấy kỳ tháng-năm của HS (tự tạo nếu chưa có) */

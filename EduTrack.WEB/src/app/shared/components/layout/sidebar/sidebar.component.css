@@ -184,6 +184,28 @@
   box-shadow: none;
 }
 
+/* ============== FOOTER — nút Founder quay lại Platform Console ============== */
+.sidebar-foot {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 8px 0 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sidebar-rail__btn--admin {
+  background: linear-gradient(135deg, #f7b733 0%, #d4a017 100%) !important;
+  opacity: 1;
+  box-shadow: 0 2px 10px rgba(212, 160, 23, 0.35);
+}
+.sidebar-rail__btn--admin:hover {
+  background: linear-gradient(135deg, #ffc94d 0%, #e0ab1a 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 160, 23, 0.5);
+}
+.sidebar-rail__item--admin .sidebar-rail__label {
+  color: #f7b733;
+  font-weight: 700;
+}
+
 /* ============== FLYOUT PANEL ============== */
 :host ::ng-deep .sidebar-flyout {
   position: fixed;

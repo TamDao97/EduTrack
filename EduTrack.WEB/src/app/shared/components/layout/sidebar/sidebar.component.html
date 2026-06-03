@@ -22,6 +22,17 @@
       <span class="sidebar-rail__label" [title]="menu.title">{{ menu.title }}</span>
     </li>
   </ul>
+
+  <!-- Founder: lối quay lại Platform Console (chỉ hiện với IsSuper) -->
+  <div class="sidebar-foot" *ngIf="isSuper">
+    <div class="sidebar-rail__item sidebar-rail__item--admin">
+      <a class="sidebar-rail__btn sidebar-rail__btn--admin" (click)="goToAdmin()"
+         nz-tooltip nzTooltipTitle="Về trang quản trị" nzTooltipPlacement="right">
+        <i nz-icon nzType="crown" nzTheme="outline" class="sidebar-rail__icon"></i>
+      </a>
+      <span class="sidebar-rail__label">Quản trị</span>
+    </div>
+  </div>
 </div>
 
 <!-- Flyout panel — CHỈ hiện khi hover menu có children (leaf menu navigate trực tiếp khi click icon) -->
