@@ -92,9 +92,8 @@ namespace EduTrack.API.Services.TutorDomain
                 .Select(g => new { IdTutor = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.IdTutor, x => x.Count);
 
-            var now = DateTime.UtcNow;                 // instant — dùng cho days-remaining (so với CurrentPeriodEnd UTC)
-            var vnNow = AppTime.VnNow;                 // civil — để xác định "tháng này" theo lịch VN
-            var monthStart = new DateTime(vnNow.Year, vnNow.Month, 1);
+            var now = AppTime.VnNow;
+            var monthStart = new DateTime(now.Year, now.Month, 1);
             var lessonCountsThisMonth = await _lessonRepos.TableNoTracking
                 .Where(l => tutorIds.Contains(l.IdTutor) && l.ScheduledDate >= monthStart)
                 .GroupBy(l => l.IdTutor)
@@ -167,7 +166,7 @@ namespace EduTrack.API.Services.TutorDomain
                 Status = PaymentStatusEnums.Confirmed,
                 TransferRef = req.TransferRef,
                 Notes = req.Notes,
-                ConfirmedAt = DateTime.UtcNow,
+                ConfirmedAt = AppTime.VnNow,
                 ConfirmedByAdmin = adminId,
             };
             await _paymentRepos.CreateAsync(payment);
@@ -178,7 +177,7 @@ namespace EduTrack.API.Services.TutorDomain
 
             // Refetch
             var refreshed = await _subRepos.TableNoTracking.FirstOrDefaultAsync(s => s.Id == sub.Id);
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
             var days = refreshed?.CurrentPeriodEnd.HasValue == true
                 ? (int)Math.Ceiling((refreshed.CurrentPeriodEnd!.Value - now).TotalDays)
                 : (int?)null;
@@ -215,7 +214,7 @@ namespace EduTrack.API.Services.TutorDomain
                 .ToListAsync();
 
             // Update Status="Expired" trên-the-fly cho subs trial đã hết hạn (tính tại runtime, không lưu)
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
             int trial = 0, active = 0, expired = 0, cancelled = 0;
             decimal mrr = 0;
             foreach (var s in subs)

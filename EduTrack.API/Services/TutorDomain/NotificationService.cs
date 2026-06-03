@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto.TutorDomain;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using EduTrack.API.DataContext.Enums;
@@ -30,7 +31,7 @@ namespace EduTrack.API.Services.TutorDomain
         public async Task<Response<List<NotificationDto>>> GetInboxAsync()
         {
             var idTutor = await GetCurrentTutorIdAsync();
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
             var since = now.AddDays(-7);
 
             var list = await _repos.TableNoTracking
@@ -75,7 +76,7 @@ namespace EduTrack.API.Services.TutorDomain
                 return Response<NotificationDto>.Error(StatusCode.BadRequest, "Nhắc này không ở trạng thái chờ gửi");
 
             noti.Status = NotificationStatusEnums.Sent;
-            noti.SentAt = DateTime.UtcNow;
+            noti.SentAt = AppTime.VnNow;
             noti.MarkDirty(nameof(noti.Status));
             noti.MarkDirty(nameof(noti.SentAt));
             await _unitOfWork.SaveChangesAsync();

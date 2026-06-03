@@ -1,8 +1,8 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Entity;
 using EduTrack.API.DataContext.Entity.Core;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using TD.Lib.Repository.Entity.Base;
@@ -47,17 +47,6 @@ namespace EduTrack.API.DataContext
         public DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
         #endregion
 
-        /// <summary>
-        /// Mọi DateTime trong DB là UTC instant → đọc ra gắn Kind=Utc để serialize kèm 'Z'
-        /// (client tự localize đúng). Civil time (Lesson.ScheduledDate) loại trừ ở OnModelCreating.
-        /// </summary>
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            base.ConfigureConventions(configurationBuilder);
-            configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
-            configurationBuilder.Properties<DateTime?>().HaveConversion<UtcNullableDateTimeConverter>();
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -99,9 +88,6 @@ namespace EduTrack.API.DataContext
             modelBuilder.Entity<Student>().HasIndex(s => s.IdParent);
             modelBuilder.Entity<Lesson>().HasIndex(l => new { l.IdTutor, l.ScheduledDate });
             modelBuilder.Entity<Lesson>().HasIndex(l => new { l.IdStudent, l.ScheduledDate });
-            // ScheduledDate là CIVIL VN (date-only) — KHÔNG ép Utc (giữ Unspecified → serialize không 'Z',
-            // client hiển thị đúng ngày). Giờ buổi học dùng StartTime/EndTime (TimeSpan wall-clock).
-            modelBuilder.Entity<Lesson>().Property(l => l.ScheduledDate).Metadata.SetValueConverter((ValueConverter?)null);
             modelBuilder.Entity<Lesson>().HasIndex(l => l.IdTuitionPeriod);
             modelBuilder.Entity<TuitionPeriod>().HasIndex(t => new { t.IdStudent, t.PeriodYear, t.PeriodMonth }).IsUnique();
             modelBuilder.Entity<TutorProfile>().HasIndex(t => t.IdUser).IsUnique();
@@ -148,7 +134,7 @@ namespace EduTrack.API.DataContext
             foreach (var entry in entries)
             {
                 var entity = (BaseEntity)entry.Entity;
-                var now = DateTime.UtcNow;
+                var now = AppTime.VnNow;
 
                 switch (entry.State)
                 {

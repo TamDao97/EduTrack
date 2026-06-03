@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto.TutorDomain;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using EduTrack.API.DataContext.Enums;
@@ -114,7 +115,7 @@ namespace EduTrack.API.Services.TutorDomain
             period.FinalAmount = total + adjustment;
             period.PaidAmount = 0;
             period.Status = TuitionPeriodStatusEnums.Closed;
-            period.ClosedAt = DateTime.UtcNow;
+            period.ClosedAt = AppTime.VnNow;
             period.Notes = notes;
 
             period.MarkDirty(nameof(period.TotalLessons));

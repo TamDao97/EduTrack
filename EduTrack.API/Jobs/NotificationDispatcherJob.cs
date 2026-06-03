@@ -64,10 +64,10 @@ namespace EduTrack.API.Jobs
             var db = scope.ServiceProvider.GetRequiredService<EduTrackDbContext>();
             var email = scope.ServiceProvider.GetRequiredService<IEmailService>();
 
-            var nowUtc = DateTime.UtcNow;
+            var now = AppTime.VnNow;
 
             // ── 1) Mark Missed: Pending quá ScheduledAt + 72h ──
-            var missedCutoff = nowUtc.AddHours(-MissedAfterHours);
+            var missedCutoff = now.AddHours(-MissedAfterHours);
             var missed = await db.Notifications
                 .Where(n => n.Status == NotificationStatusEnums.Pending && n.ScheduledAt < missedCutoff)
                 .ToListAsync(ct);
@@ -80,7 +80,7 @@ namespace EduTrack.API.Jobs
                 _logger.LogInformation("⏰ Marked {Count} notification(s) Missed (quá {Hours}h)", missed.Count, MissedAfterHours);
 
             // ── 2) Cleanup notification cũ ──
-            var cleanupCutoff = nowUtc.AddDays(-CleanupAfterDays);
+            var cleanupCutoff = now.AddDays(-CleanupAfterDays);
             var oldOnes = await db.Notifications
                 .Where(n => (n.Status == NotificationStatusEnums.Sent
                           || n.Status == NotificationStatusEnums.Cancelled
@@ -91,7 +91,7 @@ namespace EduTrack.API.Jobs
             foreach (var n in oldOnes)
             {
                 n.IsDeleted = true;
-                n.DateDeleted = nowUtc;
+                n.DateDeleted = now;
                 n.MarkDirty(nameof(n.IsDeleted));
                 n.MarkDirty(nameof(n.DateDeleted));
             }
@@ -102,19 +102,19 @@ namespace EduTrack.API.Jobs
                 await db.SaveChangesAsync(ct);
 
             // ── 3) Daily digest email — 7:00 ICT, 1 lần/ngày ──
-            await TrySendDailyDigestAsync(db, email, nowUtc, ct);
+            await TrySendDailyDigestAsync(db, email, now, ct);
         }
 
-        private async Task TrySendDailyDigestAsync(EduTrackDbContext db, IEmailService email, DateTime nowUtc, CancellationToken ct)
+        private async Task TrySendDailyDigestAsync(EduTrackDbContext db, IEmailService email, DateTime now, CancellationToken ct)
         {
-            var nowIct = AppTime.UtcToVn(nowUtc);
+            var nowIct = now;   // "now" đã là giờ VN
             if (nowIct.Hour < DigestHourIct) return;
             var todayIct = DateOnly.FromDateTime(nowIct);
             if (_lastDigestSentDateIct == todayIct) return;
 
             // Tutor có ≥1 nhắc Pending đã đến hạn
             var groups = await db.Notifications
-                .Where(n => n.Status == NotificationStatusEnums.Pending && n.ScheduledAt <= nowUtc)
+                .Where(n => n.Status == NotificationStatusEnums.Pending && n.ScheduledAt <= now)
                 .GroupBy(n => n.IdTutor)
                 .Select(g => new { IdTutor = g.Key, Count = g.Count() })
                 .ToListAsync(ct);

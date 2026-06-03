@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto.TutorDomain;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using EduTrack.API.DataContext.Enums;
@@ -140,7 +141,7 @@ namespace EduTrack.API.Services.TutorDomain
                 return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi học đã chốt vào kỳ học phí");
 
             lesson.Status = LessonStatusEnums.Done;
-            lesson.DoneAt = DateTime.UtcNow;
+            lesson.DoneAt = AppTime.VnNow;
             lesson.MarkDirty(nameof(lesson.Status));
             lesson.MarkDirty(nameof(lesson.DoneAt));
             await _repos.UpdateAsync(lesson);

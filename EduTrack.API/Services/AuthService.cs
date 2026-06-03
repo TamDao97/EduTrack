@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using EduTrack.API.Commons;
@@ -250,7 +251,7 @@ namespace EduTrack.API.Services
             var oldTokens = await _resetRepos.Table
                 .Where(t => t.IdUser == user.Id && t.UsedAt == null)
                 .ToListAsync();
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
             foreach (var old in oldTokens)
             {
                 old.UsedAt = now;
@@ -304,7 +305,7 @@ namespace EduTrack.API.Services
             if (string.IsNullOrWhiteSpace(req.NewPassword) || req.NewPassword.Length < 6)
                 return Response<bool>.Error(StatusCode.BadRequest, "Mật khẩu phải có ít nhất 6 ký tự");
 
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
             var entry = await _resetRepos.Table.FirstOrDefaultAsync(t =>
                 t.Token == req.Token && t.UsedAt == null && t.ExpiresAt > now);
             if (entry == null)

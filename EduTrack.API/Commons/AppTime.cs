@@ -1,24 +1,20 @@
 namespace EduTrack.API.Commons
 {
     /// <summary>
-    /// Nguồn sự thật DUY NHẤT về thời gian + múi giờ cho toàn app. Mọi quy đổi VN↔UTC
-    /// phải đi qua đây — KHÔNG hardcode +7/-7 rải rác.
+    /// Nguồn sự thật DUY NHẤT về thời gian + múi giờ cho toàn app. KHÔNG hardcode +7/-7 rải rác.
     ///
-    /// Quy ước (đọc kỹ trước khi thêm field thời gian mới):
+    /// QUY ƯỚC (app chỉ phục vụ VN → lưu giờ VN local cho tất cả):
     /// <list type="bullet">
-    ///   <item><b>INSTANT</b> (thời điểm một sự kiện xảy ra / sẽ xảy ra): luôn lưu <b>UTC</b> bằng
-    ///   <see cref="UtcNow"/>. VD: audit (DateCreated…), Notification.ScheduledAt/SentAt,
-    ///   Lesson.DoneAt, Subscription.*, payment.ConfirmedAt.</item>
-    ///   <item><b>CIVIL TIME</b> (giờ dân sự VN — vd "buổi học 19:30"): lưu nguyên giờ VN
-    ///   (Lesson.ScheduledDate + StartTime/EndTime). KHÔNG đổi sang UTC vì nó là "19:30 Việt Nam"
-    ///   theo định nghĩa, không phụ thuộc người xem.</item>
-    ///   <item>Khi cần <b>instant của một civil time</b> (lên lịch nhắc, so với "bây giờ"):
-    ///   <see cref="VnToUtc"/>. Khi cần <b>lịch VN từ một instant</b> (ngày/tháng/giờ dân sự hiện tại):
-    ///   <see cref="UtcToVn"/> / <see cref="VnNow"/>.</item>
+    ///   <item>Mọi field thời gian lưu DB là <b>giờ VN (civil local)</b>: dùng <see cref="VnNow"/>
+    ///   khi gán "bây giờ". VD: audit (DateCreated…), Notification.ScheduledAt/SentAt,
+    ///   Lesson.DoneAt/ScheduledDate, Subscription.*, payment.ConfirmedAt.</item>
+    ///   <item>Mọi chỗ <b>so sánh với "bây giờ"</b> cũng dùng <see cref="VnNow"/> → DB-VN so với
+    ///   now-VN, cùng hệ, không lệch.</item>
     /// </list>
     ///
-    /// VN không có DST → offset cố định +7. Dùng custom <see cref="TimeZoneInfo"/> (không phụ thuộc
-    /// tz database của OS) để chạy đồng nhất trên Windows/Linux.
+    /// <see cref="UtcNow"/> / <see cref="VnToUtc"/> / <see cref="UtcToVn"/> chỉ dùng khi cần
+    /// interop UTC với bên ngoài (vd token, hệ thống khác). VN không có DST → offset cố định +7,
+    /// dùng custom <see cref="TimeZoneInfo"/> (không phụ thuộc tz database của OS).
     /// </summary>
     public static class AppTime
     {

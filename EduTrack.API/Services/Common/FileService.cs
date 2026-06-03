@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext;
 using EduTrack.API.DataContext.Dto;
 using EduTrack.API.DataContext.Dto.Core;
@@ -59,7 +60,7 @@ namespace EduTrack.API.Services
                 FileType = folder,
                 FileSize = request.File.Length,
                 UploadedBy = currentUser.Id,
-                UploadedAt = DateTime.UtcNow,
+                UploadedAt = AppTime.VnNow,
             };
 
             _context.Files.Add(entity);

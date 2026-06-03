@@ -44,10 +44,10 @@ namespace EduTrack.API.Services.TutorDomain
 
             var lessonStart = lesson.ScheduledDate.Date.Add(lesson.StartTime);
 
-            // 2 mốc nhắc (giờ buổi học là civil VN → quy về UTC để ScheduledAt khớp với
-            // AppTime.UtcNow ở GetInbox + NotificationDispatcherJob): tối hôm trước 19h + 1h trước buổi.
-            var eveningBefore = AppTime.VnToUtc(lesson.ScheduledDate.Date.AddDays(-1).AddHours(19));
-            var hourBefore = AppTime.VnToUtc(lessonStart.AddHours(-1));
+            // 2 mốc nhắc — lưu giờ VN (so với AppTime.VnNow ở GetInbox + DispatcherJob):
+            // tối hôm trước 19h + 1h trước buổi.
+            var eveningBefore = lesson.ScheduledDate.Date.AddDays(-1).AddHours(19);
+            var hourBefore = lessonStart.AddHours(-1);
 
             var dayName = LocalizeDayOfWeek(lesson.ScheduledDate.DayOfWeek);
             var dateStr = lesson.ScheduledDate.ToString("dd/MM/yyyy");
@@ -104,7 +104,7 @@ namespace EduTrack.API.Services.TutorDomain
                 type: NotificationTypeEnums.TuitionIssued,
                 title: title,
                 body: body,
-                scheduledAt: AppTime.UtcNow
+                scheduledAt: AppTime.VnNow
             );
 
             await _notiRepos.CreateAsync(noti);

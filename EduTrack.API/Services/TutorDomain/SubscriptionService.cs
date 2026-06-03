@@ -1,3 +1,4 @@
+using EduTrack.API.Commons;
 using EduTrack.API.DataContext.Dto.TutorDomain;
 using EduTrack.API.DataContext.Entity.TutorDomain;
 using EduTrack.API.DataContext.Enums;
@@ -60,7 +61,7 @@ namespace EduTrack.API.Services.TutorDomain
                 IdTutor = idTutor,
                 Plan = PlanCodeEnums.Basic,
                 Status = SubscriptionStatusEnums.Trial,
-                TrialEndsAt = DateTime.UtcNow.AddDays(trialDays),
+                TrialEndsAt = AppTime.VnNow.AddDays(trialDays),
             };
             await _repos.CreateAsync(sub);
             await _uow.SaveChangesAsync();
@@ -74,7 +75,7 @@ namespace EduTrack.API.Services.TutorDomain
         public async Task<MySubscriptionDto?> GetMineAsync(Guid idTutor)
         {
             var sub = await EnsureTrialAsync(idTutor);
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
 
             var effectiveStatus = sub.Status;
             DateTime? expiresAt = null;
@@ -131,7 +132,7 @@ namespace EduTrack.API.Services.TutorDomain
             var sub = await _repos.Table.FirstOrDefaultAsync(s => s.Id == idSubscription);
             if (sub == null) throw new InvalidOperationException("Subscription không tồn tại");
 
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
             var startFrom = (sub.CurrentPeriodEnd.HasValue && sub.CurrentPeriodEnd.Value > now)
                 ? sub.CurrentPeriodEnd.Value
                 : now;
@@ -172,7 +173,7 @@ namespace EduTrack.API.Services.TutorDomain
         public async Task<string?> CheckCanWriteAsync(Guid idTutor)
         {
             var sub = await EnsureTrialAsync(idTutor);
-            var now = DateTime.UtcNow;
+            var now = AppTime.VnNow;
 
             switch (sub.Status)
             {
