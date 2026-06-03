@@ -94,11 +94,11 @@
   .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn { color: $primary; font-weight: $fw-semi; }
   .ant-tabs-ink-bar { background: $primary; }
 
-  /* ───────── Inner cards (page menu tree/form) ───────── */
+  /* ───────── Inner cards (page menu tree/form) — phẳng Clean SaaS ───────── */
   .ant-card {
     border: 1px solid $border;
     border-radius: $radius-md;
-    box-shadow: $shadow-sm;
+    box-shadow: none;
   }
   .ant-card-head {
     min-height: auto;
@@ -183,4 +183,21 @@
   }
   .ad-empty__icon { font-size: 44px; color: $border; margin-bottom: $sp-3; display: block; }
   .ad-empty__text { font-size: $fs-body; margin-bottom: $sp-4; }
+
+  /* ───────── Form gọn (config / chi tiết) — giới hạn bề rộng ───────── */
+  .ad-form { max-width: 640px; }
+  .ad-form__title {
+    font-size: $fs-h3;
+    font-weight: $fw-bold;
+    color: $text-1;
+    margin: 0 0 $sp-4;
+  }
+  .ad-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $sp-2;
+    margin-top: $sp-5;
+    padding-top: $sp-4;
+    border-top: 1px solid $border;
+  }
 }
