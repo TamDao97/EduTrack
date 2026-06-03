@@ -1,64 +1,49 @@
 <div class="ad">
-  <!-- Hero header (đồng bộ Platform Console) -->
-  <header class="ad__hero">
-    <div class="ad__title-row">
-      <div>
-        <span class="ad__eyebrow">FOUNDER · NGƯỜI DÙNG</span>
-        <h1 class="ad__title">{{ title }}</h1>
-      </div>
-    </div>
-  </header>
-
   <section class="ad__panel">
-    <!-- Toolbar: actions + search -->
-    <div class="row mb-3">
-      <div class="col-md-6 mb-2 mb-md-0">
-        <nz-button-group>
-          <button nz-button (click)="onAdd()">Thêm mới</button>
-          <button nz-button nzType="primary" nz-dropdown [nzDropdownMenu]="menu">
-            <i nz-icon nzType="down"></i>
-          </button>
-        </nz-button-group>
-        <nz-dropdown-menu #menu="nzDropdownMenu">
-          <ul nz-menu nzSelectable>
-            <li nz-menu-item (click)="onDeleteMany()">
-              <a class="text-danger" href="javascript:void(0);"><i nz-icon nzType="delete" nzTheme="outline"></i> Xóa dữ
-                liệu</a>
-            </li>
-            <li nz-menu-item>
-              <a class="text-success" href="javascript:void(0);"><i nz-icon nzType="export" nzTheme="outline"></i>
-                Export
-                excel</a>
-            </li>
-            <li nz-menu-item>
-              <a class="text-success" href="javascript:void(0);"><i nz-icon nzType="import" nzTheme="outline"></i>
-                Import
-                excel</a>
-            </li>
-          </ul>
-        </nz-dropdown-menu>
+    <!-- Toolbar: tìm kiếm (trái) · lọc + thao tác (phải) -->
+    <div class="ad__toolbar">
+      <div class="ad__search">
+        <span nz-icon nzType="search"></span>
+        <input type="text" placeholder="Tìm theo tên / email…"
+          [(ngModel)]="objFilter.keyword" (keydown.enter)="onSearch()" />
       </div>
-      <div class="col-md-6">
-        <div class="d-flex justify-content-end">
-          <nz-input-group nzSearch [nzAddOnAfter]="suffixButton">
-            <input type="text" nz-input placeholder="Từ khóa tìm kiếm" [(ngModel)]="objFilter.keyword"
-              (keydown.enter)="onSearch()" />
-          </nz-input-group>
-          <ng-template #suffixButton>
-            <button nz-button nzType="primary" nzSearch (click)="onSearch()">
-              <i nz-icon nzType="search" nzTheme="outline"></i>
-              Tìm kiếm
-            </button>
-          </ng-template>
-          <button nz-button nzType="primary" (click)="onSearchAdvance()">
-            <i class="fa fa-solid fa-filter"></i>
-          </button>
-        </div>
-      </div>
+
+      <button nz-button (click)="onSearch()">
+        <i nz-icon nzType="search"></i> Tìm kiếm
+      </button>
+
+      <button nz-button (click)="onSearchAdvance()" title="Bộ lọc nâng cao">
+        <i nz-icon nzType="filter"></i> Lọc
+      </button>
+
+      <nz-button-group>
+        <button nz-button nzType="primary" (click)="onAdd()">
+          <i nz-icon nzType="plus"></i> Thêm mới
+        </button>
+        <button nz-button nzType="primary" nz-dropdown [nzDropdownMenu]="menu" nzTrigger="click">
+          <i nz-icon nzType="down"></i>
+        </button>
+      </nz-button-group>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu nzSelectable>
+          <li nz-menu-item (click)="onDeleteMany()">
+            <a class="text-danger" href="javascript:void(0);"><i nz-icon nzType="delete" nzTheme="outline"></i> Xóa dữ
+              liệu</a>
+          </li>
+          <li nz-menu-item>
+            <a class="text-success" href="javascript:void(0);"><i nz-icon nzType="export" nzTheme="outline"></i> Export
+              excel</a>
+          </li>
+          <li nz-menu-item>
+            <a class="text-success" href="javascript:void(0);"><i nz-icon nzType="import" nzTheme="outline"></i> Import
+              excel</a>
+          </li>
+        </ul>
+      </nz-dropdown-menu>
     </div>
 
     <nz-table #table [nzData]="gridData" [nzFrontPagination]="false" nzShowPagination="false"
-      [nzScroll]="{ x: 'max-content' }">
+      [nzNoResult]="emptyTpl" [nzScroll]="{ x: 'max-content' }">
       <thead>
         <tr>
           <th [width]="80" [(nzChecked)]="checked" [nzIndeterminate]="indeterminate"
@@ -82,11 +67,13 @@
             <ng-container *ngSwitchCase="'template'">
               <ng-container [ngSwitch]="col.field">
                 <ng-container *ngSwitchCase="'displayName'">
-                  <span>{{ row[col.field] }}</span>
-                  <br />
-                  <nz-tag [nzColor]="'blue'">
-                    <span nz-typography nzCopyable nzCopyText="{{ row.userName }}">{{ row.userName }}.</span>
-                  </nz-tag>
+                  <div class="user-cell">
+                    <span class="user-cell__avatar">{{ (row.displayName || row.userName || '?')[0] | uppercase }}</span>
+                    <div class="user-cell__meta">
+                      <span class="user-cell__name">{{ row.displayName || '—' }}</span>
+                      <span class="user-cell__mail">{{ row.userName }}</span>
+                    </div>
+                  </div>
                 </ng-container>
                 <ng-container *ngSwitchCase="'isLockout'">
                   <nz-tag [nzColor]="row[col.field] ? 'red' : 'green'">
@@ -133,5 +120,15 @@
         nzShowQuickJumper>
       </nz-pagination>
     </div>
+
+    <ng-template #emptyTpl>
+      <div class="ad-empty">
+        <span class="ad-empty__icon" nz-icon nzType="team" nzTheme="outline"></span>
+        <div class="ad-empty__text">Chưa có tài khoản nào</div>
+        <button nz-button nzType="primary" (click)="onAdd()">
+          <i nz-icon nzType="plus"></i> Thêm tài khoản
+        </button>
+      </div>
+    </ng-template>
   </section>
 </div>

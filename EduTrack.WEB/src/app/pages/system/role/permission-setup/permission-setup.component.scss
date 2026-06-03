@@ -1,0 +1,29 @@
+@use 'palette' as *;
+
+.perm-module {
+  font-weight: $fw-semi;
+  color: $text-1;
+}
+
+/* Mỗi quyền = checkbox mô tả + mã code, gọn trên 1 dòng */
+.perm-item {
+  display: flex;
+  align-items: center;
+  gap: $sp-2;
+  padding: 5px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px dashed $border;
+  }
+
+  label {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ant-tag {
+    margin: 0;
+    flex-shrink: 0;
+  }
+}

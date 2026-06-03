@@ -12,7 +12,7 @@ import { Guid } from '../../../../shared/utils/guid';
 @Component({
   selector: 'app-permission-setup',
   templateUrl: './permission-setup.component.html',
-  styleUrls: ['./permission-setup.component.scss'],
+  styleUrls: ['./permission-setup.component.scss', '../../../admin/admin-dashboard.component.scss'],
   standalone: true,
   imports: [SharedModule],
 })

@@ -15,7 +15,7 @@ import { SharedModule } from '../../../../shared/modules/shared.module';
 @Component({
   selector: 'app-role-grid',
   templateUrl: './role-grid.component.html',
-  styleUrls: ['./role-grid.component.css'],
+  styleUrls: ['./role-grid.component.css', '../../../admin/admin-dashboard.component.scss'],
   standalone: true,
   imports: [SharedModule],
 })

@@ -9,33 +9,29 @@
 
 .ad__panel {
 
-  /* ───────── Table ───────── */
+  /* ───────── Table (Clean SaaS: phẳng, header nhẹ, dòng thoáng) ───────── */
   .ant-table {
     background: $surface;
     font-size: $fs-sm;
     color: $text-1;
-    border-radius: $radius-md;
   }
+  /* bỏ viền hộp — bảng nằm thẳng trong panel trắng */
   .ant-table-container,
-  .ant-table-content {
-    border: 1px solid $border;
-    border-radius: $radius-md;
-    overflow: hidden;
-  }
+  .ant-table-content { border: none; }
   .ant-table-thead > tr > th {
-    background: $bg-strong;
-    color: $text-2;
+    background: transparent;
+    color: $text-3;
     font-size: 11px;
     font-weight: $fw-bold;
     text-transform: uppercase;
-    letter-spacing: $ls-wide;
-    padding: $sp-3;
+    letter-spacing: $ls-wider;
+    padding: $sp-2 $sp-4 $sp-3;
     border-bottom: 1px solid $border;
     white-space: nowrap;
     &::before { display: none !important; }   /* bỏ vạch ngăn dọc mặc định */
   }
   .ant-table-tbody > tr > td {
-    padding: $sp-3;
+    padding: $sp-3 $sp-4;          /* dòng thoáng */
     border-bottom: 1px solid $border;
     color: $text-1;
   }
@@ -49,20 +45,21 @@
   .ant-input-number,
   .ant-select-selector,
   .ant-picker {
-    border-radius: $radius;
+    border-radius: 0;
     border-color: $border;
     &:hover { border-color: $primary; }
     &:focus,
     &.ant-input-affix-wrapper-focused,
     &.ant-select-focused { border-color: $primary; box-shadow: $ring-primary; }
   }
-  /* input-group (ô tìm kiếm + nút) bo góc gọn 2 đầu */
-  .ant-input-group .ant-input { border-top-left-radius: $radius; border-bottom-left-radius: $radius; }
+  /* ô tìm kiếm dạng .ad__search cũng vuông cho đồng bộ */
+  .ad__search input { border-radius: 0; }
+  .ant-input-group .ant-input { border-radius: 0; }
   .ant-input-group-addon { background: transparent; border: none; padding: 0; }
 
   /* ───────── Buttons ───────── */
   .ant-btn {
-    border-radius: $radius;
+    border-radius: 0;
     font-weight: $fw-semi;
     box-shadow: none;
   }
@@ -73,9 +70,17 @@
     &:focus { background: $primary-dark; border-color: $primary-dark; }
   }
   .ant-btn-dangerous.ant-btn-primary { background: $danger; border-color: $danger; }
+  /* nút phụ (outline) — Clean SaaS: nền trắng + viền hairline, hover hiện màu nhấn */
+  .ant-btn-default {
+    background: $surface;
+    border-color: $border;
+    color: $text-1;
+    &:hover,
+    &:focus { border-color: $primary; color: $primary; }
+  }
 
   /* ───────── Pagination ───────── */
-  .ant-pagination-item { border-radius: $radius; }
+  .ant-pagination-item { border-radius: 0; }
   .ant-pagination-item-active {
     border-color: $primary;
     a { color: $primary; }
@@ -115,6 +120,67 @@
   .ant-tree .ant-tree-node-content-wrapper:hover { background: $surface-alt; }
   .ant-tree .ant-tree-node-selected { background: $primary-soft !important; }
 
-  /* ───────── Tags (ng-zorro nz-tag) ───────── */
-  .ant-tag { border-radius: 12px; font-weight: $fw-semi; border: none; }
+  /* ───────── Tags → soft pill (nền nhạt + chữ đậm cùng tông) ───────── */
+  .ant-tag {
+    border-radius: 12px;
+    font-weight: $fw-semi;
+    border: none;
+    padding: 2px 10px;
+    font-size: $fs-xs;
+    &.ant-tag-blue   { background: $primary-soft; color: $primary-dark; }
+    &.ant-tag-green  { background: $success-soft; color: $success-dark; }
+    &.ant-tag-red    { background: $danger-soft;  color: $danger-dark; }
+    &.ant-tag-orange { background: $accent-soft;  color: $accent-dark; }
+  }
+
+  /* ───────── Toolbar: nút canh đều 38px + button-group liền mạch ───────── */
+  .ad__toolbar { align-items: center; }
+  .ad__toolbar .ant-btn {
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  /* button-group: tất cả vuông, liền mạch */
+  .ad__toolbar .ant-btn-group { display: inline-flex; }
+  .ad__toolbar .ant-btn-group .ant-btn { border-radius: 0; }
+  /* select trong toolbar canh cao 38px khớp nút + ô tìm */
+  .ad__toolbar .ant-select { min-width: 220px; }
+  .ad__toolbar .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: 38px;
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder,
+    .ant-select-selection-search-input { line-height: 36px; height: 36px; }
+  }
+
+  /* toolbar dính khi cuộn (dưới topbar founder cao 60px) */
+  .ad__toolbar {
+    position: sticky;
+    top: 60px;
+    z-index: 5;
+    background: $surface;
+    padding: $sp-2 0;
+  }
+
+  /* ───────── Cột tên kiểu Stripe: avatar tròn + tên đậm + email xám ───────── */
+  .user-cell { display: flex; align-items: center; gap: $sp-3; }
+  .user-cell__avatar {
+    width: 34px; height: 34px; flex-shrink: 0;
+    border-radius: 50%;
+    background: $primary-soft; color: $primary-dark;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: $fw-bold; font-size: $fs-sm;
+  }
+  .user-cell__meta { display: flex; flex-direction: column; line-height: 1.35; min-width: 0; }
+  .user-cell__name { font-weight: $fw-semi; color: $text-1; }
+  .user-cell__mail { font-size: $fs-xs; color: $text-3; }
+
+  /* ───────── Empty state đẹp (dẫn hành động) ───────── */
+  .ad-empty {
+    text-align: center;
+    padding: $sp-8 $sp-4;
+    color: $text-3;
+  }
+  .ad-empty__icon { font-size: 44px; color: $border; margin-bottom: $sp-3; display: block; }
+  .ad-empty__text { font-size: $fs-body; margin-bottom: $sp-4; }
 }

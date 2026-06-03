@@ -1,14 +1,4 @@
 <div class="ad">
-  <!-- Hero header (đồng bộ Platform Console) -->
-  <header class="ad__hero">
-    <div class="ad__title-row">
-      <div>
-        <span class="ad__eyebrow">FOUNDER · PHÂN QUYỀN</span>
-        <h1 class="ad__title">{{ title }}</h1>
-      </div>
-    </div>
-  </header>
-
   <section class="ad__panel">
     <nz-tabset (nzSelectedIndexChange)="onTabChange($event)">
       <nz-tab *ngFor="let tab of tabs" [nzTitle]="titleTemplate">
