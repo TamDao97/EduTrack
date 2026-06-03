@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { environment } from '../../../../../environment';
 import { PlanCode, PlanLabel, PlanPrice } from '../../../../interfaces/IAdmin';
 import { SharedModule } from '../../../../shared/modules/shared.module';
@@ -24,7 +25,7 @@ interface UpgradeFormParams {
   imports: [SharedModule, CommonModule],
 })
 export class UpgradeFormComponent extends TdBaseComponent implements OnInit {
-  params: UpgradeFormParams | null = null;
+  params: UpgradeFormParams | null = inject(NZ_MODAL_DATA)?.params ?? null;
   PlanCode = PlanCode;
   PlanLabel = PlanLabel;
 

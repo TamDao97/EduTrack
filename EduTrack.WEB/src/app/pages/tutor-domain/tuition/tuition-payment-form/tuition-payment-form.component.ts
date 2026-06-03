@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { ITuitionPeriodDetail } from '../../../../interfaces/ITuitionPeriod';
@@ -18,7 +19,7 @@ import { TdBaseComponent } from '../../../../shared/utils/extends-components/td-
   imports: [SharedModule, CommonModule],
 })
 export class TuitionPaymentFormComponent extends TdBaseComponent implements OnInit {
-  params: ITuitionPeriodDetail | null = null;
+  params: ITuitionPeriodDetail | null = inject(NZ_MODAL_DATA)?.params ?? null;
 
   private _fb = inject(FormBuilder);
   private _toast = inject(ToastService);

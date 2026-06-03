@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { IParent } from '../../../../interfaces/IParent';
@@ -25,7 +26,7 @@ export class StudentFormComponent extends TdBaseComponent implements OnInit {
   StudentStatusLabel = StudentStatusLabel;
 
   /** openModal truyền data qua đây — đặt public để Partial<T> chấp nhận `{ params }`. */
-  params: IStudent | null = null;
+  params: IStudent | null = inject(NZ_MODAL_DATA)?.params ?? null;
 
   private _fb = inject(FormBuilder);
   private _toast = inject(ToastService);

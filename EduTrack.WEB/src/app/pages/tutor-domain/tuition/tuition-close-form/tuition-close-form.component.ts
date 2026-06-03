@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { IStudentDetail } from '../../../../interfaces/IStudent';
@@ -21,7 +22,7 @@ import { TdBaseComponent } from '../../../../shared/utils/extends-components/td-
 })
 export class TuitionCloseFormComponent extends TdBaseComponent implements OnInit {
   /** Optional — nếu mở từ 1 period đang Open có sẵn */
-  params: ITuitionPeriod | null = null;
+  params: ITuitionPeriod | null = inject(NZ_MODAL_DATA)?.params ?? null;
 
   private _fb = inject(FormBuilder);
   private _toast = inject(ToastService);

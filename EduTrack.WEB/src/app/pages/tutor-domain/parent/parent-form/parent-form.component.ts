@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { IParent } from '../../../../interfaces/IParent';
@@ -19,8 +20,8 @@ import { ParentService } from '../../../../services/tutor-domain/parent.service'
   imports: [SharedModule, CommonModule],
 })
 export class ParentFormComponent extends TdBaseComponent implements OnInit {
-  /** openModal truyền data qua đây. */
-  params: IParent | null = null;
+  /** openModal truyền data qua nzData → lấy bằng NZ_MODAL_DATA (bọc trong { params }). */
+  params: IParent | null = inject(NZ_MODAL_DATA)?.params ?? null;
 
   private _fb = inject(FormBuilder);
   private _toast = inject(ToastService);

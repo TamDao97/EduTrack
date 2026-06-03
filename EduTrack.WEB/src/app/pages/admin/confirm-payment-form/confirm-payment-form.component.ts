@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { ITutorWithSub, PlanCode, PlanLabel, PlanPrice } from '../../../interfaces/IAdmin';
@@ -18,7 +19,7 @@ import { TdBaseComponent } from '../../../shared/utils/extends-components/td-bas
   imports: [SharedModule, CommonModule],
 })
 export class ConfirmPaymentFormComponent extends TdBaseComponent implements OnInit {
-  params: ITutorWithSub | null = null;
+  params: ITutorWithSub | null = inject(NZ_MODAL_DATA)?.params ?? null;
   PlanCode = PlanCode;
   PlanLabel = PlanLabel;
 
