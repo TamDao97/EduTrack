@@ -15,10 +15,10 @@
     <nz-avatar [nzText]="student.fullName.charAt(0)" [nzSize]="80" [ngStyle]="{'background-color': '#1890ff'}"></nz-avatar>
     <h2 class="student-detail__name">{{ student.fullName }}</h2>
     <nz-tag [nzColor]="statusColor(student.status)">{{ StudentStatusLabel[student.status] }}</nz-tag>
-    <p class="student-detail__sub" *ngIf="student.grade || student.subject">
+    <p class="student-detail__sub" *ngIf="student.grade || student.courseSubjects">
       <span *ngIf="student.grade">{{ student.grade }}</span>
-      <span *ngIf="student.grade && student.subject"> · </span>
-      <span *ngIf="student.subject">{{ student.subject }}</span>
+      <span *ngIf="student.grade && student.courseSubjects"> · </span>
+      <span *ngIf="student.courseSubjects">{{ student.courseSubjects }}</span>
     </p>
   </section>
 

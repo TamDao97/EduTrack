@@ -1,3 +1,5 @@
+@use 'palette' as *;
+
 .student-form {
   &__parent-row {
     display: flex;
@@ -44,4 +46,16 @@
   .student-form__actions {
     button { flex: 1; }
   }
+}
+
+// Hint về quản lý môn học
+.student-form__course-hint {
+  display: flex; align-items: flex-start; gap: 6px;
+  font-size: $fs-xs; color: $text-3;
+  background: $primary-soft;
+  border-radius: $radius-sm;
+  padding: 8px 12px;
+  margin-bottom: $sp-4;
+  [nz-icon] { color: $primary; margin-top: 1px; }
+  strong { color: $text-2; }
 }

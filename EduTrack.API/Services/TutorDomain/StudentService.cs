@@ -135,6 +135,17 @@ namespace EduTrack.API.Services.TutorDomain
                              })
                              .ToList();
 
+            // Nạp môn ĐANG HỌC của cả trang HS trong 1 query → "Toán · Lý" thay Subject cũ
+            var ids = items.Select(i => i.Id!.Value).ToList();
+            var courseMap = (await _courseRepos.TableNoTracking
+                    .Where(c => ids.Contains(c.IdStudent) && c.IsActive)
+                    .Select(c => new { c.IdStudent, c.Subject })
+                    .ToListAsync())
+                .GroupBy(c => c.IdStudent)
+                .ToDictionary(g => g.Key, g => string.Join(" · ", g.Select(x => x.Subject).OrderBy(x => x)));
+            foreach (var i in items)
+                i.CourseSubjects = courseMap.TryGetValue(i.Id!.Value, out var subj) ? subj : null;
+
             var paging = PagingData<List<StudentDetailDto>>.Create(items, filter.PageNumber, (int)Math.Ceiling((double)total / filter.PageSize), total);
             return Response<PagingData<List<StudentDetailDto>>>.Success(paging, StatusCode.Ok.ToDescription());
         }
@@ -166,6 +177,15 @@ namespace EduTrack.API.Services.TutorDomain
                               }).FirstOrDefaultAsync();
 
             if (item == null) return Response<StudentDetailDto>.Error(StatusCode.NotFound, "Không tìm thấy");
+
+            // Môn đang học → "Toán · Lý"
+            var subjects = await _courseRepos.TableNoTracking
+                .Where(c => c.IdStudent == id && c.IsActive)
+                .OrderBy(c => c.Subject)
+                .Select(c => c.Subject)
+                .ToListAsync();
+            item.CourseSubjects = subjects.Count > 0 ? string.Join(" · ", subjects) : null;
+
             return Response<StudentDetailDto>.Success(item, StatusCode.Ok.ToDescription());
         }
     }

@@ -26,6 +26,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public string? ParentPhone { get; set; }
         public string? ParentEmail { get; set; }
         public string? AvatarUrl { get; set; }
+        /// <summary>Các môn ĐANG HỌC (StudentCourse active), nối " · " — vd "Toán · Lý". Thay cho Subject cũ trên UI.</summary>
+        public string? CourseSubjects { get; set; }
     }
 
     public class StudentGridFilter : GridFilterBase

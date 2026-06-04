@@ -33,40 +33,13 @@
     </nz-form-control>
   </nz-form-item>
 
-  <!-- Lớp + Môn -->
+  <!-- Lớp + Bắt đầu học -->
   <div nz-row [nzGutter]="12">
     <div nz-col [nzSpan]="12">
       <nz-form-item>
         <nz-form-label>Lớp / trình độ</nz-form-label>
         <nz-form-control>
           <input nz-input formControlName="grade" placeholder="Lớp 9, lớp 12, Đại học…" />
-        </nz-form-control>
-      </nz-form-item>
-    </div>
-    <div nz-col [nzSpan]="12">
-      <nz-form-item>
-        <nz-form-label>Môn dạy</nz-form-label>
-        <nz-form-control>
-          <input nz-input formControlName="subject" placeholder="Toán, Lý, Anh…" />
-        </nz-form-control>
-      </nz-form-item>
-    </div>
-  </div>
-
-  <!-- Học phí + Bắt đầu học -->
-  <div nz-row [nzGutter]="12">
-    <div nz-col [nzSpan]="12">
-      <nz-form-item>
-        <nz-form-label nzRequired>Học phí / buổi (đ)</nz-form-label>
-        <nz-form-control nzErrorTip="Phải ≥ 0">
-          <nz-input-number
-            formControlName="perLessonRate"
-            [nzMin]="0"
-            [nzStep]="50000"
-            [nzFormatter]="formatVnd"
-            [nzParser]="parseVnd"
-            class="student-form__rate"
-          ></nz-input-number>
         </nz-form-control>
       </nz-form-item>
     </div>
@@ -83,6 +56,42 @@
         </nz-form-control>
       </nz-form-item>
     </div>
+  </div>
+
+  <!-- Môn đầu tiên + giá — CHỈ khi tạo mới (tự sinh StudentCourse).
+       Khi sửa: quản lý môn ở Chi tiết HS → "Môn học & giá". -->
+  <div nz-row [nzGutter]="12" *ngIf="!isEdit">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Môn học đầu tiên</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="subject" placeholder="Toán, Lý, Anh…" />
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Học phí / buổi (đ)</nz-form-label>
+        <nz-form-control nzErrorTip="Phải ≥ 0">
+          <nz-input-number
+            formControlName="perLessonRate"
+            [nzMin]="0"
+            [nzStep]="50000"
+            [nzFormatter]="formatVnd"
+            [nzParser]="parseVnd"
+            class="student-form__rate"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+  <div class="student-form__course-hint" *ngIf="!isEdit">
+    <span nz-icon nzType="info-circle"></span>
+    Môn + giá này tạo thành môn học đầu tiên. Thêm môn khác (giá riêng) ở <strong>Chi tiết HS → Môn học &amp; giá</strong>.
+  </div>
+  <div class="student-form__course-hint" *ngIf="isEdit">
+    <span nz-icon nzType="book"></span>
+    Môn học &amp; giá từng môn quản lý ở <strong>Chi tiết HS → Môn học &amp; giá</strong>.
   </div>
 
   <!-- Ngày sinh + Trạng thái -->

@@ -117,9 +117,10 @@
           <span class="student-card__name">{{ s.fullName }}</span>
         </div>
 
-        <div class="student-card__chips" *ngIf="s.subject || s.grade">
-          <span class="chip chip--subject" *ngIf="s.subject">
-            <span nz-icon nzType="book"></span>{{ s.subject }}
+        <!-- Môn ĐANG HỌC (từ StudentCourse) — thay trường Môn dạy cũ -->
+        <div class="student-card__chips" *ngIf="s.courseSubjects || s.grade">
+          <span class="chip chip--subject" *ngIf="s.courseSubjects">
+            <span nz-icon nzType="book"></span>{{ s.courseSubjects }}
           </span>
           <span class="chip chip--grade" *ngIf="s.grade">{{ s.grade }}</span>
         </div>

@@ -4,7 +4,7 @@
     <nz-form-control nzErrorTip="Chọn học sinh">
       <nz-select formControlName="idStudent" nzShowSearch nzPlaceHolder="Tìm tên HS…">
         <nz-option *ngFor="let s of students" [nzValue]="s.id"
-          [nzLabel]="s.fullName + (s.subject ? ' · ' + s.subject : '')"></nz-option>
+          [nzLabel]="s.fullName + (s.courseSubjects ? ' · ' + s.courseSubjects : '')"></nz-option>
       </nz-select>
     </nz-form-control>
   </nz-form-item>

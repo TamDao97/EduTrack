@@ -31,6 +31,8 @@ export interface IStudentDetail extends IStudent {
   parentPhone?: string;
   parentEmail?: string;
   avatarUrl?: string;
+  /** Các môn ĐANG HỌC (StudentCourse active), nối " · " — vd "Toán · Lý" */
+  courseSubjects?: string | null;
 }
 
 export interface IStudentGridFilter extends IGridFilterBase {
