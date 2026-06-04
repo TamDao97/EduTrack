@@ -23,6 +23,12 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<List<ClassRoomDto>>>> GetMyClassesAsync()
             => Ok(await _service.GetMyClassesAsync());
 
+        [TDPermission("GetByFilterAsync", "Danh sách lớp (lọc + paging)", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpPost("get-by-filter")]
+        public async Task<ActionResult<Response<PagingData<List<ClassRoomDto>>>>> GetByFilterAsync(ClassRoomGridFilter filter)
+            => Ok(await _service.GetByFilterAsync(filter));
+
         [TDPermission("GetDetailAsync", "Chi tiết lớp", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpGet("get-detail/{id:Guid}")]

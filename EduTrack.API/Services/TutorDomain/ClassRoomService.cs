@@ -15,6 +15,7 @@ namespace EduTrack.API.Services.TutorDomain
     public interface IClassRoomService : IBaseService<ClassRoom, ClassRoomDto>
     {
         Task<Response<List<ClassRoomDto>>> GetMyClassesAsync();
+        Task<Response<PagingData<List<ClassRoomDto>>>> GetByFilterAsync(ClassRoomGridFilter filter);
         Task<Response<ClassRoomDetailDto>> GetDetailAsync(Guid id);
         Task<Response<ClassRoomDto>> CreateClassAsync(ClassRoomDto dto);
         Task<Response<ClassRoomDto>> UpdateClassAsync(ClassRoomDto dto);
@@ -65,6 +66,52 @@ namespace EduTrack.API.Services.TutorDomain
                 return dto;
             }).ToList();
             return Response<List<ClassRoomDto>>.Success(dtos, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Danh sách lớp có lọc + paging — dùng cho màn Lớp học (load-more).
+        /// Mặc định FE lọc IsActive=true: tutor lâu năm có 200 lớp thì ~190 lớp đã đóng
+        /// không đổ ra một lần.
+        /// </summary>
+        public async Task<Response<PagingData<List<ClassRoomDto>>>> GetByFilterAsync(ClassRoomGridFilter filter)
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var query = _repos.TableNoTracking.Where(c => c.IdTutor == idTutor);
+
+            if (filter.IsActive.HasValue)
+                query = query.Where(c => c.IsActive == filter.IsActive.Value);
+            if (!string.IsNullOrWhiteSpace(filter.Keyword))
+            {
+                var kw = filter.Keyword.Trim().ToLower();
+                query = query.Where(c => c.Name.ToLower().Contains(kw)
+                                      || (c.Subject != null && c.Subject.ToLower().Contains(kw)));
+            }
+
+            int total = await query.CountAsync();
+            var classes = await query
+                .OrderByDescending(c => c.IsActive).ThenBy(c => c.Name)
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToListAsync();
+
+            // MemberCount cho riêng trang này — 1 query
+            var ids = classes.Select(c => c.Id).ToList();
+            var counts = await _memberRepos.TableNoTracking
+                .Where(m => ids.Contains(m.IdClass))
+                .GroupBy(m => m.IdClass)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count);
+
+            var dtos = classes.Select(c =>
+            {
+                var dto = AutoMapperGeneric.Map<ClassRoom, ClassRoomDto>(c);
+                dto.MemberCount = counts.TryGetValue(c.Id, out var n) ? n : 0;
+                return dto;
+            }).ToList();
+
+            var paging = PagingData<List<ClassRoomDto>>.Create(dtos, filter.PageNumber,
+                (int)Math.Ceiling((double)total / filter.PageSize), total);
+            return Response<PagingData<List<ClassRoomDto>>>.Success(paging, StatusCode.Ok.ToDescription());
         }
 
         public async Task<Response<ClassRoomDetailDto>> GetDetailAsync(Guid id)

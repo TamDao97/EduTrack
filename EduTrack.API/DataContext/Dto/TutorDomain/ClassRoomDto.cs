@@ -1,7 +1,14 @@
 using EduTrack.API.DataContext.Dto.Base;
+using TD.Lib.Common;
 
 namespace EduTrack.API.DataContext.Dto.TutorDomain
 {
+    /// <summary>Filter danh sách lớp: keyword (tên/môn) + trạng thái + paging.</summary>
+    public class ClassRoomGridFilter : GridFilterBase
+    {
+        public bool? IsActive { get; set; }
+    }
+
     public class ClassRoomDto : BaseDto
     {
         public Guid IdTutor { get; set; }

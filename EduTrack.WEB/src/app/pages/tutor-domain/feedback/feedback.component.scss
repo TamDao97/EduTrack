@@ -155,3 +155,10 @@
     p { margin: 2px 0 0; font-size: $fs-sm; color: $text-1; white-space: pre-line; }
   }
 }
+
+  // (load-more nằm ngoài block .fb — selector riêng)
+.fb__more {
+  text-align: center;
+  padding-top: $sp-4;
+  button { min-width: 220px; border-radius: $radius-pill; }
+}

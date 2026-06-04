@@ -10,6 +10,21 @@
     <p class="cls__subtitle">Lớp nhóm cố định — ghi danh học sinh, xếp lịch cả lớp 1 lần</p>
   </header>
 
+  <!-- Toolbar: tab trạng thái + search -->
+  <div class="cls__toolbar">
+    <div class="cls__tabs">
+      <button *ngFor="let t of statusTabs" class="cls__tab"
+              [class.is-active]="filter.isActive === t.value"
+              (click)="onSelectTab(t.value)">{{ t.label }}</button>
+    </div>
+    <div class="cls__search">
+      <span nz-icon nzType="search"></span>
+      <input type="text" placeholder="Tìm tên lớp / môn…"
+             [ngModel]="filter.keyword" (ngModelChange)="onSearchChange($event)" />
+    </div>
+    <span class="cls__total" *ngIf="!isLoading && totalRecord > 0">{{ totalRecord }} lớp</span>
+  </div>
+
   <div class="cls__loading" *ngIf="isLoading"><nz-spin nzSize="large"></nz-spin></div>
 
   <!-- Empty -->
@@ -42,4 +57,11 @@
       </div>
     </div>
   </section>
+
+  <!-- Load more -->
+  <div class="cls__more" *ngIf="hasMore">
+    <button nz-button nzSize="large" (click)="loadMore()" [nzLoading]="isLoadingMore">
+      Xem thêm ({{ classes.length }}/{{ totalRecord }})
+    </button>
+  </div>
 </div>

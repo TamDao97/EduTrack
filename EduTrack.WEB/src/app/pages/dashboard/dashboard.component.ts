@@ -77,7 +77,8 @@ export class DashboardComponent extends TdBaseComponent implements OnInit {
             this.todayLessons = list;
           }
           if (inbox?.status === StatusCode.Ok) {
-            this.pendingNotifications = (inbox.data || [])
+            // get-inbox giờ trả PagingData — lấy .data.data
+            this.pendingNotifications = (inbox.data?.data || [])
               .filter((n: INotification) => n.status === NotificationStatus.Pending);
           }
           if (students?.status === StatusCode.Ok) {

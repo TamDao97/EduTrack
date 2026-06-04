@@ -147,3 +147,10 @@
     }
   }
 }
+
+// Load more
+.page-inbox__more {
+  text-align: center;
+  padding: $sp-3 0 $sp-6;
+  button { min-width: 220px; border-radius: $radius-pill; }
+}

@@ -26,28 +26,59 @@ export class NotificationInboxComponent extends TdBaseComponent implements OnIni
   private _service = inject(NotificationService);
   private _toast = inject(ToastService);
 
+  /** Danh sách tích luỹ qua các lần "Xem thêm". */
   items: INotification[] = [];
   pending: INotification[] = [];
   sent: INotification[] = [];
+  totalRecord = 0;
+  pageNumber = 1;
+  readonly pageSize = 20;
   isLoading = false;
+  isLoadingMore = false;
   expandedIds = new Set<string>();
 
   ngOnInit() { this.load(); }
 
+  /** Tải lại từ đầu (sau khi gửi/đánh dấu). */
   load() {
+    this.pageNumber = 1;
     this.isLoading = true;
-    this._service.getInbox()
+    this._service.getInbox(1, this.pageSize)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (rs) => {
           if (rs.status === StatusCode.Ok) {
-            this.items = rs.data ?? [];
-            this.pending = this.items.filter(n => n.status === NotificationStatus.Pending);
-            this.sent = this.items.filter(n => n.status === NotificationStatus.Sent);
+            this.items = rs.data?.data ?? [];
+            this.totalRecord = rs.data?.totalRecord ?? 0;
+            this.split();
           } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
         },
         error: () => this._toast.error(StatusResponseTitle.ERROR, 'Không tải được hộp nhắc'),
       });
+  }
+
+  /** "Xem thêm" — append trang kế (sort BE: Pending trước nên append vẫn đúng nhóm). */
+  loadMore() {
+    this.pageNumber++;
+    this.isLoadingMore = true;
+    this._service.getInbox(this.pageNumber, this.pageSize)
+      .pipe(finalize(() => this.isLoadingMore = false))
+      .subscribe({
+        next: (rs) => {
+          if (rs.status === StatusCode.Ok) {
+            this.items = [...this.items, ...(rs.data?.data ?? [])];
+            this.totalRecord = rs.data?.totalRecord ?? this.totalRecord;
+            this.split();
+          }
+        },
+      });
+  }
+
+  get hasMore(): boolean { return this.items.length < this.totalRecord; }
+
+  private split() {
+    this.pending = this.items.filter(n => n.status === NotificationStatus.Pending);
+    this.sent = this.items.filter(n => n.status === NotificationStatus.Sent);
   }
 
   /** Mở Zalo deeplink, sau khi mở thì popup hỏi "đã gửi chưa". */

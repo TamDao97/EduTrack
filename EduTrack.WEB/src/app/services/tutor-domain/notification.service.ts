@@ -10,8 +10,9 @@ export class NotificationService extends TdBaseService {
   override apiUrl = `${environment.apiUrl}/notification`;
   constructor(httpClient: HttpClient) { super(httpClient); }
 
-  getInbox(): Observable<IResponse> {
-    return this._httpClient.get<IResponse>(`${this.apiUrl}/get-inbox`);
+  /** Hộp nhắc có paging (Pending trước, rồi Sent 7 ngày) — load-more ở FE. */
+  getInbox(pageNumber = 1, pageSize = 20): Observable<IResponse> {
+    return this._httpClient.get<IResponse>(`${this.apiUrl}/get-inbox?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
   markSent(id: string): Observable<IResponse> {

@@ -17,7 +17,7 @@ namespace EduTrack.API.Services.TutorDomain
     public interface IFeedbackService : IBaseService<Feedback, FeedbackDto>
     {
         Task<Response<FeedbackDto>> CreateMyAsync(FeedbackDto dto);
-        Task<Response<List<FeedbackDto>>> GetMineAsync();
+        Task<Response<PagingData<List<FeedbackDto>>>> GetMineAsync(int pageNumber = 1, int pageSize = 10);
         Task<Response<PagingData<List<FeedbackDetailDto>>>> GetByFilterAsync(FeedbackGridFilter filter);
         Task<Response<FeedbackDto>> UpdateStatusAsync(Guid id, FeedbackUpdateStatusReq req);
         Task<Response<int>> GetNewCountAsync();
@@ -69,16 +69,26 @@ namespace EduTrack.API.Services.TutorDomain
                 AutoMapperGeneric.Map<Feedback, FeedbackDto>(entity), StatusCode.Ok.ToDescription());
         }
 
-        public async Task<Response<List<FeedbackDto>>> GetMineAsync()
+        /// <summary>Góp ý của tutor — paging (load-more ở FE), thay Take(100) cứng.</summary>
+        public async Task<Response<PagingData<List<FeedbackDto>>>> GetMineAsync(int pageNumber = 1, int pageSize = 10)
         {
+            if (pageNumber < 1) pageNumber = 1;
+            pageSize = Math.Clamp(pageSize, 1, 50);
+
             var idTutor = await GetCurrentTutorIdAsync();
-            var list = await _repos.TableNoTracking
-                .Where(f => f.IdTutor == idTutor)
+            var query = _repos.TableNoTracking.Where(f => f.IdTutor == idTutor);
+
+            int total = await query.CountAsync();
+            var list = await query
                 .OrderByDescending(f => f.DateCreated)
-                .Take(100)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
-            return Response<List<FeedbackDto>>.Success(
-                AutoMapperGeneric.Map<List<Feedback>, List<FeedbackDto>>(list), StatusCode.Ok.ToDescription());
+
+            var paging = PagingData<List<FeedbackDto>>.Create(
+                AutoMapperGeneric.Map<List<Feedback>, List<FeedbackDto>>(list),
+                pageNumber, (int)Math.Ceiling((double)total / pageSize), total);
+            return Response<PagingData<List<FeedbackDto>>>.Success(paging, StatusCode.Ok.ToDescription());
         }
 
         /// <summary>Admin (IsSuper) xem TOÀN BỘ góp ý — không filter theo tutor.</summary>

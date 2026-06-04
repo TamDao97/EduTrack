@@ -15,9 +15,9 @@ export class FeedbackService {
     return this._http.post<IResponse>(`${this.apiUrl}/create`, payload);
   }
 
-  /** Danh sách góp ý của chính tutor (kèm trạng thái + phản hồi founder) */
-  getMine(): Observable<IResponse> {
-    return this._http.get<IResponse>(`${this.apiUrl}/get-mine`);
+  /** Danh sách góp ý của chính tutor (kèm trạng thái + phản hồi founder) — paging */
+  getMine(pageNumber = 1, pageSize = 10): Observable<IResponse> {
+    return this._http.get<IResponse>(`${this.apiUrl}/get-mine?pageNumber=${pageNumber}&pageSize=${pageSize}`);
   }
 
   /** Admin: toàn bộ góp ý, lọc theo loại/trạng thái */

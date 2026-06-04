@@ -24,22 +24,69 @@ export class ClassListComponent extends TdBaseComponent implements OnInit {
   private _toast = inject(ToastService);
   private _service = inject(ClassRoomService);
 
+  /** Danh sách tích luỹ (load-more append vào đây). */
   classes: IClassRoom[] = [];
+  totalRecord = 0;
   isLoading = false;
+  isLoadingMore = false;
+
+  /** Mặc định chỉ xem lớp ĐANG DẠY — tutor 200 lớp thì ~190 lớp đã đóng không đổ ra. */
+  filter: { keyword: string; isActive: boolean | null; pageNumber: number; pageSize: number } =
+    { keyword: '', isActive: true, pageNumber: 1, pageSize: 12 };
+
+  statusTabs: { value: boolean | null; label: string }[] = [
+    { value: true,  label: 'Đang dạy' },
+    { value: false, label: 'Đã đóng' },
+    { value: null,  label: 'Tất cả' },
+  ];
 
   ngOnInit() { this.load(); }
 
+  /** Tải lại từ trang 1 (đổi tab / search / sau khi tạo lớp). */
   load() {
+    this.filter.pageNumber = 1;
     this.isLoading = true;
-    this._service.getMyClasses()
+    this._service.getByFilter(this.filter)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: rs => {
-          if (rs.status === StatusCode.Ok) this.classes = rs.data ?? [];
-          else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+          if (rs.status === StatusCode.Ok) {
+            this.classes = rs.data?.data ?? [];
+            this.totalRecord = rs.data?.totalRecord ?? 0;
+          } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
         },
         error: () => this._toast.error(StatusResponseTitle.ERROR, 'Không tải được danh sách lớp'),
       });
+  }
+
+  /** "Xem thêm" — append trang kế tiếp. */
+  loadMore() {
+    this.filter.pageNumber++;
+    this.isLoadingMore = true;
+    this._service.getByFilter(this.filter)
+      .pipe(finalize(() => this.isLoadingMore = false))
+      .subscribe({
+        next: rs => {
+          if (rs.status === StatusCode.Ok) {
+            this.classes = [...this.classes, ...(rs.data?.data ?? [])];
+            this.totalRecord = rs.data?.totalRecord ?? this.totalRecord;
+          }
+        },
+      });
+  }
+
+  get hasMore(): boolean { return this.classes.length < this.totalRecord; }
+
+  onSelectTab(v: boolean | null) {
+    this.filter.isActive = v;
+    this.load();
+  }
+
+  private _searchTimer: any;
+  onSearchChange(value: string) {
+    this.filter.keyword = value;
+    clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => this.load(), 350);
   }
 
   onAdd() {

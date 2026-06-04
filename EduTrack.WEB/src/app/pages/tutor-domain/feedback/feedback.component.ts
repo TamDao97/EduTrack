@@ -33,8 +33,13 @@ export class FeedbackComponent extends TdBaseComponent implements OnInit {
   private _service = inject(FeedbackService);
 
   frmGroup!: FormGroup;
+  /** Danh sách tích luỹ (load-more). */
   myFeedbacks: IFeedback[] = [];
+  totalRecord = 0;
+  pageNumber = 1;
+  readonly pageSize = 10;
   isLoading = false;
+  isLoadingMore = false;
   isSubmitting = false;
 
   typeOptions = [
@@ -55,16 +60,37 @@ export class FeedbackComponent extends TdBaseComponent implements OnInit {
   }
 
   loadMine() {
+    this.pageNumber = 1;
     this.isLoading = true;
-    this._service.getMine()
+    this._service.getMine(1, this.pageSize)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: rs => {
-          if (rs.status === StatusCode.Ok) this.myFeedbacks = rs.data ?? [];
+          if (rs.status === StatusCode.Ok) {
+            this.myFeedbacks = rs.data?.data ?? [];
+            this.totalRecord = rs.data?.totalRecord ?? 0;
+          }
         },
         error: () => this._toast.error(StatusResponseTitle.ERROR, 'Không tải được danh sách góp ý'),
       });
   }
+
+  loadMore() {
+    this.pageNumber++;
+    this.isLoadingMore = true;
+    this._service.getMine(this.pageNumber, this.pageSize)
+      .pipe(finalize(() => this.isLoadingMore = false))
+      .subscribe({
+        next: rs => {
+          if (rs.status === StatusCode.Ok) {
+            this.myFeedbacks = [...this.myFeedbacks, ...(rs.data?.data ?? [])];
+            this.totalRecord = rs.data?.totalRecord ?? this.totalRecord;
+          }
+        },
+      });
+  }
+
+  get hasMore(): boolean { return this.myFeedbacks.length < this.totalRecord; }
 
   selectType(t: FeedbackType) { this.frmGroup.patchValue({ type: t }); }
 

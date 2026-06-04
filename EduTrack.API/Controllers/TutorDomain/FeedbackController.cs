@@ -26,8 +26,9 @@ namespace EduTrack.API.Controllers.TutorDomain
         [TDPermission("GetMineAsync", "Góp ý của tôi", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpGet("get-mine")]
-        public async Task<ActionResult<Response<List<FeedbackDto>>>> GetMineAsync()
-            => Ok(await _service.GetMineAsync());
+        public async Task<ActionResult<Response<PagingData<List<FeedbackDto>>>>> GetMineAsync(
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+            => Ok(await _service.GetMineAsync(pageNumber, pageSize));
 
         // ─── Founder (IsSuper bypass — không gán role nào) ───
         [TDPermission("GetByFilterAsync", "Danh sách góp ý (admin)")]

@@ -19,8 +19,9 @@ namespace EduTrack.API.Controllers.TutorDomain
         [TDPermission("GetInboxAsync", "Hộp nhắc cần gửi", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpGet("get-inbox")]
-        public async Task<ActionResult<Response<List<NotificationDto>>>> GetInboxAsync()
-            => Ok(await _service.GetInboxAsync());
+        public async Task<ActionResult<Response<PagingData<List<NotificationDto>>>>> GetInboxAsync(
+            [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
+            => Ok(await _service.GetInboxAsync(pageNumber, pageSize));
 
         [TDPermission("GetByFilterAsync", "Danh sách nhắc", $"{RoleCodes.Tutor}")]
         [TDAuthorize]

@@ -97,4 +97,11 @@
       </li>
     </ul>
   </section>
+
+  <!-- Load more -->
+  <div class="page-inbox__more" *ngIf="hasMore">
+    <button nz-button nzSize="large" (click)="loadMore()" [nzLoading]="isLoadingMore">
+      Xem thêm ({{ items.length }}/{{ totalRecord }})
+    </button>
+  </div>
 </div>

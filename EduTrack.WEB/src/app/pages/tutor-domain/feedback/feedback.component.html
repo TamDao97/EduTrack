@@ -51,7 +51,7 @@
   <section class="fb__section">
     <h3 class="fb__list-title">
       Góp ý đã gửi
-      <span class="fb__list-count" *ngIf="myFeedbacks.length">{{ myFeedbacks.length }}</span>
+      <span class="fb__list-count" *ngIf="totalRecord">{{ totalRecord }}</span>
     </h3>
 
     <div class="fb__loading" *ngIf="isLoading"><nz-spin nzSize="small"></nz-spin></div>
@@ -86,5 +86,12 @@
         </div>
       </li>
     </ul>
+
+    <!-- Load more -->
+    <div class="fb__more" *ngIf="hasMore">
+      <button nz-button nzSize="large" (click)="loadMore()" [nzLoading]="isLoadingMore">
+        Xem thêm ({{ myFeedbacks.length }}/{{ totalRecord }})
+      </button>
+    </div>
   </section>
 </div>

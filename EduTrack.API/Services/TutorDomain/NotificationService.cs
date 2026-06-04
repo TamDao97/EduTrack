@@ -13,7 +13,7 @@ namespace EduTrack.API.Services.TutorDomain
 {
     public interface INotificationService : IBaseService<Notification, NotificationDto>
     {
-        Task<Response<List<NotificationDto>>> GetInboxAsync();
+        Task<Response<PagingData<List<NotificationDto>>>> GetInboxAsync(int pageNumber = 1, int pageSize = 20);
         Task<Response<PagingData<List<NotificationDto>>>> GetByFilterAsync(NotificationGridFilter filter);
         Task<Response<NotificationDto>> MarkSentAsync(Guid id);
         Task<Response<int>> GetDueCountAsync();
@@ -27,26 +27,35 @@ namespace EduTrack.API.Services.TutorDomain
         /// Inbox = "việc cần làm BÂY GIỜ":
         /// - Pending mà <see cref="Notification.ScheduledAt"/> ≤ now (đã đến giờ nhắc)
         /// - Hoặc đã Sent trong 7 ngày (cho tutor xem lịch sử gần)
-        /// Sort: Pending trước, theo ScheduledAt cũ nhất.
+        /// Sort: Pending trước, theo ScheduledAt cũ nhất. PAGING (load-more ở FE) —
+        /// thay Take(100) cứng cũ vốn nuốt âm thầm nhắc thứ 101 trở đi.
         /// </summary>
-        public async Task<Response<List<NotificationDto>>> GetInboxAsync()
+        public async Task<Response<PagingData<List<NotificationDto>>>> GetInboxAsync(int pageNumber = 1, int pageSize = 20)
         {
+            if (pageNumber < 1) pageNumber = 1;
+            pageSize = Math.Clamp(pageSize, 1, 100);
+
             var idTutor = await GetCurrentTutorIdAsync();
             var now = AppTime.VnNow;
             var since = now.AddDays(-7);
 
-            var list = await _repos.TableNoTracking
+            var query = _repos.TableNoTracking
                 .Where(n => n.IdTutor == idTutor
                          && ((n.Status == NotificationStatusEnums.Pending && n.ScheduledAt <= now)
-                          || (n.Status == NotificationStatusEnums.Sent && n.SentAt >= since)))
+                          || (n.Status == NotificationStatusEnums.Sent && n.SentAt >= since)));
+
+            int total = await query.CountAsync();
+            var list = await query
                 .OrderBy(n => n.Status) // Pending trước
                 .ThenBy(n => n.ScheduledAt)
-                .Take(100)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return Response<List<NotificationDto>>.Success(
+            var paging = PagingData<List<NotificationDto>>.Create(
                 AutoMapperGeneric.Map<List<Notification>, List<NotificationDto>>(list),
-                StatusCode.Ok.ToDescription());
+                pageNumber, (int)Math.Ceiling((double)total / pageSize), total);
+            return Response<PagingData<List<NotificationDto>>>.Success(paging, StatusCode.Ok.ToDescription());
         }
 
         /// <summary>Số nhắc Pending đã đến hạn — cho badge sidebar (query nhẹ, gọi thường xuyên).</summary>
