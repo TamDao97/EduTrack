@@ -1,0 +1,131 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+// ════════ Toast stack — góc trên phải (desktop), full-width trên mobile ════════
+.toasts {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10000; // trên cả nz-modal (1000)
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  pointer-events: none; // vùng trống không chặn click — chỉ toast nhận
+
+  @include mobile-only {
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+}
+
+// ════════ Toast card — Clean SaaS: nền trắng, icon chip màu mềm ════════
+.toast {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 14px 16px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  animation: toast-in 0.28s cubic-bezier(0.21, 1.02, 0.73, 1) both;
+
+  &.is-leaving {
+    animation: toast-out 0.22s ease-in both;
+  }
+
+  // Hover → progress tạm dừng (timer JS pause song song trong service)
+  &:hover .toast__progress { animation-play-state: paused; }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  &__body { flex: 1; min-width: 0; padding-top: 1px; }
+
+  &__title {
+    font-size: $fs-sm;
+    font-weight: $fw-bold;
+    color: $text-1;
+    line-height: 1.35;
+  }
+
+  &__msg {
+    font-size: $fs-sm;
+    color: $text-2;
+    line-height: 1.45;
+    margin-top: 2px;
+    word-break: break-word;
+  }
+
+  &__close {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    color: $text-3;
+    font-size: 11px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all $t-fast;
+
+    &:hover { background: $bg-strong; color: $text-1; }
+  }
+
+  // Progress đếm ngược — chạy width 100% → 0 đúng bằng duration của toast
+  &__progress {
+    position: absolute;
+    left: 0; bottom: 0;
+    height: 3px;
+    width: 100%;
+    border-radius: 0 3px 3px 0;
+    transform-origin: left;
+    animation-name: toast-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+
+  // ─── Màu theo loại ───
+  &[data-type='success'] {
+    .toast__icon     { background: $success-soft; color: $success; }
+    .toast__progress { background: $success; }
+  }
+  &[data-type='error'] {
+    .toast__icon     { background: $danger-soft; color: $danger; }
+    .toast__progress { background: $danger; }
+  }
+  &[data-type='warning'] {
+    .toast__icon     { background: $warning-soft; color: $warning-dark; }
+    .toast__progress { background: $warning; }
+  }
+  &[data-type='info'] {
+    .toast__icon     { background: $primary-soft; color: $primary; }
+    .toast__progress { background: $primary; }
+  }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(48px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); max-height: 200px; margin-bottom: 0; }
+  to   { opacity: 0; transform: translateX(48px); max-height: 0; margin-bottom: -10px; padding-top: 0; padding-bottom: 0; }
+}
+
+@keyframes toast-progress {
+  from { width: 100%; }
+  to   { width: 0%; }
+}

@@ -1,0 +1,25 @@
+<div class="toasts" *ngIf="toasts().length > 0" aria-live="polite">
+  <div class="toast"
+       *ngFor="let t of toasts(); trackBy: trackById"
+       [attr.data-type]="t.type"
+       [class.is-leaving]="t.leaving"
+       (mouseenter)="onEnter(t)"
+       (mouseleave)="onLeave(t)"
+       role="alert">
+    <span class="toast__icon">
+      <span nz-icon [nzType]="icon(t.type)" nzTheme="fill"></span>
+    </span>
+
+    <div class="toast__body">
+      <div class="toast__title">{{ t.title }}</div>
+      <div class="toast__msg" *ngIf="t.message">{{ t.message }}</div>
+    </div>
+
+    <button type="button" class="toast__close" (click)="onDismiss(t)" aria-label="Đóng">
+      <span nz-icon nzType="close"></span>
+    </button>
+
+    <!-- Progress đếm ngược — pause khi hover (CSS), đồng bộ timer JS -->
+    <span class="toast__progress" [style.animation-duration.ms]="t.duration"></span>
+  </div>
+</div>
