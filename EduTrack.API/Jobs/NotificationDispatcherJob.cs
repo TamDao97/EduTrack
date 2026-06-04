@@ -10,6 +10,7 @@ namespace EduTrack.API.Jobs
     /// <summary>
     /// Background job duy trì sức khỏe table Notifications:
     /// <list type="bullet">
+    ///   <item>Auto-email phụ huynh CÓ EMAIL khi nhắc Pending đến hạn (kênh phụ — không đổi Status).</item>
     ///   <item>Mark Pending quá hạn 72h sau ScheduledAt → Missed (để inbox không treo nhắc cũ mãi).</item>
     ///   <item>Soft-delete Sent / Cancelled / Missed cũ hơn 60 ngày (cleanup).</item>
     ///   <item>(Tuỳ chọn) Daily digest email 7:00 ICT cho tutor có ≥1 nhắc Pending due.</item>
@@ -66,6 +67,9 @@ namespace EduTrack.API.Jobs
 
             var now = AppTime.VnNow;
 
+            // ── 0) Auto-email phụ huynh có email — kênh phụ, KHÔNG đổi Status ──
+            await TryAutoEmailParentsAsync(db, email, now, ct);
+
             // ── 1) Mark Missed: Pending quá ScheduledAt + 72h ──
             var missedCutoff = now.AddHours(-MissedAfterHours);
             var missed = await db.Notifications
@@ -103,6 +107,58 @@ namespace EduTrack.API.Jobs
 
             // ── 3) Daily digest email — 7:00 ICT, 1 lần/ngày ──
             await TrySendDailyDigestAsync(db, email, now, ct);
+        }
+
+        /// <summary>
+        /// Gửi email nội dung nhắc cho phụ huynh CÓ EMAIL khi nhắc Pending đến hạn.
+        /// Kênh phụ bên cạnh Zalo tay: KHÔNG đổi Status (tutor vẫn thấy "Chờ gửi" để Zalo);
+        /// chỉ stamp EmailedAt để không gửi lặp. Lỗi gửi 1 item không chặn các item khác.
+        /// </summary>
+        private async Task TryAutoEmailParentsAsync(EduTrackDbContext db, IEmailService email, DateTime now, CancellationToken ct)
+        {
+            const int batchSize = 50; // an toàn SMTP — phần dư sẽ đi ở tick sau
+
+            var due = await (
+                from n in db.Notifications
+                where n.Status == NotificationStatusEnums.Pending
+                   && n.ScheduledAt <= now
+                   && n.EmailedAt == null
+                   && n.IdStudent != null
+                join s in db.Students on n.IdStudent equals s.Id
+                join p in db.Parents on s.IdParent equals p.Id
+                where p.Email != null && p.Email != ""
+                join u in db.Users on n.IdTutor equals u.Id
+                select new { Noti = n, ParentEmail = p.Email!, ParentName = p.FullName, TutorName = u.DisplayName }
+            ).Take(batchSize).ToListAsync(ct);
+
+            if (due.Count == 0) return;
+
+            int sentCount = 0;
+            foreach (var item in due)
+            {
+                var html = $@"
+<div style='font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:28px;background:#F7F8FC;color:#1A1F36'>
+  <p style='white-space:pre-line;margin:0 0 20px'>{System.Net.WebUtility.HtmlEncode(item.Noti.BodyText)}</p>
+  <hr style='border:none;border-top:1px solid #E3E6F0;margin:20px 0'/>
+  <p style='color:#8A91A8;font-size:12px;margin:0'>
+    Tin nhắc tự động từ EduTrack thay mặt gia sư {System.Net.WebUtility.HtmlEncode(item.TutorName)}.
+  </p>
+</div>";
+                var ok = await email.SendAsync(item.ParentEmail, item.Noti.Title, html, item.Noti.BodyText);
+                if (ok)
+                {
+                    item.Noti.EmailedAt = now;
+                    item.Noti.MarkDirty(nameof(item.Noti.EmailedAt));
+                    sentCount++;
+                }
+                // ok=false → để EmailedAt null, tick sau retry (EmailService đã log lỗi)
+            }
+
+            if (sentCount > 0)
+            {
+                await db.SaveChangesAsync(ct);
+                _logger.LogInformation("📧 Auto-emailed {Count} nhắc cho phụ huynh", sentCount);
+            }
         }
 
         private async Task TrySendDailyDigestAsync(EduTrackDbContext db, IEmailService email, DateTime now, CancellationToken ct)

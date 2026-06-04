@@ -17,4 +17,9 @@ export class NotificationService extends TdBaseService {
   markSent(id: string): Observable<IResponse> {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/mark-sent/${id}`, {});
   }
+
+  /** Số nhắc Pending đã đến hạn — cho badge sidebar. */
+  getDueCount(): Observable<IResponse> {
+    return this._httpClient.get<IResponse>(`${this.apiUrl}/due-count`);
+  }
 }

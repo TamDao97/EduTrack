@@ -45,5 +45,11 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
         public DateTime ScheduledAt { get; set; }
 
         public DateTime? SentAt { get; set; }
+
+        /// <summary>
+        /// Đã auto-email cho phụ huynh lúc nào (kênh phụ — không đổi Status, tutor vẫn gửi Zalo tay).
+        /// Null = chưa email (hoặc phụ huynh không có email).
+        /// </summary>
+        public DateTime? EmailedAt { get; set; }
     }
 }

@@ -33,5 +33,11 @@ namespace EduTrack.API.Controllers.TutorDomain
         [HttpPost("mark-sent/{id:Guid}")]
         public async Task<ActionResult<Response<NotificationDto>>> MarkSentAsync(Guid id)
             => Ok(await _service.MarkSentAsync(id));
+
+        [TDPermission("GetDueCountAsync", "Số nhắc đến hạn", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpGet("due-count")]
+        public async Task<ActionResult<Response<int>>> GetDueCountAsync()
+            => Ok(await _service.GetDueCountAsync());
     }
 }

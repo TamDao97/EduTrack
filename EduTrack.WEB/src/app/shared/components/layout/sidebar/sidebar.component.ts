@@ -11,6 +11,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../../../utils/services/auth.service';
 import { ICurrentUser } from '../../../interfaces/ICurrentUser';
+import { NotificationService } from '../../../../services/tutor-domain/notification.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -24,6 +25,10 @@ export class SidebarComponent implements OnInit {
 
   /** Founder (IsSuper) → hiện nút quay lại Platform Console ở đáy rail. */
   isSuper = false;
+
+  /** Số nhắc Pending đã đến hạn → badge đỏ trên menu Hộp nhắc. */
+  dueCount = 0;
+  private _dueCountFetchedAt = 0;
 
   /** Menu hover hiện tại — null khi không hover gì → ẩn flyout */
   hoveredMenu: IMenu | null = null;
@@ -114,6 +119,7 @@ export class SidebarComponent implements OnInit {
     private _toastService: ToastService,
     private _pageService: PageService,
     private _router: Router,
+    private _notificationService: NotificationService,
   ) {}
 
   ngOnInit() {
@@ -125,9 +131,29 @@ export class SidebarComponent implements OnInit {
     // Cập nhật active menu khi route đổi
     this._router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe(() => this.updateActiveFromRoute());
+      .subscribe(() => {
+        this.updateActiveFromRoute();
+        this.fetchDueCount(); // refresh badge khi điều hướng (throttle 60s)
+      });
     // Lần đầu
     this.updateActiveFromRoute();
+    this.fetchDueCount();
+  }
+
+  /** Lấy số nhắc đến hạn cho badge — throttle 60s để không spam API. */
+  private fetchDueCount(): void {
+    const now = Date.now();
+    if (now - this._dueCountFetchedAt < 60_000) return;
+    this._dueCountFetchedAt = now;
+    this._notificationService.getDueCount().subscribe({
+      next: (rs) => { if (rs.status === StatusCode.Ok) this.dueCount = rs.data ?? 0; },
+      error: () => { /* không có quyền / lỗi mạng → giữ badge cũ, không toast */ },
+    });
+  }
+
+  /** Hiển thị badge: 1-9 giữ nguyên, >9 → "9+". */
+  get dueBadge(): string {
+    return this.dueCount > 9 ? '9+' : String(this.dueCount);
   }
 
   getPageTreeByUserLogin() {

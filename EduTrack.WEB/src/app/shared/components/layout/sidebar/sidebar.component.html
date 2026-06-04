@@ -17,6 +17,8 @@
         <i nz-icon [nzType]="getParentIcon(menu).type" nzTheme="outline" class="sidebar-rail__icon"></i>
         <!-- Indicator dot khi có children -->
         <span class="sidebar-rail__dot" *ngIf="menu.children?.length"></span>
+        <!-- Badge số nhắc đến hạn — chỉ trên menu Hộp nhắc -->
+        <span class="sidebar-rail__badge" *ngIf="menu.url === 'inbox' && dueCount > 0">{{ dueBadge }}</span>
       </a>
       <!-- Title nhỏ phía dưới icon → biết ngay menu là gì không cần hover -->
       <span class="sidebar-rail__label" [title]="menu.title">{{ menu.title }}</span>

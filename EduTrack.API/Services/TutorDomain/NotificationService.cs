@@ -16,6 +16,7 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<List<NotificationDto>>> GetInboxAsync();
         Task<Response<PagingData<List<NotificationDto>>>> GetByFilterAsync(NotificationGridFilter filter);
         Task<Response<NotificationDto>> MarkSentAsync(Guid id);
+        Task<Response<int>> GetDueCountAsync();
     }
 
     public class NotificationService : TutorScopedBaseService<Notification, NotificationDto>, INotificationService
@@ -46,6 +47,18 @@ namespace EduTrack.API.Services.TutorDomain
             return Response<List<NotificationDto>>.Success(
                 AutoMapperGeneric.Map<List<Notification>, List<NotificationDto>>(list),
                 StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>Số nhắc Pending đã đến hạn — cho badge sidebar (query nhẹ, gọi thường xuyên).</summary>
+        public async Task<Response<int>> GetDueCountAsync()
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var now = AppTime.VnNow;
+            var count = await _repos.TableNoTracking
+                .CountAsync(n => n.IdTutor == idTutor
+                              && n.Status == NotificationStatusEnums.Pending
+                              && n.ScheduledAt <= now);
+            return Response<int>.Success(count, StatusCode.Ok.ToDescription());
         }
 
         public async Task<Response<PagingData<List<NotificationDto>>>> GetByFilterAsync(NotificationGridFilter filter)
