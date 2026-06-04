@@ -49,6 +49,8 @@ export interface ITuitionPreviewLine {
   startTime: string;
   endTime: string;
   chargeAmount: number;
+  /** Môn của buổi — null với buổi cũ chưa gắn môn */
+  subject?: string | null;
 }
 
 export interface ITuitionPreview {
