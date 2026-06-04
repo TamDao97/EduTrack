@@ -13,6 +13,7 @@ namespace EduTrack.API.Services.TutorDomain
     public interface IStudentCourseService : IBaseService<StudentCourse, StudentCourseDto>
     {
         Task<Response<List<StudentCourseDto>>> GetByStudentAsync(Guid idStudent);
+        Task<Response<List<string>>> GetSubjectsAsync();
         Task<Response<StudentCourseDto>> CreateCourseAsync(StudentCourseDto dto);
         Task<Response<StudentCourseDto>> UpdateCourseAsync(StudentCourseDto dto);
     }
@@ -81,6 +82,19 @@ namespace EduTrack.API.Services.TutorDomain
 
             return Response<StudentCourseDto>.Success(
                 AutoMapperGeneric.Map<StudentCourse, StudentCourseDto>(entity), StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>Danh sách MÔN distinct từ đăng ký môn (active) — cho dropdown lọc HS.</summary>
+        public async Task<Response<List<string>>> GetSubjectsAsync()
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var subjects = await _repos.TableNoTracking
+                .Where(c => c.IdTutor == idTutor && c.IsActive)
+                .Select(c => c.Subject)
+                .Distinct()
+                .OrderBy(s => s)
+                .ToListAsync();
+            return Response<List<string>>.Success(subjects, StatusCode.Ok.ToDescription());
         }
 
         private async Task<string?> ValidateAsync(StudentCourseDto dto)

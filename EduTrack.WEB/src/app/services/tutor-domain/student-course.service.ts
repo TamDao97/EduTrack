@@ -25,4 +25,9 @@ export class StudentCourseService {
   delete(id: string): Observable<IResponse> {
     return this._http.post<IResponse>(`${this.apiUrl}/delete/${id}`, null);
   }
+
+  /** Danh sách MÔN distinct từ đăng ký môn (active) — cho dropdown lọc HS. */
+  getSubjects(): Observable<IResponse> {
+    return this._http.get<IResponse>(`${this.apiUrl}/get-subjects`);
+  }
 }

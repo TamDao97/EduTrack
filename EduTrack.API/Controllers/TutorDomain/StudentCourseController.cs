@@ -35,6 +35,12 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<StudentCourseDto>>> UpdateCourseAsync(StudentCourseDto dto)
             => Ok(await _service.UpdateCourseAsync(dto));
 
+        [TDPermission("GetSubjectsAsync", "Danh sách môn đang học", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpGet("get-subjects")]
+        public async Task<ActionResult<Response<List<string>>>> GetSubjectsAsync()
+            => Ok(await _service.GetSubjectsAsync());
+
         [TDPermission("DeleteAsync", "Xoá môn học", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpPost("delete/{id:Guid}")]

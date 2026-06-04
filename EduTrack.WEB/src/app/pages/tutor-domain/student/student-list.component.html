@@ -38,27 +38,54 @@
     </div>
   </header>
 
-  <!-- ─────── Toolbar (search + tabs) ─────── -->
+  <!-- ─────── Toolbar: hàng 1 tabs+đếm · hàng 2 search+phễu · lọc nâng cao · chips ─────── -->
   <div class="toolbar">
-    <div class="search-box">
-      <span nz-icon nzType="search" nzTheme="outline" class="search-box__icon"></span>
-      <input
-        type="text"
-        placeholder="Tìm tên HS, phụ huynh, SĐT…"
-        [value]="filter.keyword"
-        (input)="onSearchChange($any($event.target).value)"
-        autocomplete="off" />
-      <button class="search-box__clear" *ngIf="filter.keyword" (click)="onClearSearch()" aria-label="Xoá tìm kiếm">
-        <span nz-icon nzType="close-circle" nzTheme="fill"></span>
+    <div class="toolbar__row">
+      <div class="search-box">
+        <span nz-icon nzType="search" nzTheme="outline" class="search-box__icon"></span>
+        <input
+          type="text"
+          placeholder="Tìm tên HS, phụ huynh, SĐT…"
+          [value]="filter.keyword"
+          (input)="onSearchChange($any($event.target).value)"
+          autocomplete="off" />
+        <button class="search-box__clear" *ngIf="filter.keyword" (click)="onClearSearch()" aria-label="Xoá tìm kiếm">
+          <span nz-icon nzType="close-circle" nzTheme="fill"></span>
+        </button>
+      </div>
+      <button class="filter-btn" [class.is-on]="showAdvanced || activeFilterCount > 0"
+              (click)="showAdvanced = !showAdvanced">
+        <span nz-icon nzType="filter"></span>
+        <span class="filter-btn__label">Lọc</span>
+        <span class="filter-btn__badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
       </button>
     </div>
 
-    <!-- Lọc theo lớp đang dạy -->
-    <nz-select class="class-filter" nzShowSearch nzAllowClear nzPlaceHolder="Lọc theo lớp"
-               [ngModel]="filter.idClass" (ngModelChange)="onFilterClass($event)"
-               *ngIf="classOptions.length > 0">
-      <nz-option *ngFor="let c of classOptions" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
-    </nz-select>
+    <!-- Lọc nâng cao: Lớp + Môn (thu gọn mặc định) -->
+    <div class="toolbar__advanced" *ngIf="showAdvanced">
+      <nz-select class="class-filter" nzShowSearch nzAllowClear nzPlaceHolder="Lớp đang học"
+                 [ngModel]="filter.idClass" (ngModelChange)="onFilterClass($event)"
+                 *ngIf="classOptions.length > 0">
+        <nz-option *ngFor="let c of classOptions" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
+      </nz-select>
+      <nz-select class="class-filter" nzAllowClear nzPlaceHolder="Môn đang học"
+                 [ngModel]="filter.subject" (ngModelChange)="onFilterSubject($event)"
+                 *ngIf="subjects.length > 0">
+        <nz-option *ngFor="let s of subjects" [nzValue]="s" [nzLabel]="s"></nz-option>
+      </nz-select>
+    </div>
+
+    <!-- Chips tóm tắt bộ lọc đang bật -->
+    <div class="toolbar__chips" *ngIf="activeFilterCount > 0">
+      <span class="filter-chip" *ngIf="filter.idClass">
+        <span nz-icon nzType="cluster"></span> {{ filterClassName }}
+        <button (click)="clearClassFilter()" aria-label="Bỏ lọc lớp"><span nz-icon nzType="close"></span></button>
+      </span>
+      <span class="filter-chip" *ngIf="filter.subject">
+        <span nz-icon nzType="book"></span> {{ filter.subject }}
+        <button (click)="clearSubjectFilter()" aria-label="Bỏ lọc môn"><span nz-icon nzType="close"></span></button>
+      </span>
+    </div>
 
     <div class="tabs">
       <button *ngFor="let tab of statusTabs"

@@ -40,4 +40,6 @@ export interface IStudentGridFilter extends IGridFilterBase {
   idParent?: string | null;
   /** Lọc HS đang ghi danh trong 1 lớp */
   idClass?: string | null;
+  /** Lọc HS đang học 1 môn (đăng ký môn active) */
+  subject?: string | null;
 }

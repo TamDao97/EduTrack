@@ -11,6 +11,7 @@ import { StatusCode } from '../../../shared/utils/enums';
 import { TdBaseComponent } from '../../../shared/utils/extends-components/td-base.component';
 import { StudentService } from '../../../services/tutor-domain/student.service';
 import { ClassRoomService } from '../../../services/tutor-domain/class-room.service';
+import { StudentCourseService } from '../../../services/tutor-domain/student-course.service';
 import { StudentFormComponent } from './student-form/student-form.component';
 
 @Component({
@@ -29,14 +30,37 @@ export class StudentListComponent extends TdBaseComponent implements OnInit {
   private _service = inject(StudentService);
 
   private _classService = inject(ClassRoomService);
+  private _courseService = inject(StudentCourseService);
 
   students: IStudentDetail[] = [];
   totalRecord = 0;
   isLoading = false;
-  filter: IStudentGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null, idClass: null };
+  filter: IStudentGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null, idClass: null, subject: null };
 
   /** Dropdown lọc theo lớp đang dạy */
   classOptions: { id: string; name: string }[] = [];
+  /** Dropdown lọc theo môn đang học (distinct từ đăng ký môn) */
+  subjects: string[] = [];
+
+  /** Vùng lọc nâng cao (Lớp + Môn) — mặc định thu gọn. */
+  showAdvanced = false;
+
+  get activeFilterCount(): number {
+    return (this.filter.idClass ? 1 : 0) + (this.filter.subject ? 1 : 0);
+  }
+
+  /** Tên lớp đang lọc — cho chip. */
+  get filterClassName(): string {
+    return this.classOptions.find(c => c.id === this.filter.idClass)?.name ?? '';
+  }
+
+  onFilterSubject(s: string | null) {
+    this.filter.subject = s;
+    this.filter.pageNumber = 1;
+    this.loadData();
+  }
+  clearClassFilter() { this.onFilterClass(null); }
+  clearSubjectFilter() { this.onFilterSubject(null); }
 
   onPageChange(page: number) {
     this.filter.pageNumber = page;
@@ -80,6 +104,9 @@ export class StudentListComponent extends TdBaseComponent implements OnInit {
           this.classOptions = (rs.data?.data ?? []).map((c: any) => ({ id: c.id, name: c.name }));
         }
       });
+    this._courseService.getSubjects().subscribe(rs => {
+      if (rs.status === StatusCode.Ok) this.subjects = rs.data ?? [];
+    });
   }
 
   onFilterClass(id: string | null) {

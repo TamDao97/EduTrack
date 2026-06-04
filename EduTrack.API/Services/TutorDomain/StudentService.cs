@@ -108,6 +108,14 @@ namespace EduTrack.API.Services.TutorDomain
                 query = query.Where(x => _memberRepos.TableNoTracking
                     .Any(m => m.IdClass == filter.IdClass.Value && m.IdStudent == x.s.Id));
 
+            // Lọc theo MÔN: HS có đăng ký môn đó đang active
+            if (!string.IsNullOrWhiteSpace(filter.Subject))
+            {
+                var subj = filter.Subject.Trim().ToLower();
+                query = query.Where(x => _courseRepos.TableNoTracking
+                    .Any(c => c.IdStudent == x.s.Id && c.IsActive && c.Subject.ToLower() == subj));
+            }
+
             if (!string.IsNullOrEmpty(filter.Keyword))
             {
                 var kw = filter.Keyword.Trim().ToLower();

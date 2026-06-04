@@ -36,5 +36,7 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public Guid? IdParent { get; set; }
         /// <summary>Lọc HS đang ghi danh trong 1 lớp (ClassRoom).</summary>
         public Guid? IdClass { get; set; }
+        /// <summary>Lọc HS đang học 1 môn (StudentCourse active, so khớp đúng môn).</summary>
+        public string? Subject { get; set; }
     }
 }
