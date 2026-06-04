@@ -54,6 +54,12 @@ export class StudentFormComponent extends TdBaseComponent implements OnInit {
         dateBirth: this.params.dateBirth ? new Date(this.params.dateBirth) : null,
         startedAt: this.params.startedAt ? new Date(this.params.startedAt) : null,
       });
+      // firstCourseRate CHỈ dùng khi tạo mới (API trả null khi sửa → required sẽ
+      // chặn nút Cập nhật oan). Bỏ validate + giá trị khi edit.
+      const fc = this.frmGroup.get('firstCourseRate')!;
+      fc.clearValidators();
+      fc.setValue(null);
+      fc.updateValueAndValidity();
     }
   }
 
