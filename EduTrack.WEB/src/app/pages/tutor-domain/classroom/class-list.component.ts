@@ -37,6 +37,27 @@ export class ClassListComponent extends TdBaseComponent implements OnInit {
   /** Model cho nz-range-picker (lọc theo ngày khai giảng). */
   dateRange: Date[] = [];
 
+  /** Vùng lọc nâng cao (Môn + Khai giảng) — mặc định thu gọn. */
+  showAdvanced = false;
+
+  /** Số bộ lọc nâng cao đang bật — badge trên nút phễu. */
+  get activeFilterCount(): number {
+    return (this.filter.subject ? 1 : 0) + (this.filter.startFrom || this.filter.startTo ? 1 : 0);
+  }
+
+  /** Nhãn chip cho khoảng khai giảng: "05/09/23 → 25/05/24". */
+  get dateRangeLabel(): string {
+    const f = (s: string | null) => {
+      if (!s) return '…';
+      const [y, m, d] = s.split('-');
+      return `${d}/${m}/${y.slice(2)}`;
+    };
+    return `${f(this.filter.startFrom)} → ${f(this.filter.startTo)}`;
+  }
+
+  clearSubject() { this.onSubjectChange(null); }
+  clearDateRange() { this.onDateRangeChange(null); }
+
   /** Các môn distinct của tutor — dropdown lọc. */
   subjects: string[] = [];
 

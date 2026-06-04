@@ -10,29 +10,55 @@
     <p class="cls__subtitle">Lớp nhóm cố định — ghi danh học sinh, xếp lịch cả lớp 1 lần</p>
   </header>
 
-  <!-- Toolbar: tab trạng thái + search -->
+  <!-- Toolbar: hàng 1 tabs + đếm · hàng 2 search + nút lọc · lọc nâng cao thu gọn · chips -->
   <div class="cls__toolbar">
-    <div class="cls__tabs">
-      <button *ngFor="let t of statusTabs" class="cls__tab"
-              [class.is-active]="filter.isActive === t.value"
-              (click)="onSelectTab(t.value)">{{ t.label }}</button>
+    <div class="cls__row">
+      <div class="cls__tabs">
+        <button *ngFor="let t of statusTabs" class="cls__tab"
+                [class.is-active]="filter.isActive === t.value"
+                (click)="onSelectTab(t.value)">{{ t.label }}</button>
+      </div>
+      <span class="cls__total" *ngIf="!isLoading && totalRecord > 0">{{ totalRecord }} lớp</span>
     </div>
-    <div class="cls__search">
-      <span nz-icon nzType="search"></span>
-      <input type="text" placeholder="Tìm tên lớp / môn…"
-             [ngModel]="filter.keyword" (ngModelChange)="onSearchChange($event)" />
+
+    <div class="cls__row">
+      <div class="cls__search">
+        <span nz-icon nzType="search"></span>
+        <input type="text" placeholder="Tìm tên lớp / môn…"
+               [ngModel]="filter.keyword" (ngModelChange)="onSearchChange($event)" />
+      </div>
+      <button class="cls__filter-btn" [class.is-on]="showAdvanced || activeFilterCount > 0"
+              (click)="showAdvanced = !showAdvanced">
+        <span nz-icon nzType="filter"></span>
+        <span class="cls__filter-btn-label">Lọc</span>
+        <span class="cls__filter-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+      </button>
     </div>
-    <nz-select class="cls__subject-filter" nzAllowClear nzPlaceHolder="Môn"
-               [ngModel]="filter.subject" (ngModelChange)="onSubjectChange($event)"
-               *ngIf="subjects.length > 0">
-      <nz-option *ngFor="let s of subjects" [nzValue]="s" [nzLabel]="s"></nz-option>
-    </nz-select>
-    <!-- Lọc theo khoảng khai giảng -->
-    <nz-range-picker class="cls__date-filter" nzFormat="dd/MM/yyyy"
-                     [nzPlaceHolder]="['Khai giảng từ', 'đến']"
-                     [ngModel]="dateRange" (ngModelChange)="onDateRangeChange($event)"
-                     nzAllowClear></nz-range-picker>
-    <span class="cls__total" *ngIf="!isLoading && totalRecord > 0">{{ totalRecord }} lớp</span>
+
+    <!-- Lọc nâng cao (thu gọn mặc định) -->
+    <div class="cls__advanced" *ngIf="showAdvanced">
+      <nz-select class="cls__subject-filter" nzAllowClear nzPlaceHolder="Môn học"
+                 [ngModel]="filter.subject" (ngModelChange)="onSubjectChange($event)"
+                 *ngIf="subjects.length > 0">
+        <nz-option *ngFor="let s of subjects" [nzValue]="s" [nzLabel]="s"></nz-option>
+      </nz-select>
+      <nz-range-picker class="cls__date-filter" nzFormat="dd/MM/yyyy"
+                       [nzPlaceHolder]="['Khai giảng từ', 'đến']"
+                       [ngModel]="dateRange" (ngModelChange)="onDateRangeChange($event)"
+                       nzAllowClear></nz-range-picker>
+    </div>
+
+    <!-- Chips tóm tắt bộ lọc đang bật — bỏ từng cái 1 chạm -->
+    <div class="cls__chips" *ngIf="activeFilterCount > 0">
+      <span class="cls__chip" *ngIf="filter.subject">
+        <span nz-icon nzType="book"></span> {{ filter.subject }}
+        <button (click)="clearSubject()" aria-label="Bỏ lọc môn"><span nz-icon nzType="close"></span></button>
+      </span>
+      <span class="cls__chip" *ngIf="filter.startFrom || filter.startTo">
+        <span nz-icon nzType="calendar"></span> KG {{ dateRangeLabel }}
+        <button (click)="clearDateRange()" aria-label="Bỏ lọc thời gian"><span nz-icon nzType="close"></span></button>
+      </span>
+    </div>
   </div>
 
   <div class="cls__loading" *ngIf="isLoading"><nz-spin nzSize="large"></nz-spin></div>
