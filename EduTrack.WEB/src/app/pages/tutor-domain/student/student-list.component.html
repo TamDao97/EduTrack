@@ -28,11 +28,13 @@
           <div class="stat-pill__label">Tạm nghỉ</div>
         </div>
       </div>
+      <!-- Bỏ "Doanh thu/buổi" (tính từ giá legacy, sai lệch khi 1 HS nhiều môn/lớp).
+           Doanh thu thật xem ở màn Báo cáo. -->
       <div class="stat-pill stat-pill--revenue">
-        <div class="stat-pill__icon"><span nz-icon nzType="dollar"></span></div>
+        <div class="stat-pill__icon"><span nz-icon nzType="stop"></span></div>
         <div class="stat-pill__body">
-          <div class="stat-pill__num">{{ totalRatePerLesson | number:'1.0-0' }}<span class="stat-pill__unit">đ</span></div>
-          <div class="stat-pill__label">Doanh thu / buổi</div>
+          <div class="stat-pill__num">{{ countStopped }}</div>
+          <div class="stat-pill__label">Đã dừng</div>
         </div>
       </div>
     </div>
@@ -159,10 +161,7 @@
           <span class="chip chip--grade" *ngIf="s.grade">{{ s.grade }}</span>
         </div>
 
-        <div class="student-card__rate" *ngIf="s.perLessonRate">
-          <span class="student-card__rate-num">{{ s.perLessonRate | number:'1.0-0' }}đ</span>
-          <span class="student-card__rate-unit">/ buổi</span>
-        </div>
+<!-- Bỏ Học phí/buổi trên thẻ — giá thật theo TỪNG MÔN/LỚP, xem ở Chi tiết HS -->
 
         <div class="student-card__parent" *ngIf="s.parentFullName || s.parentPhone">
           <span class="student-card__parent-icon" nz-icon nzType="user"></span>

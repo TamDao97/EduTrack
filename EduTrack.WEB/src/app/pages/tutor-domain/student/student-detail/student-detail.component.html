@@ -22,11 +22,11 @@
     </p>
   </section>
 
-  <!-- Quick stats -->
+  <!-- Quick stats — bỏ "Học phí/buổi" legacy: giá thật nằm ở "Môn học & giá" + "Lớp đang học" -->
   <section class="student-detail__stats">
     <div class="stat-card">
-      <div class="stat-card__label">Học phí / buổi</div>
-      <div class="stat-card__value">{{ student.perLessonRate | number:'1.0-0' }}<span>đ</span></div>
+      <div class="stat-card__label">Môn đang học</div>
+      <div class="stat-card__value">{{ student.courseSubjects || '—' }}</div>
     </div>
     <div class="stat-card" *ngIf="student.startedAt">
       <div class="stat-card__label">Bắt đầu học</div>
