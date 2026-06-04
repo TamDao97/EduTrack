@@ -86,6 +86,11 @@ namespace EduTrack.API.Services.TutorDomain
                 var subj = filter.Subject.Trim().ToLower();
                 query = query.Where(c => c.Subject != null && c.Subject.ToLower() == subj);
             }
+            // Lọc theo khoảng KHAI GIẢNG — lớp chưa khai ngày bị loại khi bật lọc thời gian
+            if (filter.StartFrom.HasValue)
+                query = query.Where(c => c.StartDate != null && c.StartDate >= filter.StartFrom.Value.Date);
+            if (filter.StartTo.HasValue)
+                query = query.Where(c => c.StartDate != null && c.StartDate <= filter.StartTo.Value.Date);
             if (!string.IsNullOrWhiteSpace(filter.Keyword))
             {
                 var kw = filter.Keyword.Trim().ToLower();

@@ -27,6 +27,11 @@
                *ngIf="subjects.length > 0">
       <nz-option *ngFor="let s of subjects" [nzValue]="s" [nzLabel]="s"></nz-option>
     </nz-select>
+    <!-- Lọc theo khoảng khai giảng -->
+    <nz-range-picker class="cls__date-filter" nzFormat="dd/MM/yyyy"
+                     [nzPlaceHolder]="['Khai giảng từ', 'đến']"
+                     [ngModel]="dateRange" (ngModelChange)="onDateRangeChange($event)"
+                     nzAllowClear></nz-range-picker>
     <span class="cls__total" *ngIf="!isLoading && totalRecord > 0">{{ totalRecord }} lớp</span>
   </div>
 

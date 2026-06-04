@@ -136,3 +136,5 @@
   @include tablet-up { max-width: 900px; margin: 0 auto; }
   button { min-width: 220px; border-radius: $radius-pill; }
 }
+
+.cls__date-filter { min-width: 230px; }

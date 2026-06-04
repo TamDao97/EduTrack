@@ -14,8 +14,12 @@ export class ClassRoomService {
     return this._http.get<IResponse>(`${this.apiUrl}/get-my-classes`);
   }
 
-  /** Danh sách lớp có lọc (keyword/isActive/môn) + paging — dùng cho load-more. */
-  getByFilter(filter: { keyword: string; isActive: boolean | null; subject?: string | null; pageNumber: number; pageSize: number }): Observable<IResponse> {
+  /** Danh sách lớp có lọc (keyword/isActive/môn/khoảng khai giảng) + paging — dùng cho load-more. */
+  getByFilter(filter: {
+    keyword: string; isActive: boolean | null; subject?: string | null;
+    startFrom?: string | null; startTo?: string | null;
+    pageNumber: number; pageSize: number;
+  }): Observable<IResponse> {
     return this._http.post<IResponse>(`${this.apiUrl}/get-by-filter`, filter);
   }
 

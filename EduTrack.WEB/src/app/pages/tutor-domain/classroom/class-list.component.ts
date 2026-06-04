@@ -31,8 +31,11 @@ export class ClassListComponent extends TdBaseComponent implements OnInit {
   isLoadingMore = false;
 
   /** Mặc định chỉ xem lớp ĐANG DẠY — tutor 200 lớp thì ~190 lớp đã đóng không đổ ra. */
-  filter: { keyword: string; isActive: boolean | null; subject: string | null; pageNumber: number; pageSize: number } =
-    { keyword: '', isActive: true, subject: null, pageNumber: 1, pageSize: 12 };
+  filter: { keyword: string; isActive: boolean | null; subject: string | null; startFrom: string | null; startTo: string | null; pageNumber: number; pageSize: number } =
+    { keyword: '', isActive: true, subject: null, startFrom: null, startTo: null, pageNumber: 1, pageSize: 12 };
+
+  /** Model cho nz-range-picker (lọc theo ngày khai giảng). */
+  dateRange: Date[] = [];
 
   /** Các môn distinct của tutor — dropdown lọc. */
   subjects: string[] = [];
@@ -52,6 +55,15 @@ export class ClassListComponent extends TdBaseComponent implements OnInit {
 
   onSubjectChange(s: string | null) {
     this.filter.subject = s;
+    this.load();
+  }
+
+  /** Lọc theo khoảng KHAI GIẢNG — clear range = bỏ lọc. */
+  onDateRangeChange(range: Date[] | null) {
+    this.dateRange = range ?? [];
+    const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    this.filter.startFrom = range && range[0] ? iso(range[0]) : null;
+    this.filter.startTo = range && range[1] ? iso(range[1]) : null;
     this.load();
   }
 

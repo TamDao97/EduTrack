@@ -3,12 +3,16 @@ using TD.Lib.Common;
 
 namespace EduTrack.API.DataContext.Dto.TutorDomain
 {
-    /// <summary>Filter danh sách lớp: keyword (tên/môn) + trạng thái + môn + paging.</summary>
+    /// <summary>Filter danh sách lớp: keyword (tên/môn) + trạng thái + môn + khoảng khai giảng + paging.</summary>
     public class ClassRoomGridFilter : GridFilterBase
     {
         public bool? IsActive { get; set; }
         /// <summary>Lọc đúng môn (so khớp không phân biệt hoa thường).</summary>
         public string? Subject { get; set; }
+        /// <summary>Khai giảng TỪ ngày (lớp chưa khai ngày bị loại khi có lọc thời gian).</summary>
+        public DateTime? StartFrom { get; set; }
+        /// <summary>Khai giảng ĐẾN ngày.</summary>
+        public DateTime? StartTo { get; set; }
     }
 
     public class ClassRoomDto : BaseDto
