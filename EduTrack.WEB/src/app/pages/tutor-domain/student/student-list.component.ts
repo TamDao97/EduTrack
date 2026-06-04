@@ -243,12 +243,6 @@ export class StudentListComponent extends TdBaseComponent implements OnInit {
   get countPaused(): number  { return this.students.filter(s => s.status === StudentStatus.Paused).length; }
   get countStopped(): number { return this.students.filter(s => s.status === StudentStatus.Stopped).length; }
 
-  /** Doanh thu dự kiến / buổi của tất cả HS đang học */
-  get totalRatePerLesson(): number {
-    return this.students
-      .filter(s => s.status === StudentStatus.Active)
-      .reduce((sum, s) => sum + (s.perLessonRate || 0), 0);
-  }
 
   countForTab(value: StudentStatus | null): number {
     if (value === null) return this.students.length;

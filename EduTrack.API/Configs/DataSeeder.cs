@@ -33,7 +33,7 @@ namespace EduTrack.API.Configs
         {
             var studentsNoCourse = await db.Students
                 .Where(s => !db.StudentCourses.Any(c => c.IdStudent == s.Id))
-                .Select(s => new { s.Id, s.IdTutor, s.Subject, s.PerLessonRate })
+                .Select(s => new { s.Id, s.IdTutor, s.Subject })
                 .ToListAsync();
 
             if (studentsNoCourse.Count == 0) return;
@@ -46,7 +46,7 @@ namespace EduTrack.API.Configs
                     IdTutor = s.IdTutor,
                     IdStudent = s.Id,
                     Subject = string.IsNullOrWhiteSpace(s.Subject) ? "Chung" : s.Subject.Trim(),
-                    PerLessonRate = s.PerLessonRate,
+                    PerLessonRate = 0, // giá để tutor tự khai — Student không còn cột giá
                     IsActive = true,
                 });
             }

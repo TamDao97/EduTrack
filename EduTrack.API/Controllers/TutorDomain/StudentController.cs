@@ -35,8 +35,8 @@ namespace EduTrack.API.Controllers.TutorDomain
         [HttpPost("create")]
         public async Task<ActionResult<Response<StudentDto>>> CreateAsync(StudentDto dto)
         {
-            var entity = AutoMapperGeneric.Map<StudentDto, Student>(dto);
-            return Ok(await _service.CreateAsync(entity));
+            // Tạo HS + seed môn học đầu tiên (Subject + FirstCourseRate) trong 1 phát
+            return Ok(await _service.CreateWithFirstCourseAsync(dto));
         }
 
         [TDPermission("UpdateAsync", "Sửa học sinh", $"{RoleCodes.Tutor}")]

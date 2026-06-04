@@ -19,7 +19,9 @@ export interface IStudent extends IBase {
   dateBirth?: string;
   grade?: string;
   subject?: string;
-  perLessonRate: number;
+  /** CHỈ dùng khi TẠO MỚI: giá buổi môn học đầu tiên (seed đăng ký môn).
+   *  Giá thật quản lý ở Môn học & giá / Lớp — Student không còn cột giá. */
+  firstCourseRate?: number | null;
   avatarFileId?: string;
   status: StudentStatus;
   startedAt?: string;

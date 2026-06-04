@@ -14,6 +14,7 @@ namespace EduTrack.API.Services.TutorDomain
     {
         Task<Response<PagingData<List<StudentDetailDto>>>> GetByFilterAsync(StudentGridFilter filter);
         Task<Response<StudentDetailDto>> GetDetailByIdAsync(Guid id);
+        Task<Response<StudentDto>> CreateWithFirstCourseAsync(StudentDto dto);
     }
 
     public class StudentService : TutorScopedBaseService<Student, StudentDto>, IStudentService
@@ -47,23 +48,32 @@ namespace EduTrack.API.Services.TutorDomain
             if (!parentOk)
                 return Response<StudentDto>.Error(StatusCode.BadRequest, "Phụ huynh không hợp lệ");
 
-            var rs = await base.CreateAsync(entity);
+            return await base.CreateAsync(entity);
+        }
 
-            // Tự tạo MÔN MẶC ĐỊNH từ Subject + PerLessonRate khai trên form HS —
-            // tutor dạy 1 môn không cần biết tới khái niệm course; dạy nhiều môn thì thêm ở chi tiết HS.
-            if (rs.Status == StatusCode.Ok)
+        /// <summary>
+        /// Tạo HS + MÔN HỌC ĐẦU TIÊN trong 1 phát (form Thêm HS): Subject + FirstCourseRate
+        /// từ dto seed thành StudentCourse — giá thật từ đây quản lý ở môn/lớp,
+        /// Student không còn cột giá riêng.
+        /// </summary>
+        public async Task<Response<StudentDto>> CreateWithFirstCourseAsync(StudentDto dto)
+        {
+            var entity = AutoMapperGeneric.Map<StudentDto, Student>(dto);
+            if (entity.Id == Guid.Empty) entity.Id = Guid.NewGuid();
+
+            var rs = await CreateAsync(entity); // quota + parent check + TutorScoped
+            if (rs.Status != StatusCode.Ok) return rs;
+
+            await _courseRepos.CreateAsync(new StudentCourse
             {
-                await _courseRepos.CreateAsync(new StudentCourse
-                {
-                    Id = Guid.NewGuid(),
-                    IdTutor = idTutor,
-                    IdStudent = entity.Id,
-                    Subject = string.IsNullOrWhiteSpace(entity.Subject) ? "Chung" : entity.Subject.Trim(),
-                    PerLessonRate = entity.PerLessonRate,
-                    IsActive = true,
-                });
-                await _unitOfWork.SaveChangesAsync();
-            }
+                Id = Guid.NewGuid(),
+                IdTutor = entity.IdTutor,
+                IdStudent = entity.Id,
+                Subject = string.IsNullOrWhiteSpace(dto.Subject) ? "Chung" : dto.Subject.Trim(),
+                PerLessonRate = dto.FirstCourseRate ?? 0,
+                IsActive = true,
+            });
+            await _unitOfWork.SaveChangesAsync();
             return rs;
         }
 
@@ -80,7 +90,6 @@ namespace EduTrack.API.Services.TutorDomain
             entity.MarkDirty(nameof(entity.DateBirth));
             entity.MarkDirty(nameof(entity.Grade));
             entity.MarkDirty(nameof(entity.Subject));
-            entity.MarkDirty(nameof(entity.PerLessonRate));
             entity.MarkDirty(nameof(entity.AvatarFileId));
             entity.MarkDirty(nameof(entity.Status));
             entity.MarkDirty(nameof(entity.StartedAt));
@@ -137,7 +146,6 @@ namespace EduTrack.API.Services.TutorDomain
                                  DateBirth = x.s.DateBirth,
                                  Grade = x.s.Grade,
                                  Subject = x.s.Subject,
-                                 PerLessonRate = x.s.PerLessonRate,
                                  AvatarFileId = x.s.AvatarFileId,
                                  Status = x.s.Status,
                                  StartedAt = x.s.StartedAt,
@@ -181,7 +189,6 @@ namespace EduTrack.API.Services.TutorDomain
                                   DateBirth = s.DateBirth,
                                   Grade = s.Grade,
                                   Subject = s.Subject,
-                                  PerLessonRate = s.PerLessonRate,
                                   AvatarFileId = s.AvatarFileId,
                                   Status = s.Status,
                                   StartedAt = s.StartedAt,

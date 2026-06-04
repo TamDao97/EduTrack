@@ -65,7 +65,7 @@ export class StudentFormComponent extends TdBaseComponent implements OnInit {
       dateBirth: [null],
       grade: [''],
       subject: [''],
-      perLessonRate: [0, [Validators.required, Validators.min(0)]],
+      firstCourseRate: [0, [Validators.required, Validators.min(0)]],
       avatarFileId: [null],
       status: [StudentStatus.Active, [Validators.required]],
       startedAt: [new Date()],

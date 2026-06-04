@@ -45,17 +45,28 @@ namespace EduTrack.API.Services.TutorDomain
         }
 
         /// <summary>
-        /// Resolve giá buổi: có IdCourse → lấy giá CỦA MÔN ĐÓ (validate course thuộc đúng HS);
-        /// không có → fallback giá chung của HS (tương thích dữ liệu cũ).
-        /// Trả (rate, error).
+        /// Resolve giá buổi: có IdCourse → giá CỦA MÔN ĐÓ (validate course thuộc đúng HS);
+        /// không có → fallback môn ACTIVE đầu tiên của em (Student không còn cột giá riêng).
+        /// HS chưa có môn nào → lỗi rõ ràng hướng dẫn thêm môn.
         /// </summary>
         private async Task<(decimal rate, string? error)> ResolveRateAsync(Guid? idCourse, Student student)
         {
-            if (!idCourse.HasValue) return (student.PerLessonRate, null);
-            var course = await _courseRepos.TableNoTracking
-                .FirstOrDefaultAsync(c => c.Id == idCourse.Value && c.IdStudent == student.Id && c.IdTutor == student.IdTutor);
-            if (course == null) return (0, "Môn học không hợp lệ");
-            return (course.PerLessonRate, null);
+            if (idCourse.HasValue)
+            {
+                var course = await _courseRepos.TableNoTracking
+                    .FirstOrDefaultAsync(c => c.Id == idCourse.Value && c.IdStudent == student.Id && c.IdTutor == student.IdTutor);
+                if (course == null) return (0, "Môn học không hợp lệ");
+                return (course.PerLessonRate, null);
+            }
+
+            var fallback = await _courseRepos.TableNoTracking
+                .Where(c => c.IdStudent == student.Id && c.IsActive)
+                .OrderBy(c => c.Subject)
+                .Select(c => (decimal?)c.PerLessonRate)
+                .FirstOrDefaultAsync();
+            if (fallback == null)
+                return (0, $"{student.FullName} chưa có môn học nào — thêm môn ở Chi tiết HS → Môn học & giá");
+            return (fallback.Value, null);
         }
 
         public override async Task<Response<LessonDto>> CreateAsync(Lesson entity)

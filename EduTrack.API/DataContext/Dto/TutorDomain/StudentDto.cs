@@ -12,7 +12,9 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public DateTime? DateBirth { get; set; }
         public string? Grade { get; set; }
         public string? Subject { get; set; }
-        public decimal PerLessonRate { get; set; }
+        /// <summary>CHỈ dùng khi TẠO MỚI: giá buổi của môn học đầu tiên (seed StudentCourse).
+        /// Không phải cột DB — giá thật quản lý ở StudentCourse/ClassMember.</summary>
+        public decimal? FirstCourseRate { get; set; }
         public Guid? AvatarFileId { get; set; }
         public StudentStatusEnums Status { get; set; } = StudentStatusEnums.Active;
         public DateTime? StartedAt { get; set; }

@@ -105,7 +105,6 @@ namespace EduTrack.API.DataContext
             modelBuilder.Entity<PasswordResetToken>().HasIndex(t => new { t.IdUser, t.UsedAt });
 
             // Tiền tệ — VND nguyên, decimal(18,0)
-            modelBuilder.Entity<Student>().Property(s => s.PerLessonRate).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<Lesson>().Property(l => l.ChargeAmount).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<TuitionPeriod>().Property(t => t.TotalAmount).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<TuitionPeriod>().Property(t => t.Adjustment).HasColumnType("decimal(18,0)");

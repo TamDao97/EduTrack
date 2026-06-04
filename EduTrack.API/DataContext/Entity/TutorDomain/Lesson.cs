@@ -6,7 +6,7 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
 {
     /// <summary>
     /// Buổi học cụ thể (instance). Tạo recurring bằng cách bulk-insert nhiều Lesson cùng lúc.
-    /// ChargeAmount là snapshot tại thời điểm tạo — đổi PerLessonRate trên Student không ảnh hưởng buổi cũ.
+    /// ChargeAmount là snapshot tại thời điểm tạo (giá môn/lớp) — đổi giá sau không ảnh hưởng buổi cũ.
     /// </summary>
     public class Lesson : BaseEntity, ITutorScoped
     {
@@ -29,7 +29,7 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
 
         public LessonStatusEnums Status { get; set; } = LessonStatusEnums.Scheduled;
 
-        /// <summary>VND, snapshot từ Student.PerLessonRate khi tạo Lesson.</summary>
+        /// <summary>VND, snapshot từ giá môn (StudentCourse) hoặc giá lớp khi tạo Lesson.</summary>
         public decimal ChargeAmount { get; set; }
 
         public DateTime? DoneAt { get; set; }

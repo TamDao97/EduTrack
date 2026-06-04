@@ -24,8 +24,6 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
         [MaxLength(100)]
         public string? Subject { get; set; }
 
-        /// <summary>Học phí mỗi buổi (VND). Mặc định khi tạo Lesson sẽ copy snapshot.</summary>
-        public decimal PerLessonRate { get; set; }
 
         public Guid? AvatarFileId { get; set; }
 
