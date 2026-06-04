@@ -28,6 +28,8 @@ export interface ILesson extends IBase {
   idTuitionPeriod?: string;
   /** Buổi NHÓM: các lesson cùng ca chia sẻ groupKey. Null = buổi 1-1 */
   groupKey?: string | null;
+  /** Buổi sinh từ Lớp học nào — null = buổi 1-1 / nhóm ad-hoc */
+  idClass?: string | null;
 }
 
 export interface ILessonDetail extends ILesson {
@@ -35,6 +37,8 @@ export interface ILessonDetail extends ILesson {
   parentPhone?: string;
   /** Tên môn của buổi — để hiện chip môn trên lịch */
   courseSubject?: string | null;
+  /** Tên lớp nếu buổi sinh từ Lớp học */
+  className?: string | null;
 }
 
 export interface ILessonGridFilter extends IGridFilterBase {

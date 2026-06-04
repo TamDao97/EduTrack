@@ -55,12 +55,17 @@ namespace EduTrack.API.Services.TutorDomain
             var dateStr = lesson.ScheduledDate.ToString("dd/MM/yyyy");
             var timeStr = $"{lesson.StartTime:hh\\:mm} - {lesson.EndTime:hh\\:mm}";
 
-            // Tên môn (nếu buổi gắn course) — phụ huynh biết rõ buổi Toán hay buổi Lý
+            // Tên môn — từ đăng ký 1-1 hoặc từ Lớp (buổi sinh từ ClassRoom)
             string? subject = null;
             if (lesson.IdCourse.HasValue)
                 subject = await _courseRepos.TableNoTracking
                     .Where(c => c.Id == lesson.IdCourse.Value)
                     .Select(c => c.Subject)
+                    .FirstOrDefaultAsync();
+            else if (lesson.IdClass.HasValue)
+                subject = await _uow.GetRepository<ClassRoom>().TableNoTracking
+                    .Where(k => k.Id == lesson.IdClass.Value)
+                    .Select(k => k.Subject)
                     .FirstOrDefaultAsync();
 
             var subjectTag = string.IsNullOrEmpty(subject) ? "" : $" · {subject}";

@@ -70,6 +70,23 @@
     </ng-template>
   </section>
 
+  <!-- Lớp đang học (ghi danh ở màn Lớp học) -->
+  <section class="student-detail__section" *ngIf="classes.length > 0">
+    <h3 class="student-detail__section-title">Lớp đang học</h3>
+    <div class="course-list">
+      <div class="course-item" *ngFor="let c of classes" (click)="onOpenClass(c)" style="cursor:pointer">
+        <div class="course-item__info">
+          <div class="course-item__subject">
+            {{ c.className }}
+            <span class="course-item__paused" *ngIf="c.subject" style="background:#E8EAFF;color:#5B5FCF">{{ c.subject }}</span>
+          </div>
+          <div class="course-item__rate">{{ c.scheduleLabel }} · {{ c.effectiveRate | number:'1.0-0' }}đ/buổi</div>
+        </div>
+        <span nz-icon nzType="right" style="color:#9CA3AF"></span>
+      </div>
+    </div>
+  </section>
+
   <!-- Parent card -->
   <section class="student-detail__section" *ngIf="student.parentFullName || student.parentPhone">
     <h3 class="student-detail__section-title">Phụ huynh</h3>

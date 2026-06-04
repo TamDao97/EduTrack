@@ -27,6 +27,7 @@ namespace EduTrack.API.Services.TutorDomain
         private readonly ITDRepository<Student> _studentRepos;
         private readonly ITDRepository<Parent> _parentRepos;
         private readonly ITDRepository<StudentCourse> _courseRepos;
+        private readonly ITDRepository<ClassRoom> _classRepos;
         private readonly INotificationGenerator _notiGen;
         private readonly ISubscriptionService _subService;
 
@@ -36,6 +37,7 @@ namespace EduTrack.API.Services.TutorDomain
             _studentRepos = unitOfWork.GetRepository<Student>();
             _parentRepos = unitOfWork.GetRepository<Parent>();
             _courseRepos = unitOfWork.GetRepository<StudentCourse>();
+            _classRepos = unitOfWork.GetRepository<ClassRoom>();
             _notiGen = notiGen;
             _subService = subService;
         }
@@ -315,8 +317,10 @@ namespace EduTrack.API.Services.TutorDomain
                         from p in pj.DefaultIfEmpty()
                         join c in _courseRepos.TableNoTracking on l.IdCourse equals c.Id into cj
                         from c in cj.DefaultIfEmpty()
+                        join k in _classRepos.TableNoTracking on l.IdClass equals k.Id into kj
+                        from k in kj.DefaultIfEmpty()
                         where l.IdTutor == idTutor
-                        select new { l, s, p, c };
+                        select new { l, s, p, c, k };
 
             if (filter.IdStudent.HasValue)
                 query = query.Where(x => x.l.IdStudent == filter.IdStudent.Value);
@@ -332,7 +336,7 @@ namespace EduTrack.API.Services.TutorDomain
                              .Skip((filter.PageNumber - 1) * filter.PageSize)
                              .Take(filter.PageSize)
                              .AsEnumerable()
-                             .Select(x => MapDetail(x.l, x.s, x.p, x.c))
+                             .Select(x => MapDetail(x.l, x.s, x.p, x.c, x.k))
                              .ToList();
             var paging = PagingData<List<LessonDetailDto>>.Create(items, filter.PageNumber, (int)Math.Ceiling((double)total / filter.PageSize), total);
             return Response<PagingData<List<LessonDetailDto>>>.Success(paging, StatusCode.Ok.ToDescription());
@@ -350,20 +354,23 @@ namespace EduTrack.API.Services.TutorDomain
                                from p in pj.DefaultIfEmpty()
                                join c in _courseRepos.TableNoTracking on l.IdCourse equals c.Id into cj
                                from c in cj.DefaultIfEmpty()
+                               join k in _classRepos.TableNoTracking on l.IdClass equals k.Id into kj
+                               from k in kj.DefaultIfEmpty()
                                where l.IdTutor == idTutor && l.ScheduledDate >= ws && l.ScheduledDate < we
                                orderby l.ScheduledDate, l.StartTime
-                               select new { l, s, p, c }).ToListAsync();
+                               select new { l, s, p, c, k }).ToListAsync();
 
-            var items = datas.Select(x => MapDetail(x.l, x.s, x.p, x.c)).ToList();
+            var items = datas.Select(x => MapDetail(x.l, x.s, x.p, x.c, x.k)).ToList();
             return Response<List<LessonDetailDto>>.Success(items, StatusCode.Ok.ToDescription());
         }
 
-        private static LessonDetailDto MapDetail(Lesson l, Student s, Parent? p, StudentCourse? c = null) => new LessonDetailDto
+        private static LessonDetailDto MapDetail(Lesson l, Student s, Parent? p, StudentCourse? c = null, ClassRoom? k = null) => new LessonDetailDto
         {
             Id = l.Id,
             IdTutor = l.IdTutor,
             IdStudent = l.IdStudent,
             IdCourse = l.IdCourse,
+            IdClass = l.IdClass,
             ScheduledDate = l.ScheduledDate,
             StartTime = l.StartTime,
             EndTime = l.EndTime,
@@ -376,7 +383,8 @@ namespace EduTrack.API.Services.TutorDomain
             GroupKey = l.GroupKey,
             StudentFullName = s?.FullName,
             ParentPhone = p?.Phone,
-            CourseSubject = c?.Subject,
+            CourseSubject = c?.Subject ?? k?.Subject, // môn từ đăng ký 1-1 hoặc từ lớp
+            ClassName = k?.Name,
         };
     }
 }

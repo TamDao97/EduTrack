@@ -1,0 +1,45 @@
+<div class="cls">
+  <!-- Hero -->
+  <header class="cls__hero">
+    <div class="cls__hero-top">
+      <h1 class="cls__title">Lớp học</h1>
+      <button class="cls__add-btn" (click)="onAdd()">
+        <span nz-icon nzType="plus"></span> Tạo lớp
+      </button>
+    </div>
+    <p class="cls__subtitle">Lớp nhóm cố định — ghi danh học sinh, xếp lịch cả lớp 1 lần</p>
+  </header>
+
+  <div class="cls__loading" *ngIf="isLoading"><nz-spin nzSize="large"></nz-spin></div>
+
+  <!-- Empty -->
+  <section class="cls__empty" *ngIf="!isLoading && classes.length === 0">
+    <span nz-icon nzType="cluster"></span>
+    <h3>Chưa có lớp nào</h3>
+    <p>Tạo lớp (vd "Toán 1A · T2-4-6 · 19h") → ghi danh HS → bấm "Xếp lịch" — cả tháng xong trong 1 phút.</p>
+    <button nz-button nzType="primary" nzSize="large" (click)="onAdd()">
+      <span nz-icon nzType="plus"></span> Tạo lớp đầu tiên
+    </button>
+  </section>
+
+  <!-- Grid lớp -->
+  <section class="cls__grid" *ngIf="classes.length > 0">
+    <div class="class-card" *ngFor="let c of classes; trackBy: trackById"
+         [class.is-inactive]="!c.isActive" (click)="onOpen(c)">
+      <div class="class-card__head">
+        <span class="class-card__name">{{ c.name }}</span>
+        <span class="class-card__badge" *ngIf="!c.isActive">Đã đóng</span>
+      </div>
+      <div class="class-card__subject" *ngIf="c.subject">
+        <span nz-icon nzType="book"></span> {{ c.subject }}
+      </div>
+      <div class="class-card__schedule">
+        <span nz-icon nzType="calendar"></span> {{ scheduleLabel(c) }}
+      </div>
+      <div class="class-card__foot">
+        <span class="class-card__members"><span nz-icon nzType="team"></span> {{ c.memberCount || 0 }} HS</span>
+        <span class="class-card__rate">{{ fmt(c.defaultRatePerLesson) }}đ<small>/buổi/HS</small></span>
+      </div>
+    </div>
+  </section>
+</div>

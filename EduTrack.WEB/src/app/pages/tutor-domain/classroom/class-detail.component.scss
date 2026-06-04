@@ -1,0 +1,116 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.cld {
+  @include page-container;
+  padding-bottom: $sp-10;
+
+  &__header {
+    @include hero-gradient;
+    padding: $sp-4;
+    display: flex; align-items: center; gap: $sp-3;
+  }
+  &__back, &__edit {
+    @include glass;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    position: relative; z-index: 1;
+    &:hover { background: rgba(255,255,255,0.28); }
+  }
+  &__title {
+    flex: 1;
+    font-size: $fs-h2; font-weight: $fw-semi; color: #fff;
+    margin: 0; text-align: center;
+    position: relative; z-index: 1;
+    @include truncate;
+  }
+
+  &__info {
+    background: $surface;
+    border-radius: $radius-lg $radius-lg 0 0;
+    margin-top: -$sp-2;
+    padding: $sp-5 $sp-4;
+    @include tablet-up { max-width: 720px; margin-left: auto; margin-right: auto; }
+  }
+  &__info-row {
+    display: flex; flex-wrap: wrap; gap: $sp-2 $sp-4;
+    margin-bottom: $sp-4;
+  }
+  &__info-item {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: $fs-sm; color: $text-2;
+    [nz-icon] { color: $primary; font-size: 14px; }
+  }
+  &__info-badge {
+    font-size: $fs-caption; font-weight: $fw-semi;
+    background: $bg-strong; color: $text-3;
+    padding: 2px 10px; border-radius: $radius-pill;
+  }
+  &__generate {
+    width: 100%;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    @include tablet-up { width: auto; min-width: 260px; }
+  }
+
+  &__section {
+    background: $surface;
+    margin-top: $sp-2;
+    padding: $sp-5 $sp-4;
+    @include tablet-up { max-width: 720px; margin-left: auto; margin-right: auto; }
+  }
+  &__section-title {
+    display: flex; align-items: center; gap: $sp-2;
+    font-size: $fs-h3; font-weight: $fw-semi; color: $text-1;
+    margin: 0 0 $sp-3;
+  }
+  &__count { @include chip($primary-soft, $primary); }
+  &__add-member {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 1px solid $primary; background: $surface; color: $primary;
+    font-size: $fs-xs; font-weight: $fw-semi;
+    padding: 4px 12px; border-radius: $radius-pill;
+    cursor: pointer; transition: all $t-fast;
+    &:hover { background: $primary; color: #fff; }
+  }
+
+  &__empty {
+    text-align: center; color: $text-3;
+    padding: $sp-6 $sp-2;
+    [nz-icon] { font-size: 32px; display: block; margin-bottom: $sp-2; opacity: 0.5; }
+  }
+
+  &__loading { padding: $sp-10; text-align: center; }
+}
+
+.member-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: $sp-2; }
+.member-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: $sp-3 $sp-4;
+
+  &__name { font-weight: $fw-semi; color: $text-1; }
+  &__rate { display: block; font-size: $fs-sm; color: $text-2; margin-top: 2px; }
+  &__custom {
+    font-style: normal;
+    margin-left: 6px;
+    padding: 1px 8px; border-radius: 8px;
+    background: $accent-soft; color: $accent-dark;
+    font-size: $fs-caption; font-weight: $fw-semi;
+  }
+  &__actions { display: flex; gap: $sp-1; }
+  &__btn {
+    width: 30px; height: 30px;
+    border: 1px solid $border; background: $surface;
+    border-radius: 8px; color: $text-3; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all $t-fast;
+    &:hover { color: $primary; border-color: $primary; }
+    &--danger:hover { color: $danger; border-color: $danger; }
+  }
+}

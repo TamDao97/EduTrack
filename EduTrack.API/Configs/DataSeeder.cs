@@ -65,6 +65,7 @@ namespace EduTrack.API.Configs
             {
                 ("Dashboard",      "dashboard", "dashboard",   1),
                 ("Học sinh",       "student",   "solution",    2),
+                ("Lớp học",        "classroom", "cluster",     3),
                 ("Lịch dạy",       "lesson",    "calendar",    3),
                 ("Hộp nhắc",       "inbox",     "bell",        4),
                 ("Học phí",        "tuition",   "dollar",      5),

@@ -19,6 +19,7 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public string? Notes { get; set; }
         public Guid? IdTuitionPeriod { get; set; }
         public Guid? GroupKey { get; set; }
+        public Guid? IdClass { get; set; }
     }
 
     /// <summary>Lesson kèm tên HS — dùng cho lịch tuần / inbox nhắc.</summary>
@@ -26,8 +27,10 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
     {
         public string? StudentFullName { get; set; }
         public string? ParentPhone { get; set; }
-        /// <summary>Tên môn của buổi (từ StudentCourse) — null với buổi cũ chưa gắn môn.</summary>
+        /// <summary>Tên môn của buổi (từ StudentCourse hoặc môn của Lớp) — null nếu chưa gắn.</summary>
         public string? CourseSubject { get; set; }
+        /// <summary>Tên lớp nếu buổi sinh từ ClassRoom — hiện badge trên lịch.</summary>
+        public string? ClassName { get; set; }
     }
 
     public class LessonGridFilter : GridFilterBase

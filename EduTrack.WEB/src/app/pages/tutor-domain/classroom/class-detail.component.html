@@ -1,0 +1,66 @@
+<div class="cld" *ngIf="cls; else loadingTpl">
+  <!-- Header -->
+  <header class="cld__header">
+    <button class="cld__back" (click)="onBack()" aria-label="Quay lại">
+      <span nz-icon nzType="arrow-left"></span>
+    </button>
+    <h1 class="cld__title">{{ cls.name }}</h1>
+    <button class="cld__edit" (click)="onEdit()" aria-label="Sửa lớp">
+      <span nz-icon nzType="edit"></span>
+    </button>
+  </header>
+
+  <!-- Info -->
+  <section class="cld__info">
+    <div class="cld__info-row">
+      <span class="cld__info-item" *ngIf="cls.subject"><span nz-icon nzType="book"></span> {{ cls.subject }}</span>
+      <span class="cld__info-item"><span nz-icon nzType="calendar"></span> {{ scheduleLabel() }}</span>
+      <span class="cld__info-item" *ngIf="cls.location"><span nz-icon nzType="environment"></span> {{ cls.location }}</span>
+      <span class="cld__info-item"><span nz-icon nzType="dollar"></span> {{ fmt(cls.defaultRatePerLesson) }}đ/buổi/HS</span>
+      <span class="cld__info-badge" *ngIf="!cls.isActive">Đã đóng</span>
+    </div>
+    <button class="cld__generate" nz-button nzType="primary" nzSize="large" (click)="onGenerate()">
+      <span nz-icon nzType="thunderbolt"></span> Xếp lịch cho cả lớp
+    </button>
+  </section>
+
+  <!-- Members -->
+  <section class="cld__section">
+    <h3 class="cld__section-title">
+      Học sinh trong lớp
+      <span class="cld__count" *ngIf="cls.members.length">{{ cls.members.length }}</span>
+      <button class="cld__add-member" (click)="onAddMember()">
+        <span nz-icon nzType="user-add"></span> Ghi danh
+      </button>
+    </h3>
+
+    <div class="cld__empty" *ngIf="cls.members.length === 0">
+      <span nz-icon nzType="team"></span>
+      Chưa có học sinh — bấm "Ghi danh" để thêm các em vào lớp.
+    </div>
+
+    <ul class="member-list" *ngIf="cls.members.length > 0">
+      <li class="member-row" *ngFor="let m of cls.members; trackBy: trackById">
+        <div class="member-row__info">
+          <span class="member-row__name">{{ m.studentFullName }}</span>
+          <span class="member-row__rate">
+            {{ fmt(m.effectiveRate || 0) }}đ/buổi
+            <em *ngIf="m.rateOverride != null" class="member-row__custom">giá riêng</em>
+          </span>
+        </div>
+        <div class="member-row__actions">
+          <button class="member-row__btn" (click)="onEditMember(m)" title="Giá riêng">
+            <span nz-icon nzType="edit"></span>
+          </button>
+          <button class="member-row__btn member-row__btn--danger" (click)="onRemoveMember(m)" title="Rời lớp">
+            <span nz-icon nzType="user-delete"></span>
+          </button>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="cld__loading"><nz-spin nzSize="large" [nzSpinning]="isLoading"></nz-spin></div>
+</ng-template>

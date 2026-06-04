@@ -25,6 +25,8 @@ import { AdminPaymentsComponent } from './pages/admin/admin-payments.component';
 import { BillingComponent } from './pages/tutor-domain/billing/billing.component';
 import { ReportComponent } from './pages/tutor-domain/report/report.component';
 import { FeedbackComponent } from './pages/tutor-domain/feedback/feedback.component';
+import { ClassListComponent } from './pages/tutor-domain/classroom/class-list.component';
+import { ClassDetailComponent } from './pages/tutor-domain/classroom/class-detail.component';
 import { AdminFeedbackComponent } from './pages/admin/admin-feedback.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { DesignGalleryComponent } from './_demo/design-gallery.component';
@@ -57,6 +59,8 @@ export const routes: Routes = [
       { path: 'student',      component: StudentListComponent,       canActivate: [AuthGuard] },
       { path: 'student/:id',  component: StudentDetailComponent,     canActivate: [AuthGuard] },
       { path: 'lesson',       component: LessonWeekComponent,        canActivate: [AuthGuard] },
+      { path: 'classroom',    component: ClassListComponent,         canActivate: [AuthGuard] },
+      { path: 'classroom/:id', component: ClassDetailComponent,      canActivate: [AuthGuard] },
       { path: 'inbox',        component: NotificationInboxComponent, canActivate: [AuthGuard] },
       { path: 'tuition',      component: TuitionListComponent,       canActivate: [AuthGuard] },
       { path: 'settings',     component: SettingsComponent,          canActivate: [AuthGuard] },

@@ -1,0 +1,38 @@
+<form nz-form [formGroup]="frmGroup" class="member-form" nzLayout="vertical">
+  <nz-form-item *ngIf="!isEdit">
+    <nz-form-label nzRequired>Học sinh</nz-form-label>
+    <nz-form-control nzErrorTip="Chọn học sinh">
+      <nz-select formControlName="idStudent" nzShowSearch nzPlaceHolder="Tìm tên HS…">
+        <nz-option *ngFor="let s of students" [nzValue]="s.id" [nzLabel]="s.fullName"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="member-form__name" *ngIf="isEdit">
+    {{ params?.member?.studentFullName }}
+  </div>
+
+  <nz-form-item>
+    <nz-form-control>
+      <label nz-checkbox formControlName="useCustomRate">
+        Giá riêng cho em này <small>(mặc định theo giá lớp: {{ fmtVnd(params?.defaultRate || 0) }}đ/buổi)</small>
+      </label>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="frmGroup.value.useCustomRate">
+    <nz-form-label>Giá riêng / buổi (đ)</nz-form-label>
+    <nz-form-control>
+      <nz-input-number formControlName="rateOverride" class="full-w"
+                       [nzMin]="0" [nzStep]="50000"
+                       [nzFormatter]="formatVnd" [nzParser]="parseVnd"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="member-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      {{ isEdit ? 'Cập nhật' : 'Ghi danh' }}
+    </button>
+  </div>
+</form>

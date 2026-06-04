@@ -1,0 +1,33 @@
+<form nz-form [formGroup]="frmGroup" class="schedule-form" nzLayout="vertical">
+  <div class="schedule-form__info">
+    <span nz-icon nzType="calendar"></span>
+    Lịch lớp: <strong>{{ params?.scheduleLabel }}</strong> — hệ thống sẽ tự sinh buổi cho
+    <strong>từng học sinh</strong> theo lịch này (đã xếp rồi thì không tạo trùng).
+  </div>
+
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Từ ngày</nz-form-label>
+        <nz-form-control>
+          <nz-date-picker formControlName="startDate" nzFormat="dd/MM/yyyy" class="full-w"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Số tuần</nz-form-label>
+        <nz-form-control>
+          <nz-input-number formControlName="numberOfWeeks" [nzMin]="1" [nzMax]="52" class="full-w"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <div class="schedule-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      Xếp lịch
+    </button>
+  </div>
+</form>

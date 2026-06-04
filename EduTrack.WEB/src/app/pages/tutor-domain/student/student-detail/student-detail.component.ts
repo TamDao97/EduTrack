@@ -10,7 +10,9 @@ import { StatusCode } from '../../../../shared/utils/enums';
 import { TdBaseComponent } from '../../../../shared/utils/extends-components/td-base.component';
 import { StudentService } from '../../../../services/tutor-domain/student.service';
 import { StudentCourseService } from '../../../../services/tutor-domain/student-course.service';
+import { ClassRoomService } from '../../../../services/tutor-domain/class-room.service';
 import { IStudentCourse } from '../../../../interfaces/IStudentCourse';
+import { IStudentClass } from '../../../../interfaces/IClassRoom';
 import { StudentFormComponent } from '../student-form/student-form.component';
 import { CourseFormComponent } from '../course-form/course-form.component';
 
@@ -30,15 +32,25 @@ export class StudentDetailComponent extends TdBaseComponent implements OnInit {
   private _toast = inject(ToastService);
   private _service = inject(StudentService);
   private _courseService = inject(StudentCourseService);
+  private _classService = inject(ClassRoomService);
 
   student: IStudentDetail | null = null;
   courses: IStudentCourse[] = [];
+  classes: IStudentClass[] = [];
   isLoading = false;
 
   ngOnInit() {
     const id = this._route.snapshot.paramMap.get('id');
-    if (id) { this.load(id); this.loadCourses(id); }
+    if (id) { this.load(id); this.loadCourses(id); this.loadClasses(id); }
   }
+
+  loadClasses(idStudent: string) {
+    this._classService.getByStudent(idStudent).subscribe((rs) => {
+      if (rs.status === StatusCode.Ok) this.classes = rs.data ?? [];
+    });
+  }
+
+  onOpenClass(c: IStudentClass) { this._router.navigate(['/classroom', c.idClass]); }
 
   loadCourses(idStudent: string) {
     this._courseService.getByStudent(idStudent).subscribe((rs) => {

@@ -81,8 +81,8 @@
             <div class="lesson-card__name">
               {{ l.studentFullName || '—' }}
               <span class="lesson-card__subject" *ngIf="l.courseSubject">{{ l.courseSubject }}</span>
-              <span class="lesson-card__group" *ngIf="l.groupKey" title="Buổi học nhóm">
-                <span nz-icon nzType="team"></span> Nhóm
+              <span class="lesson-card__group" *ngIf="l.groupKey" [title]="l.className || 'Buổi học nhóm'">
+                <span nz-icon nzType="team"></span> {{ l.className || 'Nhóm' }}
               </span>
             </div>
             <div class="lesson-card__meta">

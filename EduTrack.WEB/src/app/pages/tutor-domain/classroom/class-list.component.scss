@@ -1,0 +1,87 @@
+@use 'palette' as *;
+@use 'mixins' as *;
+
+.cls {
+  @include page-container;
+  padding-bottom: $sp-10;
+
+  &__hero {
+    @include hero-gradient;
+    padding: $sp-5 $sp-4 $sp-8;
+  }
+  &__hero-top {
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; z-index: 1;
+  }
+  &__title { font-size: $fs-h2; font-weight: $fw-semi; color: #fff; margin: 0; }
+  &__subtitle { color: rgba(255,255,255,0.85); font-size: $fs-sm; margin: $sp-1 0 0; position: relative; z-index: 1; }
+  &__add-btn {
+    @include glass;
+    height: 40px; padding: 0 $sp-4;
+    color: #fff; border-radius: 20px;
+    font-size: $fs-body; font-weight: $fw-semi;
+    display: inline-flex; align-items: center; gap: $sp-2;
+    cursor: pointer;
+    &:hover { background: rgba(255,255,255,0.28); }
+  }
+
+  &__loading { padding: $sp-8; text-align: center; }
+
+  &__empty {
+    background: $surface;
+    border-radius: $radius-lg $radius-lg 0 0;
+    margin-top: -$sp-2;
+    padding: $sp-10 $sp-4;
+    text-align: center;
+    color: $text-3;
+
+    [nz-icon] { font-size: 40px; opacity: 0.4; display: block; margin-bottom: $sp-3; }
+    h3 { color: $text-1; margin: 0 0 $sp-2; }
+    p { max-width: 380px; margin: 0 auto $sp-4; font-size: $fs-sm; }
+  }
+
+  &__grid {
+    background: $surface;
+    border-radius: $radius-lg $radius-lg 0 0;
+    margin-top: -$sp-2;
+    padding: $sp-5 $sp-4;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $sp-3;
+    @include tablet-up { grid-template-columns: repeat(2, 1fr); max-width: 900px; margin-left: auto; margin-right: auto; }
+  }
+}
+
+.class-card {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: $sp-4;
+  cursor: pointer;
+  transition: all $t-fast;
+
+  &:hover { border-color: $primary; box-shadow: $shadow; transform: translateY(-1px); }
+  &.is-inactive { opacity: 0.6; }
+
+  &__head { display: flex; align-items: center; justify-content: space-between; }
+  &__name { font-size: $fs-body-lg; font-weight: $fw-bold; color: $text-1; }
+  &__badge {
+    font-size: $fs-caption; font-weight: $fw-semi;
+    background: $bg-strong; color: $text-3;
+    padding: 2px 10px; border-radius: $radius-pill;
+  }
+  &__subject, &__schedule {
+    margin-top: $sp-1;
+    font-size: $fs-sm; color: $text-2;
+    display: flex; align-items: center; gap: 6px;
+    [nz-icon] { color: $text-3; font-size: 13px; }
+  }
+  &__foot {
+    margin-top: $sp-3;
+    padding-top: $sp-2;
+    border-top: 1px dashed $border;
+    display: flex; align-items: baseline; justify-content: space-between;
+  }
+  &__members { font-size: $fs-sm; color: $text-2; [nz-icon] { font-size: 13px; color: $primary; } }
+  &__rate { font-weight: $fw-bold; color: $primary-dark; small { font-weight: $fw-normal; color: $text-3; } }
+}

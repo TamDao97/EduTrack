@@ -27,6 +27,7 @@ namespace EduTrack.API.Services.TutorDomain
         private readonly ITDRepository<Lesson> _lessonRepos;
         private readonly ITDRepository<TuitionPeriod> _periodRepos;
         private readonly ITDRepository<StudentCourse> _courseRepos;
+        private readonly ITDRepository<ClassRoom> _classRepos;
 
         public ReportService(IUnitOfWork uow, IUserContextService userContext)
         {
@@ -35,6 +36,7 @@ namespace EduTrack.API.Services.TutorDomain
             _lessonRepos = uow.GetRepository<Lesson>();
             _periodRepos = uow.GetRepository<TuitionPeriod>();
             _courseRepos = uow.GetRepository<StudentCourse>();
+            _classRepos = uow.GetRepository<ClassRoom>();
         }
 
         public async Task<Response<TutorReportDto>> GetMyReportAsync()
@@ -121,14 +123,17 @@ namespace EduTrack.API.Services.TutorDomain
                 .ToListAsync();
 
             // ── Doanh thu theo MÔN (6 tháng, theo ChargeAmount các buổi Done) ──
+            // Môn: từ đăng ký 1-1 (StudentCourse) hoặc môn của Lớp (buổi sinh từ ClassRoom)
             var revenueBySubject = await (from l in _lessonRepos.TableNoTracking
                                           join c in _courseRepos.TableNoTracking on l.IdCourse equals c.Id into cj
                                           from c in cj.DefaultIfEmpty()
+                                          join k in _classRepos.TableNoTracking on l.IdClass equals k.Id into kj
+                                          from k in kj.DefaultIfEmpty()
                                           where l.IdTutor == idTutor
                                              && l.Status == LessonStatusEnums.Done
                                              && (l.ScheduledDate.Year > fromYear
                                               || (l.ScheduledDate.Year == fromYear && l.ScheduledDate.Month >= fromMonth))
-                                          group l by (c != null ? c.Subject : "Khác") into g
+                                          group l by (c != null ? c.Subject : (k != null && k.Subject != null ? k.Subject : "Khác")) into g
                                           select new SubjectRevenueDto
                                           {
                                               Subject = g.Key,

@@ -181,9 +181,12 @@ namespace EduTrack.API.Services.TutorDomain
                 return Response<TuitionPreviewDto>.Error(StatusCode.BadRequest, "Học sinh không hợp lệ");
 
             var courseRepos = _unitOfWork.GetRepository<StudentCourse>();
+            var classRepos = _unitOfWork.GetRepository<ClassRoom>();
             var lessons = await (from l in _lessonRepos.TableNoTracking
                                  join c in courseRepos.TableNoTracking on l.IdCourse equals c.Id into cj
                                  from c in cj.DefaultIfEmpty()
+                                 join k in classRepos.TableNoTracking on l.IdClass equals k.Id into kj
+                                 from k in kj.DefaultIfEmpty()
                                  where l.IdTutor == idTutor
                                     && l.IdStudent == idStudent
                                     && l.Status == LessonStatusEnums.Done
@@ -198,7 +201,8 @@ namespace EduTrack.API.Services.TutorDomain
                                      StartTime = l.StartTime.ToString(@"hh\:mm"),
                                      EndTime = l.EndTime.ToString(@"hh\:mm"),
                                      ChargeAmount = l.ChargeAmount,
-                                     Subject = c != null ? c.Subject : null,
+                                     // Môn: từ đăng ký 1-1, hoặc môn của lớp (buổi sinh từ ClassRoom)
+                                     Subject = c != null ? c.Subject : (k != null ? k.Subject : null),
                                  }).ToListAsync();
 
             // Đếm buổi còn "Đã lên lịch" trong tháng — để FE giải thích vì sao 0 buổi Done

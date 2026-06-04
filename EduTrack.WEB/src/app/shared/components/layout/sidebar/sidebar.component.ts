@@ -48,6 +48,7 @@ export class SidebarComponent implements OnInit {
   private readonly iconMap: { [key: string]: { type: string; color: string } } = {
     'dashboard':   { type: 'dashboard', color: '#3b5bdb' },
     'student':     { type: 'solution',  color: '#f76707' },
+    'classroom':   { type: 'cluster',   color: '#7C3AED' },
     'lesson':      { type: 'calendar',  color: '#0c8599' },
     'inbox':       { type: 'bell',      color: '#faad14' },
     'tuition':     { type: 'dollar',    color: '#c92a2a' },

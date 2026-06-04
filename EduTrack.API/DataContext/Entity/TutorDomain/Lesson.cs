@@ -45,5 +45,8 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
         /// chỉ để gắn kết hiển thị + tạo 1 lần. Null = buổi 1-1 bình thường.
         /// </summary>
         public Guid? GroupKey { get; set; }
+
+        /// <summary>Buổi sinh từ LỚP HỌC nào (ClassRoom) — null = buổi 1-1 / nhóm ad-hoc.</summary>
+        public Guid? IdClass { get; set; }
     }
 }

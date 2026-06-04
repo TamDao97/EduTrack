@@ -1,0 +1,81 @@
+<form nz-form [formGroup]="frmGroup" class="class-form" nzLayout="vertical">
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="14">
+      <nz-form-item>
+        <nz-form-label nzRequired>Tên lớp</nz-form-label>
+        <nz-form-control nzErrorTip="Nhập tên lớp">
+          <input nz-input formControlName="name" maxlength="100" placeholder="Toán 1A, Anh văn 5B…" />
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="10">
+      <nz-form-item>
+        <nz-form-label>Môn</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="subject" maxlength="100" placeholder="Toán, Anh…" />
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Học phí / buổi / học sinh (đ)</nz-form-label>
+    <nz-form-control nzErrorTip="Nhập giá buổi">
+      <nz-input-number formControlName="defaultRatePerLesson" class="full-w"
+                       [nzMin]="0" [nzStep]="50000"
+                       [nzFormatter]="formatVnd" [nzParser]="parseVnd"></nz-input-number>
+      <small class="class-form__hint">Em đặc biệt có thể set giá riêng khi ghi danh.</small>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Lịch hàng tuần</nz-form-label>
+    <nz-form-control>
+      <div class="class-form__dow">
+        <button type="button" class="class-form__dow-chip"
+                *ngFor="let d of weekDays"
+                [class.is-on]="isDayOn(d.value)"
+                (click)="toggleDay(d.value)">{{ d.label }}</button>
+      </div>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Bắt đầu</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="startTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Kết thúc</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="endTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label>Địa điểm</nz-form-label>
+    <nz-form-control>
+      <input nz-input formControlName="location" placeholder="Nhà cô · Trung tâm · Online…" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item *ngIf="isEdit">
+    <nz-form-control>
+      <label nz-checkbox formControlName="isActive">Lớp đang hoạt động (cho phép xếp lịch)</label>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="class-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      {{ isEdit ? 'Cập nhật' : 'Tạo lớp' }}
+    </button>
+  </div>
+</form>
