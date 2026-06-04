@@ -59,6 +59,28 @@
     </div>
   </div>
 
+  <!-- Thời gian mở lớp — xếp lịch chỉ sinh buổi trong khoảng này -->
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Khai giảng</nz-form-label>
+        <nz-form-control>
+          <nz-date-picker formControlName="startDate" nzFormat="dd/MM/yyyy"
+                          nzPlaceHolder="Không xác định" class="full-w"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label>Kết thúc khoá</nz-form-label>
+        <nz-form-control>
+          <nz-date-picker formControlName="endDate" nzFormat="dd/MM/yyyy"
+                          nzPlaceHolder="Dạy dài hạn" class="full-w"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
   <nz-form-item>
     <nz-form-label>Địa điểm</nz-form-label>
     <nz-form-control>

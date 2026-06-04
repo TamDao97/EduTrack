@@ -157,6 +157,8 @@ namespace EduTrack.API.Services.TutorDomain
                 StartTime = dto.StartTime,
                 EndTime = dto.EndTime,
                 Location = dto.Location,
+                StartDate = dto.StartDate?.Date,
+                EndDate = dto.EndDate?.Date,
                 IsActive = dto.IsActive,
                 Notes = dto.Notes,
             };
@@ -182,8 +184,12 @@ namespace EduTrack.API.Services.TutorDomain
             entity.StartTime = dto.StartTime;
             entity.EndTime = dto.EndTime;
             entity.Location = dto.Location;
+            entity.StartDate = dto.StartDate?.Date;
+            entity.EndDate = dto.EndDate?.Date;
             entity.IsActive = dto.IsActive;
             entity.Notes = dto.Notes;
+            entity.MarkDirty(nameof(entity.StartDate));
+            entity.MarkDirty(nameof(entity.EndDate));
             entity.MarkDirty(nameof(entity.Name));
             entity.MarkDirty(nameof(entity.Subject));
             entity.MarkDirty(nameof(entity.DefaultRatePerLesson));
@@ -294,6 +300,13 @@ namespace EduTrack.API.Services.TutorDomain
             var from = req.StartDate.Date;
             var to = from.AddDays(7 * req.NumberOfWeeks);
 
+            // Cắt theo thời gian MỞ LỚP: không sinh buổi trước khai giảng / sau ngày kết thúc
+            if (cls.StartDate.HasValue && from < cls.StartDate.Value.Date) from = cls.StartDate.Value.Date;
+            if (cls.EndDate.HasValue && to > cls.EndDate.Value.Date.AddDays(1)) to = cls.EndDate.Value.Date.AddDays(1);
+            if (from >= to)
+                return Response<int>.Error(StatusCode.BadRequest,
+                    "Khoảng xếp lịch nằm ngoài thời gian mở lớp (khai giảng → kết thúc)");
+
             // Buổi đã tồn tại của lớp trong khoảng → idempotent
             var existing = await _lessonRepos.TableNoTracking
                 .Where(l => l.IdClass == cls.Id && l.ScheduledDate >= from && l.ScheduledDate < to)
@@ -365,6 +378,8 @@ namespace EduTrack.API.Services.TutorDomain
             if (dto.DefaultRatePerLesson < 0) return "Giá buổi không hợp lệ";
             if (ParseDays(dto.DaysOfWeek).Count == 0) return "Chọn ít nhất 1 thứ trong tuần";
             if (dto.EndTime <= dto.StartTime) return "Giờ kết thúc phải sau giờ bắt đầu";
+            if (dto.StartDate.HasValue && dto.EndDate.HasValue && dto.EndDate.Value.Date < dto.StartDate.Value.Date)
+                return "Ngày kết thúc phải sau ngày khai giảng";
             return null;
         }
 

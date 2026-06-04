@@ -17,6 +17,10 @@
       <span class="cld__info-item"><span nz-icon nzType="calendar"></span> {{ scheduleLabel() }}</span>
       <span class="cld__info-item" *ngIf="cls.location"><span nz-icon nzType="environment"></span> {{ cls.location }}</span>
       <span class="cld__info-item"><span nz-icon nzType="dollar"></span> {{ fmt(cls.defaultRatePerLesson) }}đ/buổi/HS</span>
+      <span class="cld__info-item" *ngIf="cls.startDate || cls.endDate">
+        <span nz-icon nzType="flag"></span>
+        {{ cls.startDate ? (cls.startDate | date:'dd/MM/yyyy') : '—' }} → {{ cls.endDate ? (cls.endDate | date:'dd/MM/yyyy') : 'dài hạn' }}
+      </span>
       <span class="cld__info-badge" *ngIf="!cls.isActive">Đã đóng</span>
     </div>
     <button class="cld__generate" nz-button nzType="primary" nzSize="large" (click)="onGenerate()">

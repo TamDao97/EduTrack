@@ -35,6 +35,12 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
         [MaxLength(500)]
         public string? Location { get; set; }
 
+        /// <summary>Ngày khai giảng (mở lớp) — null = không xác định.</summary>
+        public DateTime? StartDate { get; set; }
+
+        /// <summary>Ngày kết thúc khoá — null = dạy dài hạn. Xếp lịch không sinh buổi sau ngày này.</summary>
+        public DateTime? EndDate { get; set; }
+
         /// <summary>false = lớp đã đóng (không xếp lịch mới).</summary>
         public bool IsActive { get; set; } = true;
 

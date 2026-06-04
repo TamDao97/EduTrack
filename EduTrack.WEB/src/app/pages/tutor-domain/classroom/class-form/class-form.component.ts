@@ -49,6 +49,8 @@ export class ClassFormComponent extends TdBaseComponent implements OnInit {
       startTime: [start, Validators.required],
       endTime: [end, Validators.required],
       location: [''],
+      startDate: [null],
+      endDate: [null],
       isActive: [true],
       notes: [''],
     });
@@ -60,6 +62,8 @@ export class ClassFormComponent extends TdBaseComponent implements OnInit {
         ...c,
         startTime: this.parseTime(c.startTime),
         endTime: this.parseTime(c.endTime),
+        startDate: c.startDate ? new Date(c.startDate) : null,
+        endDate: c.endDate ? new Date(c.endDate) : null,
       });
       this.selectedDays = (c.daysOfWeek || '').split(',')
         .map(s => parseInt(s, 10)).filter(n => !isNaN(n));
@@ -82,11 +86,17 @@ export class ClassFormComponent extends TdBaseComponent implements OnInit {
       return;
     }
     const v = this.frmGroup.value;
+    if (v.startDate && v.endDate && v.endDate < v.startDate) {
+      this._toast.warning(StatusResponseTitle.WARNING, 'Ngày kết thúc phải sau ngày khai giảng');
+      return;
+    }
     const payload: IClassRoom = {
       ...v,
       daysOfWeek: this.selectedDays.join(','),
       startTime: this.formatTime(v.startTime),
       endTime: this.formatTime(v.endTime),
+      startDate: v.startDate ? this.toISODate(v.startDate) : null,
+      endDate: v.endDate ? this.toISODate(v.endDate) : null,
       defaultRatePerLesson: +v.defaultRatePerLesson || 0,
     };
     this.isSubmitting = true;
@@ -108,6 +118,10 @@ export class ClassFormComponent extends TdBaseComponent implements OnInit {
 
   formatVnd = (v: number): string => v == null ? '' : String(v).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   parseVnd = (v: string): string => v.replace(/\./g, '');
+
+  private toISODate(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
 
   private parseTime(t: string): Date {
     const [h, m] = (t || '00:00:00').split(':').map(n => parseInt(n, 10));

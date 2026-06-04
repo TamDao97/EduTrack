@@ -20,6 +20,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
         public string? Location { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public bool IsActive { get; set; } = true;
         public string? Notes { get; set; }
         /// <summary>Số HS đang ghi danh — fill khi list.</summary>

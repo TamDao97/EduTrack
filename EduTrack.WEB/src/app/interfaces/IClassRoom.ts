@@ -10,6 +10,10 @@ export interface IClassRoom {
   startTime: string; // "HH:mm:ss"
   endTime: string;
   location?: string | null;
+  /** Ngày khai giảng — null = không xác định */
+  startDate?: string | null;
+  /** Ngày kết thúc khoá — null = dài hạn; xếp lịch không sinh buổi sau ngày này */
+  endDate?: string | null;
   isActive: boolean;
   notes?: string | null;
   memberCount?: number;

@@ -51,6 +51,10 @@
       <div class="class-card__schedule">
         <span nz-icon nzType="calendar"></span> {{ scheduleLabel(c) }}
       </div>
+      <div class="class-card__schedule" *ngIf="c.startDate || c.endDate">
+        <span nz-icon nzType="flag"></span>
+        {{ c.startDate ? (c.startDate | date:'dd/MM/yyyy') : '—' }} → {{ c.endDate ? (c.endDate | date:'dd/MM/yyyy') : 'dài hạn' }}
+      </div>
       <div class="class-card__foot">
         <span class="class-card__members"><span nz-icon nzType="team"></span> {{ c.memberCount || 0 }} HS</span>
         <span class="class-card__rate">{{ fmt(c.defaultRatePerLesson) }}đ<small>/buổi/HS</small></span>
