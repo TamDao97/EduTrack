@@ -45,6 +45,7 @@ namespace EduTrack.API.DataContext
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<SubscriptionPayment> SubscriptionPayments { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,0 +1,90 @@
+<div class="fb">
+  <!-- Hero -->
+  <header class="fb__hero">
+    <h1 class="fb__title">Góp ý</h1>
+    <p class="fb__subtitle">Ý kiến của bạn giúp EduTrack tốt hơn mỗi ngày 💜</p>
+  </header>
+
+  <!-- Form gửi góp ý -->
+  <section class="fb__section">
+    <form nz-form [formGroup]="frmGroup" nzLayout="vertical">
+      <div class="fb__card">
+        <!-- Loại góp ý — chip chọn nhanh -->
+        <div class="fb__field">
+          <label>Bạn muốn gửi gì?</label>
+          <div class="fb__types">
+            <button type="button" class="fb__type-chip"
+                    *ngFor="let t of typeOptions"
+                    [class.is-active]="frmGroup.value.type === t.value"
+                    (click)="selectType(t.value)">
+              <span nz-icon [nzType]="t.icon"></span> {{ t.label }}
+            </button>
+          </div>
+        </div>
+
+        <div class="fb__field">
+          <label>Mức hài lòng với EduTrack <small>(tuỳ chọn)</small></label>
+          <nz-rate formControlName="rating" [nzAllowClear]="true"></nz-rate>
+        </div>
+
+        <div class="fb__field">
+          <label>Tiêu đề <span class="fb__req">*</span></label>
+          <input nz-input formControlName="title" maxlength="200"
+                 placeholder="Vd: Muốn có thêm thống kê thu nhập theo quý" />
+        </div>
+
+        <div class="fb__field">
+          <label>Nội dung chi tiết <span class="fb__req">*</span></label>
+          <textarea nz-input formControlName="content" rows="4"
+                    placeholder="Mô tả càng cụ thể, đội ngũ càng dễ hiểu đúng nhu cầu của bạn…"></textarea>
+        </div>
+
+        <button type="button" nz-button nzType="primary" nzSize="large" class="fb__submit"
+                (click)="onSubmit()" [nzLoading]="isSubmitting">
+          <span nz-icon nzType="send"></span> Gửi góp ý
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Danh sách góp ý đã gửi -->
+  <section class="fb__section">
+    <h3 class="fb__list-title">
+      Góp ý đã gửi
+      <span class="fb__list-count" *ngIf="myFeedbacks.length">{{ myFeedbacks.length }}</span>
+    </h3>
+
+    <div class="fb__loading" *ngIf="isLoading"><nz-spin nzSize="small"></nz-spin></div>
+
+    <div class="fb__empty" *ngIf="!isLoading && myFeedbacks.length === 0">
+      <span nz-icon nzType="inbox"></span>
+      Chưa có góp ý nào — hãy là người đầu tiên góp ý nhé!
+    </div>
+
+    <ul class="fb__list" *ngIf="myFeedbacks.length > 0">
+      <li class="fb__item" *ngFor="let f of myFeedbacks; trackBy: trackById">
+        <div class="fb__item-head">
+          <span class="fb__item-type"><span nz-icon [nzType]="typeIcon(f.type)"></span> {{ FeedbackTypeLabel[f.type] }}</span>
+          <span class="fb__item-status"
+                [style.color]="statusColor(f.status)"
+                [style.background]="statusSoft(f.status)">
+            {{ FeedbackStatusLabel[f.status || FeedbackStatus.Moi] }}
+          </span>
+        </div>
+        <div class="fb__item-title">{{ f.title }}</div>
+        <div class="fb__item-content">{{ f.content }}</div>
+        <div class="fb__item-meta">
+          <span *ngIf="f.rating">{{ f.rating }}⭐ · </span>{{ fmtDate(f.dateCreated) }}
+        </div>
+        <!-- Phản hồi của founder -->
+        <div class="fb__item-reply" *ngIf="f.adminNote">
+          <span nz-icon nzType="message" nzTheme="outline"></span>
+          <div>
+            <strong>Phản hồi từ EduTrack</strong>
+            <p>{{ f.adminNote }}</p>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </section>
+</div>

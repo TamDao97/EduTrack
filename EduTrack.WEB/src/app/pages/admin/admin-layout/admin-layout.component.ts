@@ -5,6 +5,8 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { filter } from 'rxjs';
 import { ICurrentUser } from '../../../shared/interfaces/ICurrentUser';
 import { AuthService } from '../../../shared/utils/services/auth.service';
+import { FeedbackService } from '../../../services/tutor-domain/feedback.service';
+import { StatusCode } from '../../../shared/utils/enums';
 
 /** 1 mục điều hướng trong Platform Console (hardcode — đây là công cụ nền tảng cố định). */
 interface IAdminNav {
@@ -32,22 +34,38 @@ export class AdminLayoutComponent implements OnInit {
   readonly navs: IAdminNav[] = [
     { url: '/admin/dashboard', label: 'Tổng quan',   icon: 'dashboard' },
     { url: '/admin/payments',  label: 'Thanh toán',  icon: 'dollar' },
+    { url: '/admin/feedback',  label: 'Góp ý',       icon: 'message' },
     { url: '/admin/users',     label: 'Người dùng',  icon: 'team' },
     { url: '/admin/roles',     label: 'Vai trò',     icon: 'safety' },
     { url: '/admin/pages',     label: 'Trang / Menu', icon: 'menu' },
     { url: '/admin/config',    label: 'Cấu hình',    icon: 'setting' },
   ];
 
-  constructor(private _router: Router) {}
+  /** Số góp ý "Mới" → badge đỏ trên nav Góp ý. */
+  newFeedbackCount = 0;
+
+  constructor(private _router: Router, private _feedbackService: FeedbackService) {}
 
   ngOnInit(): void {
     const auth = AuthService.getAuthStorage();
     if (auth) this.currentUser = JSON.parse(auth) as ICurrentUser;
 
-    // Đóng nav khi đổi route (mobile)
+    this.loadNewFeedbackCount();
+
+    // Đóng nav khi đổi route (mobile) + refresh badge góp ý
     this._router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe(() => (this.sidebarOpen = false));
+      .subscribe(() => {
+        this.sidebarOpen = false;
+        this.loadNewFeedbackCount();
+      });
+  }
+
+  private loadNewFeedbackCount(): void {
+    this._feedbackService.newCount().subscribe({
+      next: (rs) => { if (rs.status === StatusCode.Ok) this.newFeedbackCount = rs.data ?? 0; },
+      error: () => { /* im lặng — badge không quan trọng tới mức báo lỗi */ },
+    });
   }
 
   toggleSidebar(): void { this.sidebarOpen = !this.sidebarOpen; }

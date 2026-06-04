@@ -54,6 +54,7 @@ export class SidebarComponent implements OnInit {
     'report':      { type: 'bar-chart', color: '#0F766E' },
     'billing':     { type: 'credit-card', color: '#7C3AED' },
     'settings':    { type: 'setting',   color: '#475569' },
+    'feedback':    { type: 'message',   color: '#DB2777' },
     'admin':       { type: 'crown',     color: '#1A1F36' },
     'user':        { type: 'team',      color: '#1d4ed8' },
     'role':        { type: 'safety',    color: '#65a30d' },

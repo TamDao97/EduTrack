@@ -43,6 +43,10 @@
          routerLinkActive="is-active">
         <span class="console__nav-icon" nz-icon [nzType]="n.icon"></span>
         <span class="console__nav-label">{{ n.label }}</span>
+        <span class="console__nav-badge"
+              *ngIf="n.url === '/admin/feedback' && newFeedbackCount > 0">
+          {{ newFeedbackCount > 9 ? '9+' : newFeedbackCount }}
+        </span>
       </a>
     </nav>
 

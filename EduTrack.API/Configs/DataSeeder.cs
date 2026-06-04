@@ -21,6 +21,52 @@ namespace EduTrack.API.Configs
 
             await EnsureRolesAsync(db);
             await EnsureFounderAsync(db, config, logger);
+            await EnsurePagesAsync(db, logger);
+        }
+
+        /// <summary>
+        /// Đảm bảo các page sidebar chuẩn tồn tại (thêm page mới chỉ cần thêm dòng ở đây —
+        /// boot tự insert, không phải chạy SQL tay). Chỉ insert page THIẾU theo Url, không sửa page có sẵn.
+        /// </summary>
+        private static async Task EnsurePagesAsync(EduTrackDbContext db, ILogger logger)
+        {
+            // (Name, Url, Icon, Order) — PermissionCode null = mọi user đăng nhập đều thấy.
+            var seeds = new (string Name, string Url, string Icon, int Order)[]
+            {
+                ("Dashboard",      "dashboard", "dashboard",   1),
+                ("Học sinh",       "student",   "solution",    2),
+                ("Lịch dạy",       "lesson",    "calendar",    3),
+                ("Hộp nhắc",       "inbox",     "bell",        4),
+                ("Học phí",        "tuition",   "dollar",      5),
+                ("Báo cáo",        "report",    "bar-chart",   6),
+                ("Gói thanh toán", "billing",   "credit-card", 7),
+                ("Cài đặt",        "settings",  "setting",     8),
+                ("Góp ý",          "feedback",  "message",     9),
+            };
+
+            var existingUrls = await db.Pages.Select(p => p.Url).ToListAsync();
+            var added = 0;
+            foreach (var (name, url, icon, order) in seeds)
+            {
+                if (existingUrls.Contains(url)) continue;
+                db.Pages.Add(new Page
+                {
+                    Id = Guid.NewGuid(),
+                    Name = name,
+                    Url = url,
+                    Icon = icon,
+                    IsActive = true,
+                    IsTab = false,
+                    IsHomePage = url == "dashboard",
+                    Order = order,
+                });
+                added++;
+            }
+            if (added > 0)
+            {
+                await db.SaveChangesAsync();
+                logger.LogInformation("Page seeder: đã thêm {Count} page sidebar còn thiếu.", added);
+            }
         }
 
         /// <summary>Tạo role nghiệp vụ nếu thiếu — khớp với ScriptSql/Seed/2_Seed_InitData.sql.</summary>

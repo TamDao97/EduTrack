@@ -102,4 +102,32 @@ namespace EduTrack.API.DataContext.Enums
         [Description("Hoàn tiền")]
         Refunded = 3,
     }
+
+    /// <summary>Loại góp ý tutor gửi cho founder.</summary>
+    public enum FeedbackTypeEnums
+    {
+        [Description("Góp ý")]
+        GopY = 1,
+        [Description("Báo lỗi")]
+        BaoLoi = 2,
+        [Description("Đề xuất tính năng")]
+        TinhNang = 3,
+        [Description("Khác")]
+        Khac = 4,
+    }
+
+    /// <summary>Trạng thái xử lý góp ý — founder cập nhật, tutor nhìn thấy.</summary>
+    public enum FeedbackStatusEnums
+    {
+        [Description("Mới")]
+        Moi = 1,
+        [Description("Đang xem xét")]
+        DangXemXet = 2,
+        [Description("Sẽ làm")]
+        SeLam = 3,
+        [Description("Đã làm")]
+        DaLam = 4,
+        [Description("Từ chối")]
+        TuChoi = 5,
+    }
 }

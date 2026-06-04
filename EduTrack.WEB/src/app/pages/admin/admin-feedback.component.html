@@ -1,0 +1,75 @@
+<div class="ad">
+  <section class="ad__panel">
+    <div class="ad__toolbar">
+      <!-- Tabs trạng thái (dạng chip trong toolbar) -->
+      <div class="ad__filter-tabs">
+        <button *ngFor="let t of statusTabs" class="ad__filter-tab"
+                [class.is-active]="filter.status === t.value"
+                (click)="onSelectStatus(t.value)">{{ t.label }}</button>
+      </div>
+
+      <!-- Lọc loại -->
+      <nz-select class="ad__type-filter" [ngModel]="filter.type" (ngModelChange)="onTypeChange($event)"
+                 nzPlaceHolder="Mọi loại" style="min-width:170px">
+        <nz-option *ngFor="let o of typeOptions" [nzValue]="o.value" [nzLabel]="o.label"></nz-option>
+      </nz-select>
+
+      <span class="ad__total" *ngIf="!isLoading">{{ totalRecord }} góp ý</span>
+    </div>
+
+    <div class="ad__table-wrap">
+      <table class="ad-table">
+        <thead>
+          <tr>
+            <th>Tutor</th>
+            <th>Loại</th>
+            <th style="width:38%">Nội dung</th>
+            <th>Sao</th>
+            <th>Ngày gửi</th>
+            <th>Trạng thái</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let f of items; trackBy: trackById">
+            <tr>
+              <td>
+                <div class="t-name">{{ f.tutorDisplayName || '—' }}</div>
+                <div class="t-mail">{{ f.tutorUserName }}</div>
+              </td>
+              <td><span class="tag tag-basic">{{ FeedbackTypeLabel[f.type] }}</span></td>
+              <td>
+                <div class="t-name">{{ f.title }}</div>
+                <div class="text-muted small" style="white-space:pre-line">{{ f.content }}</div>
+              </td>
+              <td class="num">{{ f.rating ? f.rating + '⭐' : '—' }}</td>
+              <td>{{ fmtDate(f.dateCreated) }}</td>
+              <td><span class="tag" [ngClass]="statusClass(f.status)">{{ FeedbackStatusLabel[f.status || FeedbackStatus.Moi] }}</span></td>
+              <td>
+                <button nz-button nzSize="small" (click)="toggleReply(f)">
+                  {{ expandedId === f.id ? 'Đóng' : 'Phản hồi' }}
+                </button>
+              </td>
+            </tr>
+            <!-- Hàng phản hồi inline -->
+            <tr *ngIf="expandedId === f.id" class="reply-row">
+              <td colspan="7">
+                <div class="reply-box" *ngIf="edit[f.id!]">
+                  <nz-select [(ngModel)]="edit[f.id!].status" style="min-width:160px">
+                    <nz-option *ngFor="let s of statusOptions" [nzValue]="s" [nzLabel]="FeedbackStatusLabel[s]"></nz-option>
+                  </nz-select>
+                  <input nz-input [(ngModel)]="edit[f.id!].adminNote" maxlength="1000"
+                         placeholder="Phản hồi cho tutor (tutor sẽ nhìn thấy)…" />
+                  <button nz-button nzType="primary" (click)="onSave(f)" [nzLoading]="savingId === f.id">Lưu</button>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+          <tr *ngIf="items.length === 0 && !isLoading">
+            <td colspan="7" class="empty-row">Chưa có góp ý nào.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

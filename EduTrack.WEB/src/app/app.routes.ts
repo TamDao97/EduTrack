@@ -24,6 +24,8 @@ import { AdminDashboardComponent } from './pages/admin/admin-dashboard.component
 import { AdminPaymentsComponent } from './pages/admin/admin-payments.component';
 import { BillingComponent } from './pages/tutor-domain/billing/billing.component';
 import { ReportComponent } from './pages/tutor-domain/report/report.component';
+import { FeedbackComponent } from './pages/tutor-domain/feedback/feedback.component';
+import { AdminFeedbackComponent } from './pages/admin/admin-feedback.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { DesignGalleryComponent } from './_demo/design-gallery.component';
 import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
@@ -60,6 +62,7 @@ export const routes: Routes = [
       { path: 'settings',     component: SettingsComponent,          canActivate: [AuthGuard] },
       { path: 'billing',      component: BillingComponent,           canActivate: [AuthGuard] },
       { path: 'report',       component: ReportComponent,            canActivate: [AuthGuard] },
+      { path: 'feedback',     component: FeedbackComponent,          canActivate: [AuthGuard] },
     ],
   },
   // ─────────── Platform Console (founder, IsSuper) — shell + nav riêng ───────────
@@ -71,6 +74,7 @@ export const routes: Routes = [
       { path: '',          redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'payments',  component: AdminPaymentsComponent },
+      { path: 'feedback',  component: AdminFeedbackComponent },
       { path: 'users',     component: UserComponent },
       { path: 'roles',     component: RoleComponent },
       { path: 'pages',     component: PageComponent },

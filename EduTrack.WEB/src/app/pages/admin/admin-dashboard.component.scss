@@ -85,6 +85,32 @@
     @include tablet-up { padding: $sp-5 $sp-6; }
   }
 
+  // ─── Filter tabs dạng chip trong toolbar (màn Góp ý) ───
+  &__filter-tabs { display: flex; gap: $sp-1; flex-wrap: wrap; align-items: center; }
+  &__filter-tab {
+    background: $surface;
+    border: 1px solid $border;
+    padding: 6px 14px;
+    font-size: $fs-sm;
+    font-weight: $fw-semi;
+    color: $text-3;
+    cursor: pointer;
+    transition: all $t-fast;
+
+    &:hover { color: $text-1; border-color: $text-3; }
+    &.is-active {
+      color: #fff;
+      background: $primary;
+      border-color: $primary;
+    }
+  }
+  &__total {
+    margin-left: auto;
+    align-self: center;
+    font-size: $fs-sm;
+    color: $text-3;
+  }
+
   // ─── Toolbar ───
   &__toolbar {
     display: flex; gap: $sp-2;
@@ -255,4 +281,14 @@
 
   &:hover { transform: translateY(-1px); }
   [nz-icon] { font-size: 12px; }
+}
+
+// ─── Hàng phản hồi inline (màn Góp ý) ───
+.reply-row td { background: #FAFBFF !important; padding: $sp-3 $sp-4 !important; }
+.reply-box {
+  display: flex; gap: $sp-2; align-items: center;
+  flex-wrap: wrap;
+
+  input { flex: 1; min-width: 240px; height: 36px; }
+  button { min-width: 80px; }
 }
