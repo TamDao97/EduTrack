@@ -33,6 +33,16 @@ export class LessonService extends TdBaseService {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/mark-done-past`, {});
   }
 
+  /** Đánh dấu Đã dạy CẢ CA nhóm (mọi buổi cùng groupKey) */
+  markDoneGroup(groupKey: string): Observable<IResponse> {
+    return this._httpClient.post<IResponse>(`${this.apiUrl}/mark-done-group/${groupKey}`, {});
+  }
+
+  /** Huỷ CẢ CA nhóm */
+  cancelGroup(groupKey: string, reason?: string): Observable<IResponse> {
+    return this._httpClient.post<IResponse>(`${this.apiUrl}/cancel-group/${groupKey}`, { reason });
+  }
+
   cancel(id: string, reason?: string): Observable<IResponse> {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/cancel/${id}`, { reason });
   }

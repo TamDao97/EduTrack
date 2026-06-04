@@ -19,7 +19,9 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<int>> CreateGroupAsync(LessonGroupCreateReq req);
         Task<Response<LessonDto>> MarkDoneAsync(Guid id);
         Task<Response<int>> MarkDonePastAsync();
+        Task<Response<int>> MarkDoneGroupAsync(Guid groupKey);
         Task<Response<LessonDto>> CancelAsync(Guid id, string? reason);
+        Task<Response<int>> CancelGroupAsync(Guid groupKey, string? reason);
     }
 
     public class LessonService : TutorScopedBaseService<Lesson, LessonDto>, ILessonService
@@ -283,6 +285,56 @@ namespace EduTrack.API.Services.TutorDomain
             foreach (var l in lessons)
                 await _notiGen.CancelForLessonAsync(l.Id);
 
+            return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>Đánh dấu Đã dạy CẢ CA nhóm (mọi buổi Scheduled cùng GroupKey, chưa chốt kỳ).</summary>
+        public async Task<Response<int>> MarkDoneGroupAsync(Guid groupKey)
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var lessons = await _repos.Table
+                .Where(l => l.IdTutor == idTutor && l.GroupKey == groupKey
+                         && l.Status == LessonStatusEnums.Scheduled && l.IdTuitionPeriod == null)
+                .ToListAsync();
+            if (lessons.Count == 0)
+                return Response<int>.Success(0, "Không có buổi nào cần đánh dấu");
+
+            var now = AppTime.VnNow;
+            foreach (var l in lessons)
+            {
+                l.Status = LessonStatusEnums.Done;
+                l.DoneAt = now;
+                l.MarkDirty(nameof(l.Status));
+                l.MarkDirty(nameof(l.DoneAt));
+            }
+            await _unitOfWork.SaveChangesAsync();
+            foreach (var l in lessons)
+                await _notiGen.CancelForLessonAsync(l.Id);
+            return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>Huỷ CẢ CA nhóm (vd cô ốm) — mọi buổi Scheduled cùng GroupKey, chưa chốt kỳ.</summary>
+        public async Task<Response<int>> CancelGroupAsync(Guid groupKey, string? reason)
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var lessons = await _repos.Table
+                .Where(l => l.IdTutor == idTutor && l.GroupKey == groupKey
+                         && l.Status == LessonStatusEnums.Scheduled && l.IdTuitionPeriod == null)
+                .ToListAsync();
+            if (lessons.Count == 0)
+                return Response<int>.Success(0, "Không có buổi nào cần huỷ");
+
+            foreach (var l in lessons)
+            {
+                l.Status = LessonStatusEnums.Cancelled;
+                if (!string.IsNullOrEmpty(reason))
+                    l.Notes = string.IsNullOrEmpty(l.Notes) ? reason : $"{l.Notes}\n[Huỷ] {reason}";
+                l.MarkDirty(nameof(l.Status));
+                l.MarkDirty(nameof(l.Notes));
+            }
+            await _unitOfWork.SaveChangesAsync();
+            foreach (var l in lessons)
+                await _notiGen.CancelForLessonAsync(l.Id);
             return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
         }
 

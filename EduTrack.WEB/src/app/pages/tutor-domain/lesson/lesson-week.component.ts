@@ -12,12 +12,32 @@ import { LessonBulkFormComponent } from './lesson-bulk-form/lesson-bulk-form.com
 import { LessonGroupFormComponent } from './lesson-group-form/lesson-group-form.component';
 import { LessonFormComponent } from './lesson-form/lesson-form.component';
 
+/** 1 CA nhóm trong ngày — các lesson cùng groupKey gộp thành 1 thẻ "chiều lớp học". */
+interface SessionGroup {
+  groupKey: string;
+  className?: string | null;
+  courseSubject?: string | null;
+  startTime: string;
+  endTime: string;
+  location?: string | null;
+  lessons: ILessonDetail[];
+  total: number;
+  scheduledCount: number;
+  doneCount: number;
+}
+
+/** 1 mục hiển thị trong ngày: buổi 1-1 lẻ hoặc 1 ca nhóm. */
+type DayItem =
+  | { kind: 'single'; startTime: string; lesson: ILessonDetail }
+  | { kind: 'group'; startTime: string; session: SessionGroup };
+
 interface DayGroup {
   date: Date;
   dayLabel: string;     // "Thứ 2"
   dateLabel: string;    // "27/05"
   isToday: boolean;
   lessons: ILessonDetail[];
+  items: DayItem[];
 }
 
 @Component({
@@ -62,18 +82,93 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     for (let i = 0; i < 7; i++) {
       const d = this.addDays(this.weekStart, i);
       const ds = this.toISODate(d);
+      const dayLessons = lessons
+        .filter(l => l.scheduledDate.startsWith(ds))
+        .sort((a, b) => a.startTime.localeCompare(b.startTime));
       groups.push({
         date: d,
         dayLabel: this.dayName(d.getDay()),
         dateLabel: `${this.pad(d.getDate())}/${this.pad(d.getMonth() + 1)}`,
         isToday: ds === this.toISODate(today),
-        lessons: lessons
-          .filter(l => l.scheduledDate.startsWith(ds))
-          .sort((a, b) => a.startTime.localeCompare(b.startTime)),
+        lessons: dayLessons,
+        items: this.buildDayItems(dayLessons),
       });
     }
     this.days = groups;
   }
+
+  /** View "chiều lớp học": gộp các lesson cùng groupKey thành 1 thẻ CA; buổi 1-1 giữ nguyên. */
+  private buildDayItems(dayLessons: ILessonDetail[]): DayItem[] {
+    const items: DayItem[] = [];
+    const sessions = new Map<string, SessionGroup>();
+    for (const l of dayLessons) {
+      if (!l.groupKey) {
+        items.push({ kind: 'single', startTime: l.startTime, lesson: l });
+        continue;
+      }
+      let s = sessions.get(l.groupKey);
+      if (!s) {
+        s = {
+          groupKey: l.groupKey,
+          className: l.className,
+          courseSubject: l.courseSubject,
+          startTime: l.startTime,
+          endTime: l.endTime,
+          location: l.location,
+          lessons: [],
+          total: 0, scheduledCount: 0, doneCount: 0,
+        };
+        sessions.set(l.groupKey, s);
+        items.push({ kind: 'group', startTime: l.startTime, session: s });
+      }
+      s.lessons.push(l);
+      s.total += l.chargeAmount || 0;
+      if (l.status === LessonStatus.Scheduled) s.scheduledCount++;
+      if (l.status === LessonStatus.Done) s.doneCount++;
+    }
+    return items.sort((a, b) => a.startTime.localeCompare(b.startTime));
+  }
+
+  /* ─── Thao tác theo CA (nhóm) ─── */
+
+  /** Ca nào đang mở xổ danh sách HS — giữ qua reload */
+  expandedSessions = new Set<string>();
+
+  toggleSession(s: SessionGroup) {
+    if (this.expandedSessions.has(s.groupKey)) this.expandedSessions.delete(s.groupKey);
+    else this.expandedSessions.add(s.groupKey);
+  }
+  isExpanded(s: SessionGroup): boolean { return this.expandedSessions.has(s.groupKey); }
+
+  onMarkDoneSession(s: SessionGroup, ev: Event) {
+    ev.stopPropagation();
+    this._service.markDoneGroup(s.groupKey).subscribe({
+      next: (rs) => {
+        if (rs.status === StatusCode.Ok) {
+          this._toast.success(StatusResponseTitle.SUCCESS, `Đã đánh dấu cả ca (${rs.data} buổi)`);
+          this.load();
+        } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+      },
+      error: () => this._toast.error(StatusResponseTitle.ERROR, 'Lỗi hệ thống'),
+    });
+  }
+
+  onCancelSession(s: SessionGroup, ev: Event) {
+    ev.stopPropagation();
+    this.confirmModal(`Huỷ CẢ CA ${s.className || 'nhóm'} (${s.scheduledCount} buổi chưa dạy)?`, () => {
+      this._service.cancelGroup(s.groupKey, 'Huỷ cả ca bởi gia sư').subscribe({
+        next: (rs) => {
+          if (rs.status === StatusCode.Ok) {
+            this._toast.success(StatusResponseTitle.SUCCESS, `Đã huỷ ${rs.data} buổi của ca`);
+            this.load();
+          } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+        },
+        error: () => this._toast.error(StatusResponseTitle.ERROR, 'Lỗi hệ thống'),
+      });
+    });
+  }
+
+  fmtVnd(n: number): string { return new Intl.NumberFormat('vi-VN').format(n || 0); }
 
   onPrevWeek() { this.weekStart = this.addDays(this.weekStart, -7); this.weekEnd = this.addDays(this.weekStart, 6); this.load(); }
   onNextWeek() { this.weekStart = this.addDays(this.weekStart, 7); this.weekEnd = this.addDays(this.weekStart, 6); this.load(); }

@@ -78,6 +78,18 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<int>>> MarkDonePastAsync()
             => Ok(await _service.MarkDonePastAsync());
 
+        [TDPermission("MarkDoneGroupAsync", "Đánh dấu đã dạy cả ca nhóm", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpPost("mark-done-group/{groupKey:Guid}")]
+        public async Task<ActionResult<Response<int>>> MarkDoneGroupAsync(Guid groupKey)
+            => Ok(await _service.MarkDoneGroupAsync(groupKey));
+
+        [TDPermission("CancelGroupAsync", "Huỷ cả ca nhóm", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpPost("cancel-group/{groupKey:Guid}")]
+        public async Task<ActionResult<Response<int>>> CancelGroupAsync(Guid groupKey, [FromBody] CancelReq? req)
+            => Ok(await _service.CancelGroupAsync(groupKey, req?.Reason));
+
         [TDPermission("CancelAsync", "Huỷ buổi học", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpPost("cancel/{id:Guid}")]

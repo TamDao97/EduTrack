@@ -221,3 +221,60 @@
     }
   }
 }
+
+// ────────────── SESSION CARD — view "chiều lớp học": 1 ca nhóm = 1 thẻ ──────────────
+.session-card {
+  background: $surface;
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-left: 4px solid #7C3AED;
+  border-radius: $radius-md;
+  overflow: hidden;
+  transition: box-shadow $t-fast;
+
+  &:hover { box-shadow: $shadow; }
+  &.is-alldone { border-left-color: $success; border-color: rgba(82, 196, 26, 0.35); }
+
+  &__head {
+    display: flex; gap: $sp-3; align-items: center;
+    padding: 14px;
+    cursor: pointer;
+  }
+  &__body { flex: 1; min-width: 0; }
+  &__name {
+    @include t-h3;
+    @include truncate;
+    display: flex; align-items: center; gap: 6px;
+    [nz-icon] { color: #7C3AED; font-size: 15px; }
+  }
+  &__meta {
+    @include t-meta;
+    margin-top: 2px;
+  }
+  &__done {
+    margin-left: 6px;
+    color: $success-dark;
+    font-weight: $fw-semi;
+  }
+  &__actions { display: flex; align-items: center; gap: $sp-1; flex-shrink: 0; }
+  &__chevron {
+    color: $text-3; font-size: 12px;
+    padding: 6px; cursor: pointer;
+    &:hover { color: $text-1; }
+  }
+
+  // Danh sách HS xổ ra trong ca
+  &__students {
+    list-style: none; margin: 0;
+    padding: $sp-2 $sp-3 $sp-3;
+    border-top: 1px dashed rgba(124, 58, 237, 0.25);
+    display: flex; flex-direction: column; gap: $sp-2;
+    background: rgba(124, 58, 237, 0.03);
+  }
+}
+
+// Thẻ buổi lồng trong ca — gọn hơn (không cột giờ riêng)
+.lesson-card--nested {
+  padding: 10px 12px;
+  box-shadow: none;
+  border: 1px solid $border;
+}
