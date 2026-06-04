@@ -77,6 +77,12 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<int>>> GenerateScheduleAsync(GenerateScheduleReq req)
             => Ok(await _service.GenerateScheduleAsync(req));
 
+        [TDPermission("GetSubjectsAsync", "Danh sách môn của các lớp", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpGet("get-subjects")]
+        public async Task<ActionResult<Response<List<string>>>> GetSubjectsAsync()
+            => Ok(await _service.GetSubjectsAsync());
+
         [TDPermission("GetByStudentAsync", "Lớp của 1 HS", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpGet("get-by-student/{idStudent:Guid}")]

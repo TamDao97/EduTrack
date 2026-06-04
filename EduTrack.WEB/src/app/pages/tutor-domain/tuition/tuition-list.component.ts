@@ -4,6 +4,7 @@ import { finalize, forkJoin } from 'rxjs';
 import { ITuitionPeriodDetail, ITuitionPeriodGridFilter, TuitionStatus, TuitionStatusLabel } from '../../../interfaces/ITuitionPeriod';
 import { TuitionPeriodService } from '../../../services/tutor-domain/tuition-period.service';
 import { TutorProfileService } from '../../../services/tutor-domain/tutor-profile.service';
+import { StudentService } from '../../../services/tutor-domain/student.service';
 import { defaultGridFilter } from '../../../shared/interfaces/IBase-ext';
 import { SharedModule } from '../../../shared/modules/shared.module';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -27,13 +28,20 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
 
   private _service = inject(TuitionPeriodService);
   private _profileService = inject(TutorProfileService);
+  private _studentService = inject(StudentService);
   private _toast = inject(ToastService);
 
   periods: ITuitionPeriodDetail[] = [];
   totalRecord = 0;
   isLoading = false;
   bankInfo: { bankName?: string; accountNumber?: string; accountHolder?: string } = {};
-  filter: ITuitionPeriodGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null };
+  filter: ITuitionPeriodGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null, idStudent: null, periodMonth: null, periodYear: null };
+
+  /** Dropdown lọc HS */
+  studentOptions: { id: string; fullName: string }[] = [];
+  /** Dropdown lọc kỳ tháng — 12 tháng gần nhất, value = y*100+m */
+  monthOptions: { value: number; label: string; month: number; year: number }[] = [];
+  selectedMonthYear: number | null = null;
 
   onPageChange(page: number) { this.filter.pageNumber = page; this.reload(); }
   onPageSizeChange(size: number) { this.filter.pageSize = size; this.filter.pageNumber = 1; this.reload(); }
@@ -47,6 +55,8 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   ];
 
   ngOnInit() {
+    this.buildMonthOptions();
+    this.loadStudentOptions();
     this.isLoading = true;
     forkJoin({
       profile: this._profileService.getMyProfile(),
@@ -88,6 +98,42 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
     this.filter.status = value;
     this.filter.pageNumber = 1;
     this.reload();
+  }
+
+  /* ─── Bộ lọc HS + kỳ tháng ─── */
+
+  private loadStudentOptions() {
+    // pageSize lớn để đủ danh sách dropdown (quota HS tối đa 20/Basic)
+    this._studentService.gridLoadData({ keyword: '', pageNumber: 1, pageSize: 200 })
+      .subscribe(rs => {
+        if (rs.status === StatusCode.Ok) {
+          this.studentOptions = (rs.data?.data ?? [])
+            .map((s: any) => ({ id: s.id, fullName: s.fullName }));
+        }
+      });
+  }
+
+  onFilterStudent(id: string | null) {
+    this.filter.idStudent = id;
+    this.filter.pageNumber = 1;
+    this.reload();
+  }
+
+  onFilterMonth(v: number | null) {
+    this.selectedMonthYear = v;
+    this.filter.periodMonth = v ? v % 100 : null;
+    this.filter.periodYear = v ? Math.floor(v / 100) : null;
+    this.filter.pageNumber = 1;
+    this.reload();
+  }
+
+  private buildMonthOptions() {
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const m = d.getMonth() + 1; const y = d.getFullYear();
+      this.monthOptions.push({ value: y * 100 + m, label: `T${String(m).padStart(2, '0')}/${y}`, month: m, year: y });
+    }
   }
 
   onClose(period?: ITuitionPeriodDetail) {

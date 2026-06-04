@@ -3,10 +3,12 @@ using TD.Lib.Common;
 
 namespace EduTrack.API.DataContext.Dto.TutorDomain
 {
-    /// <summary>Filter danh sách lớp: keyword (tên/môn) + trạng thái + paging.</summary>
+    /// <summary>Filter danh sách lớp: keyword (tên/môn) + trạng thái + môn + paging.</summary>
     public class ClassRoomGridFilter : GridFilterBase
     {
         public bool? IsActive { get; set; }
+        /// <summary>Lọc đúng môn (so khớp không phân biệt hoa thường).</summary>
+        public string? Subject { get; set; }
     }
 
     public class ClassRoomDto : BaseDto

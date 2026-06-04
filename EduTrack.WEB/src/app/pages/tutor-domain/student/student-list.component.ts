@@ -10,6 +10,7 @@ import { StatusResponseMessage, StatusResponseTitle } from '../../../shared/util
 import { StatusCode } from '../../../shared/utils/enums';
 import { TdBaseComponent } from '../../../shared/utils/extends-components/td-base.component';
 import { StudentService } from '../../../services/tutor-domain/student.service';
+import { ClassRoomService } from '../../../services/tutor-domain/class-room.service';
 import { StudentFormComponent } from './student-form/student-form.component';
 
 @Component({
@@ -27,10 +28,15 @@ export class StudentListComponent extends TdBaseComponent implements OnInit {
   private _toast = inject(ToastService);
   private _service = inject(StudentService);
 
+  private _classService = inject(ClassRoomService);
+
   students: IStudentDetail[] = [];
   totalRecord = 0;
   isLoading = false;
-  filter: IStudentGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null };
+  filter: IStudentGridFilter = { ...defaultGridFilter(), pageSize: 12, status: null, idClass: null };
+
+  /** Dropdown lọc theo lớp đang dạy */
+  classOptions: { id: string; name: string }[] = [];
 
   onPageChange(page: number) {
     this.filter.pageNumber = page;
@@ -65,7 +71,22 @@ export class StudentListComponent extends TdBaseComponent implements OnInit {
     { value: StudentStatus.Stopped, label: 'Đã dừng', dotColor: '#9CA3AF' },
   ];
 
-  ngOnInit() { this.loadData(); }
+  ngOnInit() {
+    this.loadData();
+    // Lớp đang dạy cho dropdown lọc
+    this._classService.getByFilter({ keyword: '', isActive: true, pageNumber: 1, pageSize: 100 })
+      .subscribe(rs => {
+        if (rs.status === StatusCode.Ok) {
+          this.classOptions = (rs.data?.data ?? []).map((c: any) => ({ id: c.id, name: c.name }));
+        }
+      });
+  }
+
+  onFilterClass(id: string | null) {
+    this.filter.idClass = id;
+    this.filter.pageNumber = 1;
+    this.loadData();
+  }
 
   loadData() {
     this.isLoading = true;

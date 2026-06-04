@@ -24,6 +24,7 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<bool>> RemoveMemberAsync(Guid idMember);
         Task<Response<int>> GenerateScheduleAsync(GenerateScheduleReq req);
         Task<Response<List<StudentClassDto>>> GetByStudentAsync(Guid idStudent);
+        Task<Response<List<string>>> GetSubjectsAsync();
     }
 
     public class ClassRoomService : TutorScopedBaseService<ClassRoom, ClassRoomDto>, IClassRoomService
@@ -80,6 +81,11 @@ namespace EduTrack.API.Services.TutorDomain
 
             if (filter.IsActive.HasValue)
                 query = query.Where(c => c.IsActive == filter.IsActive.Value);
+            if (!string.IsNullOrWhiteSpace(filter.Subject))
+            {
+                var subj = filter.Subject.Trim().ToLower();
+                query = query.Where(c => c.Subject != null && c.Subject.ToLower() == subj);
+            }
             if (!string.IsNullOrWhiteSpace(filter.Keyword))
             {
                 var kw = filter.Keyword.Trim().ToLower();
@@ -369,6 +375,19 @@ namespace EduTrack.API.Services.TutorDomain
                 ScheduleLabel = BuildScheduleLabel(x.c),
             }).ToList();
             return Response<List<StudentClassDto>>.Success(dtos, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>Danh sách MÔN distinct của các lớp tutor — cho dropdown lọc.</summary>
+        public async Task<Response<List<string>>> GetSubjectsAsync()
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var subjects = await _repos.TableNoTracking
+                .Where(c => c.IdTutor == idTutor && c.Subject != null && c.Subject != "")
+                .Select(c => c.Subject!)
+                .Distinct()
+                .OrderBy(s => s)
+                .ToListAsync();
+            return Response<List<string>>.Success(subjects, StatusCode.Ok.ToDescription());
         }
 
         #region helpers

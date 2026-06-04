@@ -30,6 +30,18 @@
         <span class="tu__tab-count" *ngIf="countFor(tab.value) > 0">{{ countFor(tab.value) }}</span>
       </button>
     </div>
+
+    <!-- Bộ lọc HS + kỳ tháng -->
+    <div class="tu__filters">
+      <nz-select class="tu__filter-select" nzShowSearch nzAllowClear nzPlaceHolder="Học sinh"
+                 [ngModel]="filter.idStudent" (ngModelChange)="onFilterStudent($event)">
+        <nz-option *ngFor="let s of studentOptions" [nzValue]="s.id" [nzLabel]="s.fullName"></nz-option>
+      </nz-select>
+      <nz-select class="tu__filter-select" nzAllowClear nzPlaceHolder="Kỳ tháng"
+                 [ngModel]="selectedMonthYear" (ngModelChange)="onFilterMonth($event)">
+        <nz-option *ngFor="let m of monthOptions" [nzValue]="m.value" [nzLabel]="m.label"></nz-option>
+      </nz-select>
+    </div>
   </div>
 
   <!-- Bank-info warning (chưa setup) -->

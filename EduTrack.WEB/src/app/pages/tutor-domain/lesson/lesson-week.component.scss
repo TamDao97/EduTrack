@@ -278,3 +278,21 @@
   box-shadow: none;
   border: 1px solid $border;
 }
+
+// ────────────── Bộ lọc trong tuần ──────────────
+.page-lessons__filters {
+  display: flex; gap: $sp-2; flex-wrap: wrap; align-items: center;
+  background: $surface;
+  padding: $sp-3 $sp-3 0;
+  @include tablet-up { max-width: 1100px; margin: 0 auto; padding: $sp-3 $sp-8 0; }
+}
+.page-lessons__filter { min-width: 150px; flex: 1; max-width: 220px; }
+.page-lessons__filter--sm { min-width: 120px; max-width: 150px; }
+.page-lessons__filter-clear {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid $border; background: $surface;
+  color: $text-3; font-size: $fs-xs; font-weight: $fw-semi;
+  padding: 5px 12px; border-radius: $radius-pill;
+  cursor: pointer; transition: all $t-fast;
+  &:hover { color: $danger; border-color: $danger; }
+}

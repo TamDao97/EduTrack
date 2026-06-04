@@ -20,6 +20,7 @@ namespace EduTrack.API.Services.TutorDomain
     {
         private readonly ITDRepository<Parent> _parentRepos;
         private readonly ITDRepository<StudentCourse> _courseRepos;
+        private readonly ITDRepository<ClassMember> _memberRepos;
         private readonly ISubscriptionService _subService;
 
         public StudentService(IUnitOfWork unitOfWork, IUserContextService userContext, ISubscriptionService subService)
@@ -27,6 +28,7 @@ namespace EduTrack.API.Services.TutorDomain
         {
             _parentRepos = unitOfWork.GetRepository<Parent>();
             _courseRepos = unitOfWork.GetRepository<StudentCourse>();
+            _memberRepos = unitOfWork.GetRepository<ClassMember>();
             _subService = subService;
         }
 
@@ -100,6 +102,11 @@ namespace EduTrack.API.Services.TutorDomain
 
             if (filter.IdParent.HasValue)
                 query = query.Where(x => x.s.IdParent == filter.IdParent.Value);
+
+            // Lọc theo LỚP: HS đang ghi danh trong lớp đó
+            if (filter.IdClass.HasValue)
+                query = query.Where(x => _memberRepos.TableNoTracking
+                    .Any(m => m.IdClass == filter.IdClass.Value && m.IdStudent == x.s.Id));
 
             if (!string.IsNullOrEmpty(filter.Keyword))
             {

@@ -230,3 +230,11 @@
   justify-content: center;
   padding: $sp-4 $sp-4 $sp-6;
 }
+
+// Bộ lọc HS + kỳ tháng (cạnh tabs)
+.tu__filters {
+  display: flex; gap: $sp-2;
+  padding: $sp-2 0 $sp-1;
+  flex-wrap: wrap;
+}
+.tu__filter-select { min-width: 160px; flex: 1; max-width: 220px; }

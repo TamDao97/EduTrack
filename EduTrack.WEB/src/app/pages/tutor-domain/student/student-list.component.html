@@ -53,6 +53,13 @@
       </button>
     </div>
 
+    <!-- Lọc theo lớp đang dạy -->
+    <nz-select class="class-filter" nzShowSearch nzAllowClear nzPlaceHolder="Lọc theo lớp"
+               [ngModel]="filter.idClass" (ngModelChange)="onFilterClass($event)"
+               *ngIf="classOptions.length > 0">
+      <nz-option *ngFor="let c of classOptions" [nzValue]="c.id" [nzLabel]="c.name"></nz-option>
+    </nz-select>
+
     <div class="tabs">
       <button *ngFor="let tab of statusTabs"
               type="button"

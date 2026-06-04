@@ -42,6 +42,27 @@
     </div>
   </header>
 
+  <!-- Bộ lọc trong tuần (client-side) -->
+  <div class="page-lessons__filters" *ngIf="!isLoading && (classOptions.length > 0 || studentOptions.length > 1 || hasFilter)">
+    <nz-select class="page-lessons__filter" nzAllowClear nzPlaceHolder="Lớp"
+               [(ngModel)]="filterClass" (ngModelChange)="onFilterChange()"
+               *ngIf="classOptions.length > 0">
+      <nz-option nzValue="1-1" nzLabel="Kèm 1-1"></nz-option>
+      <nz-option *ngFor="let c of classOptions" [nzValue]="c" [nzLabel]="c"></nz-option>
+    </nz-select>
+    <nz-select class="page-lessons__filter" nzShowSearch nzAllowClear nzPlaceHolder="Học sinh"
+               [(ngModel)]="filterStudent" (ngModelChange)="onFilterChange()">
+      <nz-option *ngFor="let s of studentOptions" [nzValue]="s" [nzLabel]="s"></nz-option>
+    </nz-select>
+    <nz-select class="page-lessons__filter page-lessons__filter--sm" nzAllowClear nzPlaceHolder="Trạng thái"
+               [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+      <nz-option *ngFor="let o of statusOptions" [nzValue]="o.value" [nzLabel]="o.label"></nz-option>
+    </nz-select>
+    <button class="page-lessons__filter-clear" *ngIf="hasFilter" (click)="onClearFilters()">
+      <span nz-icon nzType="close"></span> Bỏ lọc
+    </button>
+  </div>
+
   <!-- Skeleton -->
   <div *ngIf="isLoading" class="page-lessons__loading">
     <nz-spin nzSize="large" [nzSpinning]="isLoading"></nz-spin>

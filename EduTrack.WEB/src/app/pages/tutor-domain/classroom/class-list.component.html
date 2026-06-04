@@ -22,6 +22,11 @@
       <input type="text" placeholder="Tìm tên lớp / môn…"
              [ngModel]="filter.keyword" (ngModelChange)="onSearchChange($event)" />
     </div>
+    <nz-select class="cls__subject-filter" nzAllowClear nzPlaceHolder="Môn"
+               [ngModel]="filter.subject" (ngModelChange)="onSubjectChange($event)"
+               *ngIf="subjects.length > 0">
+      <nz-option *ngFor="let s of subjects" [nzValue]="s" [nzLabel]="s"></nz-option>
+    </nz-select>
     <span class="cls__total" *ngIf="!isLoading && totalRecord > 0">{{ totalRecord }} lớp</span>
   </div>
 

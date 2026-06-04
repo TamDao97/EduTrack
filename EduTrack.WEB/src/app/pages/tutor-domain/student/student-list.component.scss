@@ -251,3 +251,6 @@
   color: $danger !important;
   [nz-icon] { color: $danger; }
 }
+
+// Dropdown lọc theo lớp (trong toolbar)
+.class-filter { min-width: 170px; }

@@ -60,6 +60,44 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
   days: DayGroup[] = [];
   isLoading = false;
 
+  /** Toàn bộ buổi của tuần (chưa lọc) — bộ lọc áp client-side trên đây. */
+  private rawLessons: ILessonDetail[] = [];
+
+  /* ─── Bộ lọc trong tuần (client-side — data tuần đã tải sẵn) ─── */
+  filterClass: string | null = null;     // tên lớp, hoặc '1-1' = buổi kèm riêng
+  filterStudent: string | null = null;   // tên HS
+  filterStatus: LessonStatus | null = null;
+  /** Options dựng từ data tuần hiện tại */
+  classOptions: string[] = [];
+  studentOptions: string[] = [];
+  statusOptions = [
+    { value: LessonStatus.Scheduled, label: 'Sắp tới' },
+    { value: LessonStatus.Done,      label: 'Đã dạy' },
+    { value: LessonStatus.Cancelled, label: 'Đã huỷ' },
+  ];
+
+  get hasFilter(): boolean {
+    return this.filterClass !== null || this.filterStudent !== null || this.filterStatus !== null;
+  }
+
+  onFilterChange() { this.buildDays(this.rawLessons); }
+
+  onClearFilters() {
+    this.filterClass = this.filterStudent = null;
+    this.filterStatus = null;
+    this.buildDays(this.rawLessons);
+  }
+
+  private applyFilters(lessons: ILessonDetail[]): ILessonDetail[] {
+    return lessons.filter(l => {
+      if (this.filterClass === '1-1' && l.groupKey) return false;
+      if (this.filterClass && this.filterClass !== '1-1' && l.className !== this.filterClass) return false;
+      if (this.filterStudent && l.studentFullName !== this.filterStudent) return false;
+      if (this.filterStatus !== null && l.status !== this.filterStatus) return false;
+      return true;
+    });
+  }
+
   ngOnInit() { this.load(); }
 
   load() {
@@ -69,20 +107,26 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (rs) => {
-          if (rs.status === StatusCode.Ok) this.buildDays(rs.data ?? []);
-          else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+          if (rs.status === StatusCode.Ok) {
+            this.rawLessons = rs.data ?? [];
+            // Dựng options từ tuần hiện tại
+            this.classOptions = [...new Set(this.rawLessons.map(l => l.className).filter(Boolean))] as string[];
+            this.studentOptions = [...new Set(this.rawLessons.map(l => l.studentFullName).filter(Boolean))].sort() as string[];
+            this.buildDays(this.rawLessons);
+          } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
         },
         error: () => this._toast.error(StatusResponseTitle.ERROR, 'Không tải được lịch tuần'),
       });
   }
 
   buildDays(lessons: ILessonDetail[]) {
+    const filtered = this.applyFilters(lessons);
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const groups: DayGroup[] = [];
     for (let i = 0; i < 7; i++) {
       const d = this.addDays(this.weekStart, i);
       const ds = this.toISODate(d);
-      const dayLessons = lessons
+      const dayLessons = filtered
         .filter(l => l.scheduledDate.startsWith(ds))
         .sort((a, b) => a.startTime.localeCompare(b.startTime));
       groups.push({

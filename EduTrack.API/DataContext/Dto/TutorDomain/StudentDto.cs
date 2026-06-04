@@ -34,5 +34,7 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
     {
         public StudentStatusEnums? Status { get; set; }
         public Guid? IdParent { get; set; }
+        /// <summary>Lọc HS đang ghi danh trong 1 lớp (ClassRoom).</summary>
+        public Guid? IdClass { get; set; }
     }
 }

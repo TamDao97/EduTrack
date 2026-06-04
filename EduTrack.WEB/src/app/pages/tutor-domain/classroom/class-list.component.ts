@@ -31,8 +31,11 @@ export class ClassListComponent extends TdBaseComponent implements OnInit {
   isLoadingMore = false;
 
   /** Mặc định chỉ xem lớp ĐANG DẠY — tutor 200 lớp thì ~190 lớp đã đóng không đổ ra. */
-  filter: { keyword: string; isActive: boolean | null; pageNumber: number; pageSize: number } =
-    { keyword: '', isActive: true, pageNumber: 1, pageSize: 12 };
+  filter: { keyword: string; isActive: boolean | null; subject: string | null; pageNumber: number; pageSize: number } =
+    { keyword: '', isActive: true, subject: null, pageNumber: 1, pageSize: 12 };
+
+  /** Các môn distinct của tutor — dropdown lọc. */
+  subjects: string[] = [];
 
   statusTabs: { value: boolean | null; label: string }[] = [
     { value: true,  label: 'Đang dạy' },
@@ -40,7 +43,17 @@ export class ClassListComponent extends TdBaseComponent implements OnInit {
     { value: null,  label: 'Tất cả' },
   ];
 
-  ngOnInit() { this.load(); }
+  ngOnInit() {
+    this.load();
+    this._service.getSubjects().subscribe(rs => {
+      if (rs.status === StatusCode.Ok) this.subjects = rs.data ?? [];
+    });
+  }
+
+  onSubjectChange(s: string | null) {
+    this.filter.subject = s;
+    this.load();
+  }
 
   /** Tải lại từ trang 1 (đổi tab / search / sau khi tạo lớp). */
   load() {

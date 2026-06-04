@@ -38,4 +38,6 @@ export interface IStudentDetail extends IStudent {
 export interface IStudentGridFilter extends IGridFilterBase {
   status?: StudentStatus | null;
   idParent?: string | null;
+  /** Lọc HS đang ghi danh trong 1 lớp */
+  idClass?: string | null;
 }
