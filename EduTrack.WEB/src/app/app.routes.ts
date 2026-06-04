@@ -29,12 +29,6 @@ import { ClassListComponent } from './pages/tutor-domain/classroom/class-list.co
 import { ClassDetailComponent } from './pages/tutor-domain/classroom/class-detail.component';
 import { AdminFeedbackComponent } from './pages/admin/admin-feedback.component';
 import { LandingComponent } from './pages/landing/landing.component';
-import { DesignGalleryComponent } from './_demo/design-gallery.component';
-import { OnboardingDemoComponent } from './_demo/onboarding/onboarding-demo.component';
-import { DashboardDemoComponent } from './_demo/dashboard/dashboard-demo.component';
-import { TuitionDemoComponent } from './_demo/tuition/tuition-demo.component';
-import { StudentTableDemoComponent } from './_demo/student-table/student-table-demo.component';
-import { SettingsDemoComponent } from './_demo/settings/settings-demo.component';
 
 export const routes: Routes = [
   { path: 'login',           component: LoginComponent           },
@@ -42,14 +36,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent  },
   { path: 'reset-password',  component: ResetPasswordComponent   },
   { path: 'landing',         component: LandingComponent         },
-  // ─────────────── DESIGN DEMO (mock data, no API) ───────────────
-  { path: 'design',                 component: DesignGalleryComponent },
-  { path: 'design/onboarding',      component: OnboardingDemoComponent },
-  { path: 'design/dashboard',       component: DashboardDemoComponent },
-  { path: 'design/tuition',         component: TuitionDemoComponent },
-  { path: 'design/student-table',   component: StudentTableDemoComponent },
-  { path: 'design/settings',        component: SettingsDemoComponent },
-  // ──────────────────────────────────────────────────────────────
+  // (_demo đã gỡ — các route /design không còn)
   {
     path: '',
     component: LayoutComponent,
