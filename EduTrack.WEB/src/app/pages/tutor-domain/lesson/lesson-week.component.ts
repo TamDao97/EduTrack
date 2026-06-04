@@ -94,6 +94,26 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     ).afterClose.subscribe((rs) => { if (rs?.saved) this.load(); });
   }
 
+  /** Đánh dấu "Đã dạy" hàng loạt mọi buổi đã qua giờ (toàn bộ, không chỉ tuần đang xem). */
+  onMarkDonePast() {
+    this.confirmModal(
+      'Đánh dấu "Đã dạy" tất cả các buổi đã qua giờ học (chưa thuộc kỳ học phí)?',
+      () => {
+        this._service.markDonePast().subscribe({
+          next: (rs) => {
+            if (rs.status === StatusCode.Ok) {
+              const n = rs.data ?? 0;
+              if (n > 0) this._toast.success(StatusResponseTitle.SUCCESS, `Đã đánh dấu ${n} buổi đã dạy`);
+              else this._toast.info(StatusResponseTitle.INFO, 'Không có buổi nào cần đánh dấu');
+              this.load();
+            } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+          },
+          error: () => this._toast.error(StatusResponseTitle.ERROR, 'Lỗi hệ thống'),
+        });
+      }
+    );
+  }
+
   onMarkDone(lesson: ILessonDetail, ev: Event) {
     ev.stopPropagation();
     if (lesson.idTuitionPeriod) return;

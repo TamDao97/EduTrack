@@ -17,6 +17,7 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<List<LessonDetailDto>>> GetWeekAsync(DateTime weekStart);
         Task<Response<int>> BulkCreateRecurringAsync(LessonBulkCreateReq req);
         Task<Response<LessonDto>> MarkDoneAsync(Guid id);
+        Task<Response<int>> MarkDonePastAsync();
         Task<Response<LessonDto>> CancelAsync(Guid id, string? reason);
     }
 
@@ -151,6 +152,46 @@ namespace EduTrack.API.Services.TutorDomain
             await _notiGen.CancelForLessonAsync(lesson.Id);
 
             return Response<LessonDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<Lesson, LessonDto>(lesson), StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Đánh dấu "Đã dạy" HÀNG LOẠT mọi buổi "Đã lên lịch" đã qua giờ kết thúc
+        /// (chưa thuộc kỳ học phí nào). Trả về số buổi đã đánh dấu.
+        /// Dùng cuối tháng trước khi chốt kỳ — đỡ phải bấm từng buổi.
+        /// </summary>
+        public async Task<Response<int>> MarkDonePastAsync()
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var now = AppTime.VnNow;
+            var today = now.Date;
+            var nowTime = now.TimeOfDay;
+
+            // Buổi đã qua = ngày < hôm nay, hoặc hôm nay nhưng đã hết giờ học
+            var lessons = await _repos.Table
+                .Where(l => l.IdTutor == idTutor
+                         && l.Status == LessonStatusEnums.Scheduled
+                         && l.IdTuitionPeriod == null
+                         && (l.ScheduledDate < today
+                          || (l.ScheduledDate == today && l.EndTime <= nowTime)))
+                .ToListAsync();
+
+            if (lessons.Count == 0)
+                return Response<int>.Success(0, StatusCode.Ok.ToDescription());
+
+            foreach (var l in lessons)
+            {
+                l.Status = LessonStatusEnums.Done;
+                l.DoneAt = now;
+                l.MarkDirty(nameof(l.Status));
+                l.MarkDirty(nameof(l.DoneAt));
+            }
+            await _unitOfWork.SaveChangesAsync();
+
+            // Buổi đã dạy thì không nhắc nữa
+            foreach (var l in lessons)
+                await _notiGen.CancelForLessonAsync(l.Id);
+
+            return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
         }
 
         public async Task<Response<LessonDto>> CancelAsync(Guid id, string? reason)

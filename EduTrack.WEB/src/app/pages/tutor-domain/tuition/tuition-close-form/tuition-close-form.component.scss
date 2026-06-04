@@ -41,6 +41,13 @@
     padding: $sp-4 $sp-2;
     [nz-icon] { font-size: 28px; color: $warning; display: block; margin-bottom: $sp-2; }
     small { display: block; margin-top: $sp-1; font-size: $fs-xs; }
+    strong { color: $text-1; }
+  }
+
+  &__goto-lessons {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: $sp-3;
+    [nz-icon] { font-size: 14px; color: inherit; display: inline; margin: 0; }
   }
 
   &__loading {

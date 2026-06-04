@@ -23,6 +23,11 @@ export class LessonService extends TdBaseService {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/mark-done/${id}`, {});
   }
 
+  /** Đánh dấu "Đã dạy" hàng loạt mọi buổi đã qua giờ — trả về số buổi đã đánh dấu. */
+  markDonePast(): Observable<IResponse> {
+    return this._httpClient.post<IResponse>(`${this.apiUrl}/mark-done-past`, {});
+  }
+
   cancel(id: string, reason?: string): Observable<IResponse> {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/cancel/${id}`, { reason });
   }

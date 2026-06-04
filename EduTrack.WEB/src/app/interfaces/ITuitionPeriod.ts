@@ -57,5 +57,7 @@ export interface ITuitionPreview {
   periodYear: number;
   totalLessons: number;
   totalAmount: number;
+  /** Số buổi trong tháng còn "Đã lên lịch" (chưa đánh dấu Đã dạy) */
+  scheduledLessons: number;
   lessons: ITuitionPreviewLine[];
 }

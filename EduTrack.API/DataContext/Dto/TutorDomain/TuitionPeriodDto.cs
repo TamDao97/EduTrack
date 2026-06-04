@@ -47,6 +47,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public int PeriodYear { get; set; }
         public int TotalLessons { get; set; }
         public decimal TotalAmount { get; set; }
+        /// <summary>Số buổi trong tháng còn "Đã lên lịch" (chưa đánh dấu Đã dạy) — để FE gợi ý vì sao 0 buổi.</summary>
+        public int ScheduledLessons { get; set; }
         public List<TuitionPreviewLineDto> Lessons { get; set; } = new();
     }
 

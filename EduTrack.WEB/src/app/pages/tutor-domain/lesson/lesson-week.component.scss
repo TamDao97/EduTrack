@@ -13,6 +13,7 @@
 
   &__top {
     display: flex; align-items: center; justify-content: space-between;
+    gap: $sp-2;
     margin-bottom: $sp-4;
     position: relative; z-index: 1;
   }
@@ -35,6 +36,24 @@
     &:hover  { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
     &:active { transform: scale(0.97); }
   }
+
+  // Nút "Đã dạy các buổi qua" — cùng tông glass, đẩy sang phải cạnh Thêm lịch
+  &__bulk-done-btn {
+    @include glass;
+    margin-left: auto;
+    height: 40px; padding: 0 $sp-3;
+    color: #fff;
+    border-radius: 20px;
+    font-size: $fs-sm; font-weight: $fw-semi;
+    display: flex; align-items: center; gap: $sp-1;
+    cursor: pointer;
+    transition: all $t $ease-out;
+
+    &:hover  { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
+    &:active { transform: scale(0.97); }
+  }
+  // Mobile chật → ẩn label, giữ icon
+  &__bulk-done-label { @include mobile-only { display: none; } }
 
   // Week navigator (glass-morphism trong hero)
   &__nav {

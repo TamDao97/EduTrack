@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { IStudentDetail } from '../../../../interfaces/IStudent';
@@ -28,6 +29,7 @@ export class TuitionCloseFormComponent extends TdBaseComponent implements OnInit
   private _toast = inject(ToastService);
   private _service = inject(TuitionPeriodService);
   private _studentService = inject(StudentService);
+  private _router = inject(Router);
 
   frmGroup!: FormGroup;
   students: IStudentDetail[] = [];
@@ -157,6 +159,12 @@ export class TuitionCloseFormComponent extends TdBaseComponent implements OnInit
   }
 
   onCancel() { this.closeModal(); }
+
+  /** Đóng modal + sang Lịch dạy để đánh dấu "Đã dạy" các buổi. */
+  goToLessons() {
+    this.closeModal();
+    this._router.navigate(['/lesson']);
+  }
 
   statusLabel(s: TuitionStatus): string {
     return ({ [TuitionStatus.Open]: 'Đang mở', [TuitionStatus.Closed]: 'Đã chốt',

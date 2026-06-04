@@ -66,6 +66,12 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<LessonDto>>> MarkDoneAsync(Guid id)
             => Ok(await _service.MarkDoneAsync(id));
 
+        [TDPermission("MarkDonePastAsync", "Đánh dấu đã dạy các buổi đã qua", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpPost("mark-done-past")]
+        public async Task<ActionResult<Response<int>>> MarkDonePastAsync()
+            => Ok(await _service.MarkDonePastAsync());
+
         [TDPermission("CancelAsync", "Huỷ buổi học", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpPost("cancel/{id:Guid}")]

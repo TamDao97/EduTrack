@@ -198,6 +198,15 @@ namespace EduTrack.API.Services.TutorDomain
                 })
                 .ToListAsync();
 
+            // Đếm buổi còn "Đã lên lịch" trong tháng — để FE giải thích vì sao 0 buổi Done
+            var scheduledCount = await _lessonRepos.TableNoTracking
+                .CountAsync(l => l.IdTutor == idTutor
+                              && l.IdStudent == idStudent
+                              && l.Status == LessonStatusEnums.Scheduled
+                              && l.ScheduledDate.Year == year
+                              && l.ScheduledDate.Month == month
+                              && l.IdTuitionPeriod == null);
+
             var preview = new TuitionPreviewDto
             {
                 IdStudent = idStudent,
@@ -205,6 +214,7 @@ namespace EduTrack.API.Services.TutorDomain
                 PeriodYear = year,
                 TotalLessons = lessons.Count,
                 TotalAmount = lessons.Sum(x => x.ChargeAmount),
+                ScheduledLessons = scheduledCount,
                 Lessons = lessons,
             };
             return Response<TuitionPreviewDto>.Success(preview, StatusCode.Ok.ToDescription());

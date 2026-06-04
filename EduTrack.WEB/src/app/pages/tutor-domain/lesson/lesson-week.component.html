@@ -3,6 +3,11 @@
   <header class="page-lessons__header">
     <div class="page-lessons__top">
       <h1 class="page-lessons__title">Lịch dạy</h1>
+      <button class="page-lessons__bulk-done-btn" (click)="onMarkDonePast()"
+              nz-tooltip nzTooltipTitle='Đánh dấu "Đã dạy" tất cả buổi đã qua'>
+        <span nz-icon nzType="check-circle"></span>
+        <span class="page-lessons__bulk-done-label">Đã dạy các buổi qua</span>
+      </button>
       <button nz-dropdown [nzDropdownMenu]="addMenu" nzTrigger="click" class="page-lessons__add-btn" nzPlacement="bottomRight">
         <span nz-icon nzType="plus"></span>
         <span>Thêm lịch</span>
