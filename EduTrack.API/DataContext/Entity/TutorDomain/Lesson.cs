@@ -38,5 +38,12 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
 
         /// <summary>FK đến TuitionPeriod khi buổi này đã được gom vào kỳ học phí (locked).</summary>
         public Guid? IdTuitionPeriod { get; set; }
+
+        /// <summary>
+        /// Buổi NHÓM: các Lesson cùng 1 ca dạy (nhiều HS học chung) chia sẻ cùng GroupKey.
+        /// Mỗi HS vẫn có dòng Lesson riêng (giá riêng, nhắc riêng, học phí riêng) — GroupKey
+        /// chỉ để gắn kết hiển thị + tạo 1 lần. Null = buổi 1-1 bình thường.
+        /// </summary>
+        public Guid? GroupKey { get; set; }
     }
 }

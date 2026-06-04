@@ -60,6 +60,12 @@ namespace EduTrack.API.Controllers.TutorDomain
             return Ok(await _service.UpdateAsync(entity));
         }
 
+        [TDPermission("CreateGroupAsync", "Tạo buổi học nhóm", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpPost("create-group")]
+        public async Task<ActionResult<Response<int>>> CreateGroupAsync(LessonGroupCreateReq req)
+            => Ok(await _service.CreateGroupAsync(req));
+
         [TDPermission("MarkDoneAsync", "Đánh dấu đã dạy", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpPost("mark-done/{id:Guid}")]

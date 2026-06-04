@@ -16,6 +16,7 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<PagingData<List<LessonDetailDto>>>> GetByFilterAsync(LessonGridFilter filter);
         Task<Response<List<LessonDetailDto>>> GetWeekAsync(DateTime weekStart);
         Task<Response<int>> BulkCreateRecurringAsync(LessonBulkCreateReq req);
+        Task<Response<int>> CreateGroupAsync(LessonGroupCreateReq req);
         Task<Response<LessonDto>> MarkDoneAsync(Guid id);
         Task<Response<int>> MarkDonePastAsync();
         Task<Response<LessonDto>> CancelAsync(Guid id, string? reason);
@@ -150,6 +151,72 @@ namespace EduTrack.API.Services.TutorDomain
             await _unitOfWork.SaveChangesAsync();
 
             // Sinh nhắc cho từng buổi đã tạo
+            foreach (var l in lessons)
+                await _notiGen.GenerateForLessonAsync(l);
+
+            return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Tạo buổi NHÓM: nhiều HS học chung 1 ca → mỗi HS 1 Lesson riêng (giá theo môn
+        /// từng em) cùng GroupKey theo từng ca. NumberOfWeeks > 1 = lặp hàng tuần.
+        /// </summary>
+        public async Task<Response<int>> CreateGroupAsync(LessonGroupCreateReq req)
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+
+            var subErr = await _subService.CheckCanWriteAsync(idTutor);
+            if (subErr != null) return Response<int>.Error(StatusCode.Forbidden, subErr);
+
+            if (req.Students == null || req.Students.Count < 2)
+                return Response<int>.Error(StatusCode.BadRequest, "Buổi nhóm cần ít nhất 2 học sinh");
+            if (req.Students.Select(s => s.IdStudent).Distinct().Count() != req.Students.Count)
+                return Response<int>.Error(StatusCode.BadRequest, "Học sinh bị trùng trong nhóm");
+            if (req.NumberOfWeeks < 1 || req.NumberOfWeeks > 52)
+                return Response<int>.Error(StatusCode.BadRequest, "Số tuần phải từ 1 đến 52");
+
+            // Validate từng HS + resolve giá theo môn của từng em
+            var resolved = new List<(Guid IdStudent, Guid? IdCourse, decimal Rate)>();
+            foreach (var s in req.Students)
+            {
+                var student = await _studentRepos.TableNoTracking
+                    .FirstOrDefaultAsync(x => x.Id == s.IdStudent && x.IdTutor == idTutor);
+                if (student == null)
+                    return Response<int>.Error(StatusCode.BadRequest, "Học sinh không hợp lệ");
+                var (rate, rateErr) = await ResolveRateAsync(s.IdCourse, student);
+                if (rateErr != null) return Response<int>.Error(StatusCode.BadRequest, rateErr);
+                resolved.Add((s.IdStudent, s.IdCourse, rate));
+            }
+
+            var lessons = new List<Lesson>();
+            for (int w = 0; w < req.NumberOfWeeks; w++)
+            {
+                var groupKey = Guid.NewGuid(); // mỗi CA 1 GroupKey riêng
+                var date = req.ScheduledDate.Date.AddDays(7 * w);
+                foreach (var (idStudent, idCourse, rate) in resolved)
+                {
+                    lessons.Add(new Lesson
+                    {
+                        Id = Guid.NewGuid(),
+                        IdTutor = idTutor,
+                        IdStudent = idStudent,
+                        IdCourse = idCourse,
+                        GroupKey = groupKey,
+                        ScheduledDate = date,
+                        StartTime = req.StartTime,
+                        EndTime = req.EndTime,
+                        Location = req.Location,
+                        Notes = req.Notes,
+                        Status = LessonStatusEnums.Scheduled,
+                        ChargeAmount = rate,
+                    });
+                }
+            }
+
+            await _repos.CreateMultiAsync(lessons);
+            await _unitOfWork.SaveChangesAsync();
+
+            // Nhắc riêng cho TỪNG phụ huynh trong nhóm
             foreach (var l in lessons)
                 await _notiGen.GenerateForLessonAsync(l);
 
@@ -306,6 +373,7 @@ namespace EduTrack.API.Services.TutorDomain
             DoneAt = l.DoneAt,
             Notes = l.Notes,
             IdTuitionPeriod = l.IdTuitionPeriod,
+            GroupKey = l.GroupKey,
             StudentFullName = s?.FullName,
             ParentPhone = p?.Phone,
             CourseSubject = c?.Subject,

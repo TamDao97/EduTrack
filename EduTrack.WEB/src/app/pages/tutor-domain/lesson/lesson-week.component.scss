@@ -170,6 +170,20 @@
     @include truncate;
     margin-bottom: $sp-1;
   }
+  // Badge buổi nhóm — tím nhạt, cạnh chip môn
+  &__group {
+    display: inline-flex; align-items: center; gap: 3px;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 9px;
+    background: #F3E8FF;
+    color: #7C3AED;
+    font-size: $fs-caption;
+    font-weight: $fw-bold;
+    vertical-align: 2px;
+    [nz-icon] { font-size: 10px; }
+  }
+
   // Chip môn của buổi — indigo nhạt, đặt cạnh tên HS
   &__subject {
     display: inline-block;

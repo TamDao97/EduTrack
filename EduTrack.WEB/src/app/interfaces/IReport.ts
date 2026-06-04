@@ -21,8 +21,16 @@ export interface IReportSummary {
   outstandingTotal: number;
 }
 
+/** Doanh thu theo môn — tính từ các buổi Done 6 tháng gần nhất */
+export interface ISubjectRevenue {
+  subject: string;
+  lessonsDone: number;
+  amount: number;
+}
+
 export interface ITutorReport {
   summary: IReportSummary;
   months: IMonthlyPoint[];
   topStudents: ITopStudent[];
+  revenueBySubject: ISubjectRevenue[];
 }

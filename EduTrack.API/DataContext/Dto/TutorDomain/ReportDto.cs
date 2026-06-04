@@ -30,11 +30,21 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public decimal OutstandingTotal { get; set; }
     }
 
+    /// <summary>Doanh thu theo MÔN — tính từ ChargeAmount các buổi Done (6 tháng gần nhất).</summary>
+    public class SubjectRevenueDto
+    {
+        public string Subject { get; set; } = string.Empty;
+        public int LessonsDone { get; set; }
+        public decimal Amount { get; set; }
+    }
+
     public class TutorReportDto
     {
         public ReportSummaryDto Summary { get; set; } = new();
         /// <summary>6 tháng gần nhất, oldest → newest.</summary>
         public List<MonthlyPointDto> Months { get; set; } = new();
         public List<TopStudentDto> TopStudents { get; set; } = new();
+        /// <summary>Doanh thu theo môn 6 tháng gần nhất (buổi cũ chưa gắn môn → "Khác").</summary>
+        public List<SubjectRevenueDto> RevenueBySubject { get; set; } = new();
     }
 }

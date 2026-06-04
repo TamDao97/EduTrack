@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environment';
-import { ILessonBulkCreateReq } from '../../interfaces/ILesson';
+import { ILessonBulkCreateReq, ILessonGroupCreateReq } from '../../interfaces/ILesson';
 import { IResponse } from '../../shared/interfaces/IResponse';
 import { TdBaseService } from '../../shared/utils/services/td-base.service';
 
@@ -17,6 +17,11 @@ export class LessonService extends TdBaseService {
 
   bulkCreateRecurring(payload: ILessonBulkCreateReq): Observable<IResponse> {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/bulk-create-recurring`, payload);
+  }
+
+  /** Tạo buổi nhóm — nhiều HS chung 1 ca, trả về số lesson đã tạo */
+  createGroup(payload: ILessonGroupCreateReq): Observable<IResponse> {
+    return this._httpClient.post<IResponse>(`${this.apiUrl}/create-group`, payload);
   }
 
   markDone(id: string): Observable<IResponse> {

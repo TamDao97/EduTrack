@@ -26,6 +26,7 @@ namespace EduTrack.API.Services.TutorDomain
         private readonly ITDRepository<Student> _studentRepos;
         private readonly ITDRepository<Lesson> _lessonRepos;
         private readonly ITDRepository<TuitionPeriod> _periodRepos;
+        private readonly ITDRepository<StudentCourse> _courseRepos;
 
         public ReportService(IUnitOfWork uow, IUserContextService userContext)
         {
@@ -33,6 +34,7 @@ namespace EduTrack.API.Services.TutorDomain
             _studentRepos = uow.GetRepository<Student>();
             _lessonRepos = uow.GetRepository<Lesson>();
             _periodRepos = uow.GetRepository<TuitionPeriod>();
+            _courseRepos = uow.GetRepository<StudentCourse>();
         }
 
         public async Task<Response<TutorReportDto>> GetMyReportAsync()
@@ -118,6 +120,24 @@ namespace EduTrack.API.Services.TutorDomain
                 .Take(5)
                 .ToListAsync();
 
+            // ── Doanh thu theo MÔN (6 tháng, theo ChargeAmount các buổi Done) ──
+            var revenueBySubject = await (from l in _lessonRepos.TableNoTracking
+                                          join c in _courseRepos.TableNoTracking on l.IdCourse equals c.Id into cj
+                                          from c in cj.DefaultIfEmpty()
+                                          where l.IdTutor == idTutor
+                                             && l.Status == LessonStatusEnums.Done
+                                             && (l.ScheduledDate.Year > fromYear
+                                              || (l.ScheduledDate.Year == fromYear && l.ScheduledDate.Month >= fromMonth))
+                                          group l by (c != null ? c.Subject : "Khác") into g
+                                          select new SubjectRevenueDto
+                                          {
+                                              Subject = g.Key,
+                                              LessonsDone = g.Count(),
+                                              Amount = g.Sum(x => x.ChargeAmount),
+                                          })
+                .OrderByDescending(x => x.Amount)
+                .ToListAsync();
+
             var rs = new TutorReportDto
             {
                 Summary = new ReportSummaryDto
@@ -130,6 +150,7 @@ namespace EduTrack.API.Services.TutorDomain
                 },
                 Months = months,
                 TopStudents = topStudents,
+                RevenueBySubject = revenueBySubject,
             };
             return Response<TutorReportDto>.Success(rs, StatusCode.Ok.ToDescription());
         }

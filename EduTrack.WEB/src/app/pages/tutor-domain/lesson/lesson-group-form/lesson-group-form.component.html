@@ -1,0 +1,80 @@
+<form nz-form [formGroup]="frmGroup" class="group-form" nzLayout="vertical">
+  <nz-form-item>
+    <nz-form-label nzRequired>Học sinh trong nhóm (≥2)</nz-form-label>
+    <nz-form-control nzErrorTip="Chọn ít nhất 2 học sinh">
+      <nz-select formControlName="selectedIds" nzMode="multiple" nzShowSearch
+                 nzPlaceHolder="Chọn các HS học chung ca…">
+        <nz-option *ngFor="let s of students" [nzValue]="s.id" [nzLabel]="s.fullName"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <!-- Môn + giá từng em -->
+  <div class="group-form__rows" *ngIf="rows.length > 0">
+    <div class="group-form__row" *ngFor="let r of rows">
+      <span class="group-form__row-name">{{ r.fullName }}</span>
+      <nz-select class="group-form__row-course" [(ngModel)]="r.idCourse"
+                 [ngModelOptions]="{ standalone: true }" nzSize="small"
+                 *ngIf="r.courses.length > 0">
+        <nz-option *ngFor="let c of r.courses" [nzValue]="c.id"
+          [nzLabel]="c.subject + ' · ' + fmtVnd(c.perLessonRate) + 'đ'"></nz-option>
+      </nz-select>
+      <span class="group-form__row-rate">{{ fmtVnd(rateOf(r)) }}đ</span>
+    </div>
+    <div class="group-form__total">
+      Tổng mỗi ca: <strong>{{ fmtVnd(totalPerSession) }}đ</strong>
+    </div>
+  </div>
+
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Ngày bắt đầu</nz-form-label>
+        <nz-form-control>
+          <nz-date-picker formControlName="scheduledDate" nzFormat="dd/MM/yyyy" class="full-w"></nz-date-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Lặp (tuần)</nz-form-label>
+        <nz-form-control>
+          <nz-input-number formControlName="numberOfWeeks" [nzMin]="1" [nzMax]="52" class="full-w"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <div nz-row [nzGutter]="12">
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Bắt đầu</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="startTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+    <div nz-col [nzSpan]="12">
+      <nz-form-item>
+        <nz-form-label nzRequired>Kết thúc</nz-form-label>
+        <nz-form-control>
+          <nz-time-picker formControlName="endTime" nzFormat="HH:mm" [nzMinuteStep]="15" class="full-w"></nz-time-picker>
+        </nz-form-control>
+      </nz-form-item>
+    </div>
+  </div>
+
+  <nz-form-item>
+    <nz-form-label>Địa điểm</nz-form-label>
+    <nz-form-control>
+      <input nz-input formControlName="location" placeholder="Vd: Lớp nhóm tại nhà cô · Trung tâm…" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="group-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      Tạo buổi nhóm
+    </button>
+  </div>
+</form>

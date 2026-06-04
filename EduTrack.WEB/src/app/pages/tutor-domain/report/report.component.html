@@ -65,6 +65,28 @@
     </div>
   </section>
 
+  <!-- Doanh thu theo môn (6 tháng) -->
+  <section class="rp__section" *ngIf="report && report.revenueBySubject && report.revenueBySubject.length > 0">
+    <div class="rp__section-head">
+      <h2 class="rp__section-title">
+        <span nz-icon nzType="book"></span> Doanh thu theo môn <small class="rp__section-hint">6 tháng · theo buổi đã dạy</small>
+      </h2>
+    </div>
+
+    <ul class="subject-list">
+      <li *ngFor="let s of report.revenueBySubject" class="subject-row">
+        <div class="subject-row__head">
+          <span class="subject-row__name">{{ s.subject }}</span>
+          <span class="subject-row__amount">{{ fmtCompact(s.amount) }}<small>đ</small></span>
+        </div>
+        <div class="subject-row__bar">
+          <span class="subject-row__fill" [style.width.%]="subjectBarWidth(s)"></span>
+        </div>
+        <div class="subject-row__meta">{{ s.lessonsDone }} buổi</div>
+      </li>
+    </ul>
+  </section>
+
   <!-- Top students -->
   <section class="rp__section" *ngIf="report && report.topStudents.length > 0">
     <div class="rp__section-head">

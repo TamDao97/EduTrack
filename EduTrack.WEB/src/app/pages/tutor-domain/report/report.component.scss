@@ -224,3 +224,25 @@
     small { font-size: $fs-caption; opacity: 0.7; margin-left: 1px; }
   }
 }
+
+// ─── Doanh thu theo môn ───
+.rp__section-hint { font-size: $fs-caption; font-weight: $fw-normal; color: $text-3; margin-left: 6px; }
+.subject-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: $sp-3; }
+.subject-row {
+  &__head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+  &__name { font-weight: $fw-semi; color: $text-1; font-size: $fs-sm; }
+  &__amount { font-weight: $fw-bold; color: $text-1; small { font-size: $fs-caption; color: $text-3; } }
+  &__bar {
+    height: 8px;
+    background: $bg-strong;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  &__fill {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #7C7FE0 0%, #5B5FCF 100%);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+  &__meta { font-size: $fs-caption; color: $text-3; margin-top: 2px; }
+}

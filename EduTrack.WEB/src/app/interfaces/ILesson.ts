@@ -26,6 +26,8 @@ export interface ILesson extends IBase {
   doneAt?: string;
   notes?: string;
   idTuitionPeriod?: string;
+  /** Buổi NHÓM: các lesson cùng ca chia sẻ groupKey. Null = buổi 1-1 */
+  groupKey?: string | null;
 }
 
 export interface ILessonDetail extends ILesson {
@@ -40,6 +42,23 @@ export interface ILessonGridFilter extends IGridFilterBase {
   status?: LessonStatus | null;
   fromDate?: string | null;
   toDate?: string | null;
+}
+
+/** 1 HS trong buổi nhóm — môn riêng (giá theo môn từng em) */
+export interface IGroupStudentReq {
+  idStudent: string;
+  idCourse?: string | null;
+}
+
+/** Tạo buổi NHÓM: nhiều HS chung 1 ca, mỗi em 1 lesson riêng cùng groupKey */
+export interface ILessonGroupCreateReq {
+  students: IGroupStudentReq[];
+  scheduledDate: string;
+  startTime: string;
+  endTime: string;
+  location?: string;
+  notes?: string;
+  numberOfWeeks: number;
 }
 
 export interface ILessonBulkCreateReq {

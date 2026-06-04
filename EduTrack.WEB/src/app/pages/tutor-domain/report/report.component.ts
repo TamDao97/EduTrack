@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { finalize } from 'rxjs';
-import { IMonthlyPoint, ITutorReport } from '../../../interfaces/IReport';
+import { IMonthlyPoint, ISubjectRevenue, ITutorReport } from '../../../interfaces/IReport';
 import { ReportService } from '../../../services/tutor-domain/report.service';
 import { SharedModule } from '../../../shared/modules/shared.module';
 import { StatusCode } from '../../../shared/utils/enums';
@@ -44,6 +44,13 @@ export class ReportComponent extends TdBaseComponent implements OnInit {
   }
 
   setMetric(m: MetricKey) { this.metric = m; }
+
+  /** % chiều rộng bar môn — so với môn cao nhất. */
+  subjectBarWidth(s: ISubjectRevenue): number {
+    const list = this.report?.revenueBySubject ?? [];
+    const max = Math.max(...list.map(x => x.amount), 1);
+    return Math.max(4, Math.round((s.amount / max) * 100));
+  }
 
   valOf(p: IMonthlyPoint): number {
     if (this.metric === 'lessons') return p.lessonsDone;

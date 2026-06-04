@@ -27,6 +27,7 @@ namespace EduTrack.API.Services.TutorDomain
         private readonly ITDRepository<Student> _studentRepos;
         private readonly ITDRepository<Parent> _parentRepos;
         private readonly ITDRepository<TutorProfile> _profileRepos;
+        private readonly ITDRepository<StudentCourse> _courseRepos;
 
         public NotificationGenerator(IUnitOfWork uow)
         {
@@ -35,6 +36,7 @@ namespace EduTrack.API.Services.TutorDomain
             _studentRepos = uow.GetRepository<Student>();
             _parentRepos = uow.GetRepository<Parent>();
             _profileRepos = uow.GetRepository<TutorProfile>();
+            _courseRepos = uow.GetRepository<StudentCourse>();
         }
 
         public async Task GenerateForLessonAsync(Lesson lesson)
@@ -53,10 +55,19 @@ namespace EduTrack.API.Services.TutorDomain
             var dateStr = lesson.ScheduledDate.ToString("dd/MM/yyyy");
             var timeStr = $"{lesson.StartTime:hh\\:mm} - {lesson.EndTime:hh\\:mm}";
 
-            var title = $"{student?.FullName ?? "Học sinh"} · {dayName} {dateStr} · {timeStr}";
+            // Tên môn (nếu buổi gắn course) — phụ huynh biết rõ buổi Toán hay buổi Lý
+            string? subject = null;
+            if (lesson.IdCourse.HasValue)
+                subject = await _courseRepos.TableNoTracking
+                    .Where(c => c.Id == lesson.IdCourse.Value)
+                    .Select(c => c.Subject)
+                    .FirstOrDefaultAsync();
 
-            var bodyEvening = BuildLessonReminderText(student?.FullName, parent.FullName, dayName, dateStr, timeStr, lesson.Location, isHourBefore: false);
-            var bodyHour = BuildLessonReminderText(student?.FullName, parent.FullName, dayName, dateStr, timeStr, lesson.Location, isHourBefore: true);
+            var subjectTag = string.IsNullOrEmpty(subject) ? "" : $" · {subject}";
+            var title = $"{student?.FullName ?? "Học sinh"}{subjectTag} · {dayName} {dateStr} · {timeStr}";
+
+            var bodyEvening = BuildLessonReminderText(student?.FullName, parent.FullName, subject, dayName, dateStr, timeStr, lesson.Location, isHourBefore: false);
+            var bodyHour = BuildLessonReminderText(student?.FullName, parent.FullName, subject, dayName, dateStr, timeStr, lesson.Location, isHourBefore: true);
 
             var notis = new List<Notification>
             {
@@ -158,12 +169,13 @@ namespace EduTrack.API.Services.TutorDomain
             _ => "Chủ nhật",
         };
 
-        private static string BuildLessonReminderText(string? studentName, string parentName, string day, string date, string time, string? location, bool isHourBefore)
+        private static string BuildLessonReminderText(string? studentName, string parentName, string? subject, string day, string date, string time, string? location, bool isHourBefore)
         {
             var locationLine = string.IsNullOrEmpty(location) ? "" : $"\nĐịa điểm: {location}";
             var when = isHourBefore ? "1 giờ nữa" : "ngày mai";
+            var subjectPart = string.IsNullOrEmpty(subject) ? "" : $" môn {subject}";
             return $"Em chào {parentName}!\n" +
-                   $"Em xin nhắc lịch học của {studentName} {when}:\n" +
+                   $"Em xin nhắc lịch học{subjectPart} của {studentName} {when}:\n" +
                    $"• {day} {date}\n" +
                    $"• {time}{locationLine}\n\n" +
                    $"Phụ huynh sắp xếp giúp em ạ. Em cám ơn!";

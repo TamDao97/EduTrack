@@ -18,6 +18,7 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public DateTime? DoneAt { get; set; }
         public string? Notes { get; set; }
         public Guid? IdTuitionPeriod { get; set; }
+        public Guid? GroupKey { get; set; }
     }
 
     /// <summary>Lesson kèm tên HS — dùng cho lịch tuần / inbox nhắc.</summary>
@@ -35,6 +36,28 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public LessonStatusEnums? Status { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+    }
+
+    /// <summary>1 HS trong buổi nhóm — môn riêng (giá lấy theo môn của từng em).</summary>
+    public class GroupStudentReq
+    {
+        public Guid IdStudent { get; set; }
+        public Guid? IdCourse { get; set; }
+    }
+
+    /// <summary>
+    /// Request tạo buổi NHÓM: nhiều HS học chung 1 ca. Mỗi HS sinh 1 Lesson riêng
+    /// (cùng GroupKey) — giá theo môn của từng em. NumberOfWeeks > 1 = lặp hàng tuần.
+    /// </summary>
+    public class LessonGroupCreateReq
+    {
+        public List<GroupStudentReq> Students { get; set; } = new();
+        public DateTime ScheduledDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public string? Location { get; set; }
+        public string? Notes { get; set; }
+        public int NumberOfWeeks { get; set; } = 1;
     }
 
     /// <summary>Request tạo nhiều Lesson recurring 1 lần (vd 12 tuần liên tiếp).</summary>

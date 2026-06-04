@@ -9,6 +9,7 @@ import { StatusResponseMessage, StatusResponseTitle } from '../../../shared/util
 import { StatusCode } from '../../../shared/utils/enums';
 import { TdBaseComponent } from '../../../shared/utils/extends-components/td-base.component';
 import { LessonBulkFormComponent } from './lesson-bulk-form/lesson-bulk-form.component';
+import { LessonGroupFormComponent } from './lesson-group-form/lesson-group-form.component';
 import { LessonFormComponent } from './lesson-form/lesson-form.component';
 
 interface DayGroup {
@@ -90,6 +91,14 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     this.openModal(
       { title: 'Tạo lịch lặp lại', width: 480, className: 'sheet-bottom-mobile' },
       LessonBulkFormComponent,
+      {}
+    ).afterClose.subscribe((rs) => { if (rs?.saved) this.load(); });
+  }
+
+  onAddGroup() {
+    this.openModal(
+      { title: 'Thêm buổi học nhóm', width: 560, className: 'sheet-bottom-mobile' },
+      LessonGroupFormComponent,
       {}
     ).afterClose.subscribe((rs) => { if (rs?.saved) this.load(); });
   }
