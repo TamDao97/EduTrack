@@ -8,6 +8,7 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
     {
         public Guid IdTutor { get; set; }
         public Guid IdStudent { get; set; }
+        public Guid? IdCourse { get; set; }
         public DateTime ScheduledDate { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
@@ -24,6 +25,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
     {
         public string? StudentFullName { get; set; }
         public string? ParentPhone { get; set; }
+        /// <summary>Tên môn của buổi (từ StudentCourse) — null với buổi cũ chưa gắn môn.</summary>
+        public string? CourseSubject { get; set; }
     }
 
     public class LessonGridFilter : GridFilterBase
@@ -38,6 +41,7 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
     public class LessonBulkCreateReq
     {
         public Guid IdStudent { get; set; }
+        public Guid? IdCourse { get; set; }
         public DateTime StartDate { get; set; }
         public int NumberOfWeeks { get; set; } = 12;
         public List<DayOfWeek> DaysOfWeek { get; set; } = new();

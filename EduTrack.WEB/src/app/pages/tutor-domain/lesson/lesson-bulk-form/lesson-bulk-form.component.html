@@ -9,6 +9,17 @@
     </nz-form-control>
   </nz-form-item>
 
+  <!-- Môn học — giá mỗi buổi lấy theo môn -->
+  <nz-form-item *ngIf="courses.length > 0">
+    <nz-form-label>Môn học</nz-form-label>
+    <nz-form-control>
+      <nz-select formControlName="idCourse" nzPlaceHolder="Chọn môn">
+        <nz-option *ngFor="let c of courses" [nzValue]="c.id"
+          [nzLabel]="c.subject + ' · ' + fmtVnd(c.perLessonRate) + 'đ/buổi'"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
   <nz-form-item>
     <nz-form-label nzRequired>Các thứ trong tuần</nz-form-label>
     <nz-form-control>

@@ -130,6 +130,19 @@ export class TuitionCloseFormComponent extends TdBaseComponent implements OnInit
     return total + adj;
   }
 
+  /** Gom buổi theo môn — hiện breakdown khi HS học ≥2 môn trong kỳ. */
+  get subjectGroups(): { subject: string; count: number; amount: number }[] {
+    const lessons = this.preview?.lessons ?? [];
+    const map = new Map<string, { subject: string; count: number; amount: number }>();
+    for (const l of lessons) {
+      const key = l.subject || 'Khác';
+      const g = map.get(key) ?? { subject: key, count: 0, amount: 0 };
+      g.count++; g.amount += l.chargeAmount || 0;
+      map.set(key, g);
+    }
+    return [...map.values()].sort((a, b) => b.amount - a.amount);
+  }
+
   onSave() {
     if (!this.validateForm(this.frmGroup)) {
       this._toast.warning(StatusResponseTitle.WARNING, StatusResponseMessage.INPUT_REQUIRED);

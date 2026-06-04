@@ -172,3 +172,47 @@
   color: #fff;
   border: 1px solid rgba(255,255,255,0.3);
 }
+
+// ─── Môn học & giá ───
+.course-add-btn {
+  float: right;
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid $primary;
+  background: $surface;
+  color: $primary;
+  font-size: $fs-xs; font-weight: $fw-semi;
+  padding: 3px 10px;
+  border-radius: $radius-pill;
+  cursor: pointer;
+  transition: all $t-fast;
+  &:hover { background: $primary; color: #fff; }
+}
+.course-list { display: flex; flex-direction: column; gap: $sp-2; }
+.course-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-md;
+  padding: $sp-3 $sp-4;
+
+  &.is-inactive { opacity: 0.6; }
+
+  &__subject { font-weight: $fw-semi; color: $text-1; }
+  &__paused {
+    display: inline-block; margin-left: 6px;
+    padding: 1px 8px; border-radius: 8px;
+    background: $bg-strong; color: $text-3;
+    font-size: $fs-caption; font-weight: $fw-semi;
+  }
+  &__rate { font-size: $fs-sm; color: $text-2; margin-top: 2px; }
+  &__actions { display: flex; gap: $sp-1; }
+  &__btn {
+    width: 30px; height: 30px;
+    border: 1px solid $border; background: $surface;
+    border-radius: 8px; color: $text-3; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all $t-fast;
+    &:hover { color: $primary; border-color: $primary; }
+    &--danger:hover { color: $danger; border-color: $danger; }
+  }
+}

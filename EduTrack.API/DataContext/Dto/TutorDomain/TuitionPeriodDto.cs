@@ -59,5 +59,7 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public string StartTime { get; set; } = string.Empty;
         public string EndTime { get; set; } = string.Empty;
         public decimal ChargeAmount { get; set; }
+        /// <summary>Môn của buổi — để hoá đơn breakdown theo môn (null = buổi cũ).</summary>
+        public string? Subject { get; set; }
     }
 }

@@ -34,6 +34,42 @@
     </div>
   </section>
 
+  <!-- Môn học & học phí từng môn -->
+  <section class="student-detail__section">
+    <h3 class="student-detail__section-title">
+      Môn học &amp; giá
+      <button class="course-add-btn" (click)="onAddCourse()">
+        <span nz-icon nzType="plus"></span> Thêm môn
+      </button>
+    </h3>
+
+    <div class="course-list" *ngIf="courses.length > 0; else noCourse">
+      <div class="course-item" *ngFor="let c of courses" [class.is-inactive]="!c.isActive">
+        <div class="course-item__info">
+          <div class="course-item__subject">
+            {{ c.subject }}
+            <span class="course-item__paused" *ngIf="!c.isActive">Tạm ngừng</span>
+          </div>
+          <div class="course-item__rate">{{ c.perLessonRate | number:'1.0-0' }}đ / buổi</div>
+        </div>
+        <div class="course-item__actions">
+          <button class="course-item__btn" (click)="onEditCourse(c)" title="Sửa">
+            <span nz-icon nzType="edit"></span>
+          </button>
+          <button class="course-item__btn course-item__btn--danger" (click)="onDeleteCourse(c)" title="Xoá">
+            <span nz-icon nzType="delete"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <ng-template #noCourse>
+      <div class="empty-soon">
+        <span nz-icon nzType="book" nzTheme="outline"></span>
+        <span>Chưa có môn — bấm "Thêm môn" để khai môn + giá riêng từng môn</span>
+      </div>
+    </ng-template>
+  </section>
+
   <!-- Parent card -->
   <section class="student-detail__section" *ngIf="student.parentFullName || student.parentPhone">
     <h3 class="student-detail__section-title">Phụ huynh</h3>

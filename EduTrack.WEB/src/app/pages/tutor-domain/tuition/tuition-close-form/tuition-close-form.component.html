@@ -30,9 +30,20 @@
       <span class="cf__preview-label">{{ preview.totalLessons }} buổi đã dạy</span>
       <span class="cf__preview-total">{{ fmt(preview.totalAmount) }}đ</span>
     </div>
+    <!-- Breakdown theo môn — chỉ hiện khi học ≥2 môn trong kỳ -->
+    <div class="cf__subjects" *ngIf="subjectGroups.length > 1">
+      <div class="cf__subject-row" *ngFor="let g of subjectGroups">
+        <span class="cf__subject-name">{{ g.subject }}</span>
+        <span class="cf__subject-detail">{{ g.count }} buổi · <strong>{{ fmt(g.amount) }}đ</strong></span>
+      </div>
+    </div>
+
     <ul class="cf__lessons" *ngIf="preview.totalLessons > 0">
       <li *ngFor="let l of preview.lessons" class="cf__lesson">
-        <span class="cf__lesson-date">{{ fmtDate(l.scheduledDate) }} · {{ l.startTime }}-{{ l.endTime }}</span>
+        <span class="cf__lesson-date">
+          {{ fmtDate(l.scheduledDate) }} · {{ l.startTime }}-{{ l.endTime }}
+          <span class="cf__lesson-subject" *ngIf="l.subject">{{ l.subject }}</span>
+        </span>
         <span class="cf__lesson-amount">{{ fmt(l.chargeAmount) }}đ</span>
       </li>
     </ul>

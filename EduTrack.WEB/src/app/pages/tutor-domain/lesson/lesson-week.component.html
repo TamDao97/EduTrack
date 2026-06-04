@@ -75,7 +75,10 @@
             <div class="lesson-card__time-end">{{ fmtTime(l.endTime) }}</div>
           </div>
           <div class="lesson-card__body">
-            <div class="lesson-card__name">{{ l.studentFullName || '—' }}</div>
+            <div class="lesson-card__name">
+              {{ l.studentFullName || '—' }}
+              <span class="lesson-card__subject" *ngIf="l.courseSubject">{{ l.courseSubject }}</span>
+            </div>
             <div class="lesson-card__meta">
               <span *ngIf="l.location">{{ l.location }}</span>
               <span *ngIf="l.location && l.chargeAmount" class="lesson-card__dot">·</span>

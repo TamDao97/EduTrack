@@ -9,6 +9,20 @@
     </nz-form-control>
   </nz-form-item>
 
+  <!-- Môn học — hiện khi HS có môn; giá buổi lấy theo môn đang chọn -->
+  <nz-form-item *ngIf="courses.length > 0">
+    <nz-form-label>Môn học</nz-form-label>
+    <nz-form-control>
+      <nz-select formControlName="idCourse" nzPlaceHolder="Chọn môn">
+        <nz-option *ngFor="let c of courses" [nzValue]="c.id"
+          [nzLabel]="c.subject + ' · ' + fmtVnd(c.perLessonRate) + 'đ/buổi'"></nz-option>
+      </nz-select>
+      <small class="course-rate-hint" *ngIf="selectedCourseRate !== null && !isEdit">
+        Buổi này sẽ tính {{ fmtVnd(selectedCourseRate!) }}đ
+      </small>
+    </nz-form-control>
+  </nz-form-item>
+
   <nz-form-item>
     <nz-form-label nzRequired>Ngày dạy</nz-form-label>
     <nz-form-control nzErrorTip="Chọn ngày">

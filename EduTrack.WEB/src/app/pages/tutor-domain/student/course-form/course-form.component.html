@@ -1,0 +1,38 @@
+<form nz-form [formGroup]="frmGroup" class="course-form" nzLayout="vertical">
+  <nz-form-item>
+    <nz-form-label nzRequired>Tên môn / lớp</nz-form-label>
+    <nz-form-control nzErrorTip="Nhập tên môn">
+      <input nz-input formControlName="subject" maxlength="100"
+             placeholder="Vd: Toán · Lý · Luyện thi vào 10…" />
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label nzRequired>Học phí / buổi (đ)</nz-form-label>
+    <nz-form-control nzErrorTip="Nhập giá buổi">
+      <nz-input-number formControlName="perLessonRate" class="full-w"
+                       [nzMin]="0" [nzStep]="50000"
+                       [nzFormatter]="formatVnd" [nzParser]="parseVnd"></nz-input-number>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-control>
+      <label nz-checkbox formControlName="isActive">Đang học (hiện khi tạo buổi mới)</label>
+    </nz-form-control>
+  </nz-form-item>
+
+  <nz-form-item>
+    <nz-form-label>Ghi chú</nz-form-label>
+    <nz-form-control>
+      <textarea nz-input formControlName="notes" rows="2" maxlength="500"></textarea>
+    </nz-form-control>
+  </nz-form-item>
+
+  <div class="course-form__actions">
+    <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
+    <button type="button" nz-button nzType="primary" nzSize="large" (click)="onSave()" [nzLoading]="isSubmitting">
+      {{ isEdit ? 'Cập nhật' : 'Thêm môn' }}
+    </button>
+  </div>
+</form>

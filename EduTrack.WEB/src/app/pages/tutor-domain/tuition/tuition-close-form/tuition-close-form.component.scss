@@ -50,6 +50,32 @@
     [nz-icon] { font-size: 14px; color: inherit; display: inline; margin: 0; }
   }
 
+  // Breakdown theo môn (HS học ≥2 môn)
+  &__subjects {
+    background: $primary-soft;
+    border-radius: $radius-sm;
+    padding: $sp-2 $sp-3;
+    margin-bottom: $sp-2;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  &__subject-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-size: $fs-sm;
+  }
+  &__subject-name { font-weight: $fw-semi; color: $primary-dark; }
+  &__subject-detail { color: $text-2; strong { color: $text-1; } }
+
+  &__lesson-subject {
+    display: inline-block;
+    margin-left: 4px;
+    padding: 0 6px;
+    border-radius: 8px;
+    background: $primary-soft;
+    color: $primary;
+    font-size: $fs-caption;
+    font-weight: $fw-semi;
+  }
+
   &__loading {
     display: flex; align-items: center; gap: $sp-2;
     color: $text-3; font-size: $fs-sm;

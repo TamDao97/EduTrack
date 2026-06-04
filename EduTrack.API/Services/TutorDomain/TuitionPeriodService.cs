@@ -180,23 +180,26 @@ namespace EduTrack.API.Services.TutorDomain
             if (!studentOk)
                 return Response<TuitionPreviewDto>.Error(StatusCode.BadRequest, "Học sinh không hợp lệ");
 
-            var lessons = await _lessonRepos.TableNoTracking
-                .Where(l => l.IdTutor == idTutor
-                         && l.IdStudent == idStudent
-                         && l.Status == LessonStatusEnums.Done
-                         && l.ScheduledDate.Year == year
-                         && l.ScheduledDate.Month == month
-                         && l.IdTuitionPeriod == null)
-                .OrderBy(l => l.ScheduledDate).ThenBy(l => l.StartTime)
-                .Select(l => new TuitionPreviewLineDto
-                {
-                    IdLesson = l.Id,
-                    ScheduledDate = l.ScheduledDate,
-                    StartTime = l.StartTime.ToString(@"hh\:mm"),
-                    EndTime = l.EndTime.ToString(@"hh\:mm"),
-                    ChargeAmount = l.ChargeAmount,
-                })
-                .ToListAsync();
+            var courseRepos = _unitOfWork.GetRepository<StudentCourse>();
+            var lessons = await (from l in _lessonRepos.TableNoTracking
+                                 join c in courseRepos.TableNoTracking on l.IdCourse equals c.Id into cj
+                                 from c in cj.DefaultIfEmpty()
+                                 where l.IdTutor == idTutor
+                                    && l.IdStudent == idStudent
+                                    && l.Status == LessonStatusEnums.Done
+                                    && l.ScheduledDate.Year == year
+                                    && l.ScheduledDate.Month == month
+                                    && l.IdTuitionPeriod == null
+                                 orderby l.ScheduledDate, l.StartTime
+                                 select new TuitionPreviewLineDto
+                                 {
+                                     IdLesson = l.Id,
+                                     ScheduledDate = l.ScheduledDate,
+                                     StartTime = l.StartTime.ToString(@"hh\:mm"),
+                                     EndTime = l.EndTime.ToString(@"hh\:mm"),
+                                     ChargeAmount = l.ChargeAmount,
+                                     Subject = c != null ? c.Subject : null,
+                                 }).ToListAsync();
 
             // Đếm buổi còn "Đã lên lịch" trong tháng — để FE giải thích vì sao 0 buổi Done
             var scheduledCount = await _lessonRepos.TableNoTracking

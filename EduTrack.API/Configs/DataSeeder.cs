@@ -22,6 +22,36 @@ namespace EduTrack.API.Configs
             await EnsureRolesAsync(db);
             await EnsureFounderAsync(db, config, logger);
             await EnsurePagesAsync(db, logger);
+            await EnsureDefaultCoursesAsync(db, logger);
+        }
+
+        /// <summary>
+        /// Backfill StudentCourse: HS nào CHƯA có môn nào → tạo 1 môn mặc định từ
+        /// Student.Subject + PerLessonRate. Idempotent — HS đã có môn thì bỏ qua.
+        /// </summary>
+        private static async Task EnsureDefaultCoursesAsync(EduTrackDbContext db, ILogger logger)
+        {
+            var studentsNoCourse = await db.Students
+                .Where(s => !db.StudentCourses.Any(c => c.IdStudent == s.Id))
+                .Select(s => new { s.Id, s.IdTutor, s.Subject, s.PerLessonRate })
+                .ToListAsync();
+
+            if (studentsNoCourse.Count == 0) return;
+
+            foreach (var s in studentsNoCourse)
+            {
+                db.StudentCourses.Add(new DataContext.Entity.TutorDomain.StudentCourse
+                {
+                    Id = Guid.NewGuid(),
+                    IdTutor = s.IdTutor,
+                    IdStudent = s.Id,
+                    Subject = string.IsNullOrWhiteSpace(s.Subject) ? "Chung" : s.Subject.Trim(),
+                    PerLessonRate = s.PerLessonRate,
+                    IsActive = true,
+                });
+            }
+            await db.SaveChangesAsync();
+            logger.LogInformation("Course seeder: đã tạo môn mặc định cho {Count} HS chưa có môn.", studentsNoCourse.Count);
         }
 
         /// <summary>

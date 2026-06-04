@@ -19,12 +19,14 @@ namespace EduTrack.API.Services.TutorDomain
     public class StudentService : TutorScopedBaseService<Student, StudentDto>, IStudentService
     {
         private readonly ITDRepository<Parent> _parentRepos;
+        private readonly ITDRepository<StudentCourse> _courseRepos;
         private readonly ISubscriptionService _subService;
 
         public StudentService(IUnitOfWork unitOfWork, IUserContextService userContext, ISubscriptionService subService)
             : base(unitOfWork, userContext)
         {
             _parentRepos = unitOfWork.GetRepository<Parent>();
+            _courseRepos = unitOfWork.GetRepository<StudentCourse>();
             _subService = subService;
         }
 
@@ -43,7 +45,24 @@ namespace EduTrack.API.Services.TutorDomain
             if (!parentOk)
                 return Response<StudentDto>.Error(StatusCode.BadRequest, "Phụ huynh không hợp lệ");
 
-            return await base.CreateAsync(entity);
+            var rs = await base.CreateAsync(entity);
+
+            // Tự tạo MÔN MẶC ĐỊNH từ Subject + PerLessonRate khai trên form HS —
+            // tutor dạy 1 môn không cần biết tới khái niệm course; dạy nhiều môn thì thêm ở chi tiết HS.
+            if (rs.Status == StatusCode.Ok)
+            {
+                await _courseRepos.CreateAsync(new StudentCourse
+                {
+                    Id = Guid.NewGuid(),
+                    IdTutor = idTutor,
+                    IdStudent = entity.Id,
+                    Subject = string.IsNullOrWhiteSpace(entity.Subject) ? "Chung" : entity.Subject.Trim(),
+                    PerLessonRate = entity.PerLessonRate,
+                    IsActive = true,
+                });
+                await _unitOfWork.SaveChangesAsync();
+            }
+            return rs;
         }
 
         public override async Task<Response<StudentDto>> UpdateAsync(Student entity)

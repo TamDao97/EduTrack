@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
+import { IStudentCourse } from '../../../../interfaces/IStudentCourse';
 import { IStudentDetail } from '../../../../interfaces/IStudent';
 import { LessonService } from '../../../../services/tutor-domain/lesson.service';
+import { StudentCourseService } from '../../../../services/tutor-domain/student-course.service';
 import { StudentService } from '../../../../services/tutor-domain/student.service';
 import { SharedModule } from '../../../../shared/modules/shared.module';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -25,10 +27,12 @@ export class LessonBulkFormComponent extends TdBaseComponent implements OnInit {
   private _toast = inject(ToastService);
   private _service = inject(LessonService);
   private _studentService = inject(StudentService);
+  private _courseService = inject(StudentCourseService);
 
   frmGroup!: FormGroup;
   isSubmitting = false;
   students: IStudentDetail[] = [];
+  courses: IStudentCourse[] = [];
 
   /** value khớp JS Date.getDay() (Sun=0..Sat=6) */
   weekDays: WeekDayOption[] = [
@@ -51,6 +55,7 @@ export class LessonBulkFormComponent extends TdBaseComponent implements OnInit {
     const end = new Date(); end.setHours(20, 30, 0, 0);
     this.frmGroup = this._fb.group({
       idStudent: [null, [Validators.required]],
+      idCourse: [null],
       startDate: [new Date(), [Validators.required]],
       numberOfWeeks: [12, [Validators.required, Validators.min(1), Validators.max(52)]],
       daysOfWeek: [[], [Validators.required]],
@@ -58,7 +63,25 @@ export class LessonBulkFormComponent extends TdBaseComponent implements OnInit {
       endTime: [end, [Validators.required]],
       location: [''],
     });
+
+    // Đổi HS → nạp môn, auto chọn môn đầu
+    this.frmGroup.get('idStudent')!.valueChanges.subscribe((id: string) => {
+      if (!id) { this.courses = []; this.frmGroup.patchValue({ idCourse: null }, { emitEvent: false }); return; }
+      this._courseService.getByStudent(id).subscribe((rs) => {
+        if (rs.status !== StatusCode.Ok) return;
+        this.courses = (rs.data ?? []).filter((c: IStudentCourse) => c.isActive);
+        this.frmGroup.patchValue({ idCourse: this.courses[0]?.id ?? null }, { emitEvent: false });
+      });
+    });
   }
+
+  /** Giá buổi môn đang chọn — preview tổng tiền cho tutor. */
+  get selectedCourseRate(): number | null {
+    const id = this.frmGroup?.value?.idCourse;
+    return this.courses.find(c => c.id === id)?.perLessonRate ?? null;
+  }
+
+  fmtVnd(n: number): string { return new Intl.NumberFormat('vi-VN').format(n || 0); }
 
   loadStudents() {
     this._studentService.gridLoadData({ keyword: '', pageNumber: 1, pageSize: 200, status: 1 })
@@ -96,6 +119,7 @@ export class LessonBulkFormComponent extends TdBaseComponent implements OnInit {
     const v = this.frmGroup.value;
     const payload = {
       idStudent: v.idStudent,
+      idCourse: v.idCourse || null,
       startDate: this.toISODate(v.startDate),
       numberOfWeeks: v.numberOfWeeks,
       daysOfWeek: v.daysOfWeek,

@@ -14,6 +14,9 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
 
         public Guid IdStudent { get; set; }
 
+        /// <summary>Môn/lớp của buổi này (StudentCourse). Null = buổi cũ trước khi có course.</summary>
+        public Guid? IdCourse { get; set; }
+
         /// <summary>Chỉ phần ngày (component time bỏ qua). Giờ tách ra StartTime/EndTime.</summary>
         public DateTime ScheduledDate { get; set; }
 
