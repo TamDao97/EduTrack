@@ -36,9 +36,25 @@
         <div class="page-lessons__nav-label">{{ weekRangeLabel() }}</div>
         <div class="page-lessons__nav-hint">Bấm để về tuần này</div>
       </div>
+      <!-- Nhảy nhanh tới tuần bất kỳ -->
+      <nz-date-picker class="page-lessons__nav-cal"
+                      [ngModel]="weekStart" (ngModelChange)="onJumpToDate($event)"
+                      [nzAllowClear]="false" nzFormat="dd/MM"
+                      nz-tooltip nzTooltipTitle="Nhảy tới tuần bất kỳ"></nz-date-picker>
       <button class="page-lessons__nav-btn" (click)="onNextWeek()">
         <span nz-icon nzType="right"></span>
       </button>
+    </div>
+
+    <!-- Tổng quan tuần -->
+    <div class="page-lessons__summary" *ngIf="!isLoading && summary.totalLessons > 0">
+      <span class="page-lessons__sum-item"><strong>{{ summary.totalLessons }}</strong> buổi</span>
+      <span class="page-lessons__sum-dot">·</span>
+      <span class="page-lessons__sum-item">✓ <strong>{{ summary.doneLessons }}</strong> đã dạy</span>
+      <span class="page-lessons__sum-dot">·</span>
+      <span class="page-lessons__sum-item">🔔 <strong>{{ summary.todayLessons }}</strong> hôm nay</span>
+      <span class="page-lessons__sum-dot">·</span>
+      <span class="page-lessons__sum-item">⏱ <strong>{{ summary.teachHours }}</strong> giờ dạy</span>
     </div>
   </header>
 
@@ -70,24 +86,31 @@
 
   <!-- Day groups -->
   <div class="page-lessons__days" *ngIf="!isLoading">
-    <section class="day-group" *ngFor="let day of days" [class.is-today]="day.isToday">
-      <header class="day-group__header">
+    <section class="day-group" *ngFor="let day of days"
+             [class.is-today]="day.isToday" [class.is-past]="day.isPast">
+      <header class="day-group__header" [class.is-clickable]="day.isPast" (click)="toggleDayOpen(day)">
         <div class="day-group__date">
           <span class="day-group__day">{{ day.dayLabel }}</span>
           <span class="day-group__dot">·</span>
           <span class="day-group__num">{{ day.dateLabel }}</span>
           <span class="day-group__today-badge" *ngIf="day.isToday">HÔM NAY</span>
         </div>
-        <span class="day-group__count" *ngIf="day.lessons.length > 0">{{ day.lessons.length }} buổi</span>
+        <!-- Ngày quá khứ thu gọn: tóm tắt + chevron -->
+        <span class="day-group__past-sum" *ngIf="day.isPast">
+          <ng-container *ngIf="day.lessons.length > 0">{{ day.lessons.length }} buổi · ✓{{ doneCountOf(day) }}</ng-container>
+          <ng-container *ngIf="day.lessons.length === 0">trống</ng-container>
+          <span nz-icon [nzType]="isDayOpen(day) ? 'up' : 'down'"></span>
+        </span>
+        <span class="day-group__count" *ngIf="!day.isPast && day.lessons.length > 0">{{ day.lessons.length }} buổi</span>
       </header>
 
       <!-- Empty day -->
-      <div *ngIf="day.lessons.length === 0" class="day-group__empty">
+      <div *ngIf="day.lessons.length === 0 && isDayOpen(day) && !day.isPast" class="day-group__empty">
         Không có lịch
       </div>
 
       <!-- Items: ca nhóm (view chiều lớp) + buổi 1-1 -->
-      <ul class="day-group__list" *ngIf="day.items.length > 0">
+      <ul class="day-group__list" *ngIf="day.items.length > 0 && isDayOpen(day)">
         <ng-container *ngFor="let it of day.items">
 
           <!-- ─── CA NHÓM: 1 thẻ cho cả lớp, bấm để xổ từng em ─── -->
@@ -104,6 +127,9 @@
                   <span nz-icon nzType="team"></span>
                   {{ it.session.className || 'Buổi nhóm' }}
                   <span class="lesson-card__subject" *ngIf="it.session.courseSubject">{{ it.session.courseSubject }}</span>
+                  <span class="conflict-badge" *ngIf="it.conflict" title="Giao giờ với ca/buổi khác cùng ngày">
+                    <span nz-icon nzType="warning"></span> Trùng giờ
+                  </span>
                 </div>
                 <div class="session-card__meta">
                   {{ it.session.lessons.length }} HS · {{ fmtVnd(it.session.total) }}đ/ca
@@ -156,7 +182,7 @@
 
           <!-- ─── BUỔI 1-1 ─── -->
           <li *ngIf="it.kind === 'single'">
-            <ng-container *ngTemplateOutlet="lessonCard; context: { $implicit: it.lesson, inGroup: false }"></ng-container>
+            <ng-container *ngTemplateOutlet="lessonCard; context: { $implicit: it.lesson, inGroup: false, conflict: it.conflict }"></ng-container>
           </li>
         </ng-container>
       </ul>
@@ -165,7 +191,7 @@
 </div>
 
 <!-- ═══ Thẻ 1 buổi học (dùng chung cho buổi lẻ + dòng HS trong ca nhóm) ═══ -->
-<ng-template #lessonCard let-l let-inGroup="inGroup">
+<ng-template #lessonCard let-l let-inGroup="inGroup" let-conflict="conflict">
   <div class="lesson-card"
        [class.lesson-card--nested]="inGroup"
        [class.is-done]="l.status === LessonStatus.Done"
@@ -180,6 +206,9 @@
       <div class="lesson-card__name">
         {{ l.studentFullName || '—' }}
         <span class="lesson-card__subject" *ngIf="!inGroup && l.courseSubject">{{ l.courseSubject }}</span>
+        <span class="conflict-badge" *ngIf="conflict" title="Giao giờ với ca/buổi khác cùng ngày">
+          <span nz-icon nzType="warning"></span> Trùng giờ
+        </span>
       </div>
       <div class="lesson-card__meta">
         <span *ngIf="!inGroup && l.location">{{ l.location }}</span>

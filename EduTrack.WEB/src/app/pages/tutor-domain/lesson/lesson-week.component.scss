@@ -296,3 +296,69 @@
   cursor: pointer; transition: all $t-fast;
   &:hover { color: $danger; border-color: $danger; }
 }
+
+// ────────────── Nâng cấp lịch: jump tuần + tổng quan + thu gọn quá khứ + trùng giờ ──────────────
+
+// Date-picker nhảy tuần — hoà vào nav glass, chỉ hiện icon lịch
+.page-lessons__nav-cal {
+  width: 44px; height: 40px;
+  flex-shrink: 0;
+  ::ng-deep .ant-picker {
+    width: 44px; height: 40px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    border-radius: $radius-sm;
+    &:hover { background: rgba(255,255,255,0.18) !important; }
+  }
+  ::ng-deep .ant-picker-input > input { display: none; }
+  ::ng-deep .ant-picker-suffix { color: #fff; font-size: 17px; margin: 0; }
+}
+
+// Dải tổng quan tuần (glass, trong hero)
+.page-lessons__summary {
+  @include glass;
+  margin-top: $sp-2;
+  border-radius: $radius-md;
+  padding: $sp-2 $sp-3;
+  display: flex; align-items: center; gap: $sp-2;
+  flex-wrap: wrap;
+  position: relative; z-index: 1;
+  font-size: $fs-sm; color: rgba(255,255,255,0.85);
+
+  strong { color: #fff; font-weight: $fw-bold; }
+}
+.page-lessons__sum-dot { opacity: 0.5; }
+
+// Ngày quá khứ thu gọn
+.day-group__header.is-clickable { cursor: pointer; &:hover .day-group__day { color: $primary; } }
+.day-group__past-sum {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: $fs-sm; color: $text-3;
+  [nz-icon] { font-size: 10px; }
+}
+.day-group.is-past:not(.is-today) {
+  .day-group__day, .day-group__num { color: $text-3; }
+}
+
+// Badge trùng giờ
+.conflict-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 9px;
+  background: $danger-soft;
+  color: $danger-dark;
+  font-size: $fs-caption;
+  font-weight: $fw-bold;
+  vertical-align: 2px;
+  animation: conflict-pulse 2s ease-in-out infinite;
+  [nz-icon] { font-size: 10px; }
+}
+@keyframes conflict-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}

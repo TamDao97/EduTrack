@@ -29,16 +29,26 @@ interface SessionGroup {
 
 /** 1 mục hiển thị trong ngày: buổi 1-1 lẻ hoặc 1 ca nhóm. */
 type DayItem =
-  | { kind: 'single'; startTime: string; lesson: ILessonDetail }
-  | { kind: 'group'; startTime: string; session: SessionGroup };
+  | { kind: 'single'; startTime: string; endTime: string; lesson: ILessonDetail; conflict?: boolean }
+  | { kind: 'group'; startTime: string; endTime: string; session: SessionGroup; conflict?: boolean };
 
 interface DayGroup {
   date: Date;
+  iso: string;          // "2026-06-05" — key cho thu gọn ngày quá khứ
   dayLabel: string;     // "Thứ 2"
   dateLabel: string;    // "27/05"
   isToday: boolean;
+  isPast: boolean;
   lessons: ILessonDetail[];
   items: DayItem[];
+}
+
+/** Tổng quan tuần — dải số đầu màn. */
+interface WeekSummary {
+  totalLessons: number;   // buổi-HS (không tính đã huỷ)
+  doneLessons: number;
+  todayLessons: number;   // buổi hôm nay chưa huỷ
+  teachHours: number;     // giờ dạy thật (mỗi CA tính 1 lần, không nhân theo số HS)
 }
 
 @Component({
@@ -120,9 +130,13 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
       });
   }
 
+  /** Tổng quan tuần (tính từ rawLessons, KHÔNG phụ thuộc bộ lọc). */
+  summary: WeekSummary = { totalLessons: 0, doneLessons: 0, todayLessons: 0, teachHours: 0 };
+
   buildDays(lessons: ILessonDetail[]) {
     const filtered = this.applyFilters(lessons);
     const today = new Date(); today.setHours(0, 0, 0, 0);
+    const todayIso = this.toISODate(today);
     const groups: DayGroup[] = [];
     for (let i = 0; i < 7; i++) {
       const d = this.addDays(this.weekStart, i);
@@ -132,14 +146,61 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
         .sort((a, b) => a.startTime.localeCompare(b.startTime));
       groups.push({
         date: d,
+        iso: ds,
         dayLabel: this.dayName(d.getDay()),
         dateLabel: `${this.pad(d.getDate())}/${this.pad(d.getMonth() + 1)}`,
-        isToday: ds === this.toISODate(today),
+        isToday: ds === todayIso,
+        isPast: ds < todayIso,
         lessons: dayLessons,
         items: this.buildDayItems(dayLessons),
       });
     }
     this.days = groups;
+    this.summary = this.buildSummary(this.rawLessons, todayIso);
+  }
+
+  /** Dải tổng quan tuần: buổi / đã dạy / hôm nay / giờ dạy (mỗi CA tính 1 lần). */
+  private buildSummary(lessons: ILessonDetail[], todayIso: string): WeekSummary {
+    const active = lessons.filter(l => l.status !== LessonStatus.Cancelled);
+    const minutes = (s: string, e: string) => {
+      const [sh, sm] = s.split(':').map(Number); const [eh, em] = e.split(':').map(Number);
+      return Math.max(0, (eh * 60 + em) - (sh * 60 + sm));
+    };
+    // Giờ dạy thật: 1 CA (groupKey) = 1 lần; buổi 1-1 theo từng buổi
+    const seen = new Set<string>();
+    let mins = 0;
+    for (const l of active) {
+      const key = l.groupKey ? `g:${l.groupKey}` : `s:${l.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      mins += minutes(l.startTime, l.endTime);
+    }
+    return {
+      totalLessons: active.length,
+      doneLessons: active.filter(l => l.status === LessonStatus.Done).length,
+      todayLessons: active.filter(l => l.scheduledDate.startsWith(todayIso)).length,
+      teachHours: Math.round((mins / 60) * 10) / 10,
+    };
+  }
+
+  /* ─── Thu gọn ngày đã qua — hôm nay luôn mở, quá khứ bấm mới xổ ─── */
+  expandedPastDays = new Set<string>();
+  isDayOpen(day: DayGroup): boolean { return !day.isPast || this.expandedPastDays.has(day.iso); }
+  toggleDayOpen(day: DayGroup) {
+    if (!day.isPast) return;
+    if (this.expandedPastDays.has(day.iso)) this.expandedPastDays.delete(day.iso);
+    else this.expandedPastDays.add(day.iso);
+  }
+  doneCountOf(day: DayGroup): number {
+    return day.lessons.filter(l => l.status === LessonStatus.Done).length;
+  }
+
+  /** Nhảy nhanh tới tuần chứa ngày bất kỳ (date-picker trên nav). */
+  onJumpToDate(d: Date | null) {
+    if (!d) return;
+    this.weekStart = this.getMondayOfWeek(d);
+    this.weekEnd = this.addDays(this.weekStart, 6);
+    this.load();
   }
 
   /** View "chiều lớp học": gộp các lesson cùng groupKey thành 1 thẻ CA; buổi 1-1 giữ nguyên. */
@@ -148,7 +209,7 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     const sessions = new Map<string, SessionGroup>();
     for (const l of dayLessons) {
       if (!l.groupKey) {
-        items.push({ kind: 'single', startTime: l.startTime, lesson: l });
+        items.push({ kind: 'single', startTime: l.startTime, endTime: l.endTime, lesson: l });
         continue;
       }
       let s = sessions.get(l.groupKey);
@@ -164,14 +225,34 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
           total: 0, scheduledCount: 0, doneCount: 0,
         };
         sessions.set(l.groupKey, s);
-        items.push({ kind: 'group', startTime: l.startTime, session: s });
+        items.push({ kind: 'group', startTime: l.startTime, endTime: l.endTime, session: s });
       }
       s.lessons.push(l);
       s.total += l.chargeAmount || 0;
       if (l.status === LessonStatus.Scheduled) s.scheduledCount++;
       if (l.status === LessonStatus.Done) s.doneCount++;
     }
-    return items.sort((a, b) => a.startTime.localeCompare(b.startTime));
+    items.sort((a, b) => a.startTime.localeCompare(b.startTime));
+    this.markConflicts(items);
+    return items;
+  }
+
+  /** ⚠️ Cảnh báo TRÙNG GIỜ: 2 mục cùng ngày giao nhau về khung giờ (bỏ qua đã huỷ). */
+  private markConflicts(items: DayItem[]) {
+    const isActive = (it: DayItem) =>
+      it.kind === 'single'
+        ? it.lesson.status !== LessonStatus.Cancelled
+        : (it.session.scheduledCount + it.session.doneCount) > 0;
+    const act = items.filter(isActive);
+    for (let i = 0; i < act.length; i++) {
+      for (let j = i + 1; j < act.length; j++) {
+        // [start, end) giao nhau — so chuỗi "HH:mm:ss" hợp lệ
+        if (act[i].startTime < act[j].endTime && act[j].startTime < act[i].endTime) {
+          act[i].conflict = true;
+          act[j].conflict = true;
+        }
+      }
+    }
   }
 
   /* ─── Thao tác theo CA (nhóm) ─── */
