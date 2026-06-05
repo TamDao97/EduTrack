@@ -23,6 +23,34 @@ namespace EduTrack.API.Configs
             await EnsureFounderAsync(db, config, logger);
             await EnsurePagesAsync(db, logger);
             await EnsureDefaultCoursesAsync(db, logger);
+            await EnsurePaymentHistoryAsync(db, logger);
+        }
+
+        /// <summary>
+        /// Backfill lịch sử thu: kỳ đã có PaidAmount > 0 nhưng CHƯA có dòng TuitionPayment nào
+        /// (thu trước khi có bảng lịch sử) → tạo 1 dòng tổng hợp. Idempotent.
+        /// </summary>
+        private static async Task EnsurePaymentHistoryAsync(EduTrackDbContext db, ILogger logger)
+        {
+            var periods = await db.TuitionPeriods
+                .Where(p => p.PaidAmount > 0 && !db.TuitionPayments.Any(x => x.IdPeriod == p.Id))
+                .Select(p => new { p.Id, p.IdTutor, p.PaidAmount })
+                .ToListAsync();
+            if (periods.Count == 0) return;
+
+            foreach (var p in periods)
+            {
+                db.TuitionPayments.Add(new DataContext.Entity.TutorDomain.TuitionPayment
+                {
+                    Id = Guid.NewGuid(),
+                    IdTutor = p.IdTutor,
+                    IdPeriod = p.Id,
+                    Amount = p.PaidAmount,
+                    Notes = "Ghi nhận tổng hợp (trước khi có lịch sử thu)",
+                });
+            }
+            await db.SaveChangesAsync();
+            logger.LogInformation("Payment seeder: backfill lịch sử thu cho {Count} kỳ.", periods.Count);
         }
 
         /// <summary>

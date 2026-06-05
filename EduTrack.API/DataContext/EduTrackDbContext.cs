@@ -49,6 +49,7 @@ namespace EduTrack.API.DataContext
         public DbSet<StudentCourse> StudentCourses { get; set; }
         public DbSet<ClassRoom> ClassRooms { get; set; }
         public DbSet<ClassMember> ClassMembers { get; set; }
+        public DbSet<TuitionPayment> TuitionPayments { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -117,6 +118,8 @@ namespace EduTrack.API.DataContext
             modelBuilder.Entity<ClassMember>().Property(m => m.RateOverride).HasColumnType("decimal(18,0)");
             modelBuilder.Entity<ClassMember>().HasIndex(m => new { m.IdClass, m.IdStudent });
             modelBuilder.Entity<ClassMember>().HasIndex(m => m.IdStudent);
+            modelBuilder.Entity<TuitionPayment>().Property(p => p.Amount).HasColumnType("decimal(18,0)");
+            modelBuilder.Entity<TuitionPayment>().HasIndex(p => p.IdPeriod);
         }
 
         public override int SaveChanges()

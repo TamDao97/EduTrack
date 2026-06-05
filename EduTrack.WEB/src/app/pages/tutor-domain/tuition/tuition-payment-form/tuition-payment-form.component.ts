@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { ITuitionPeriodDetail } from '../../../../interfaces/ITuitionPeriod';
+import { ITuitionPayment, ITuitionPeriodDetail } from '../../../../interfaces/ITuitionPeriod';
 import { TuitionPeriodService } from '../../../../services/tutor-domain/tuition-period.service';
 import { SharedModule } from '../../../../shared/modules/shared.module';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -28,12 +28,36 @@ export class TuitionPaymentFormComponent extends TdBaseComponent implements OnIn
   frmGroup!: FormGroup;
   isSubmitting = false;
 
+  /** Lịch sử các đợt thu của kỳ — soi lại từng lần. */
+  payments: ITuitionPayment[] = [];
+  isLoadingHistory = false;
+
+  methodOptions = ['Chuyển khoản', 'Tiền mặt', 'Khác'];
+
   ngOnInit() {
     const outstanding = this.outstanding;
     this.frmGroup = this._fb.group({
       amount: [outstanding, [Validators.required, Validators.min(1)]],
+      method: ['Chuyển khoản'],
       notes: [''],
     });
+    this.loadHistory();
+  }
+
+  loadHistory() {
+    if (!this.params?.id) return;
+    this.isLoadingHistory = true;
+    this._service.getPayments(this.params.id)
+      .pipe(finalize(() => this.isLoadingHistory = false))
+      .subscribe(rs => {
+        if (rs.status === StatusCode.Ok) this.payments = rs.data ?? [];
+      });
+  }
+
+  fmtDate(s?: string): string {
+    if (!s) return '';
+    const d = new Date(s);
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   }
 
   get outstanding(): number {
@@ -58,7 +82,7 @@ export class TuitionPaymentFormComponent extends TdBaseComponent implements OnIn
       return;
     }
     this.isSubmitting = true;
-    this._service.recordPayment(this.params.id, +v.amount, v.notes || '')
+    this._service.recordPayment(this.params.id, +v.amount, v.notes || '', v.method || null)
       .pipe(finalize(() => this.isSubmitting = false))
       .subscribe({
         next: rs => {

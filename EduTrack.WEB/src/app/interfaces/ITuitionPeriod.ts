@@ -43,6 +43,16 @@ export interface ITuitionPeriodGridFilter extends IGridFilterBase {
   periodYear?: number | null;
 }
 
+/** 1 đợt thu trong lịch sử thanh toán của kỳ */
+export interface ITuitionPayment {
+  id?: string;
+  idPeriod: string;
+  amount: number;
+  method?: string | null;
+  notes?: string | null;
+  dateCreated?: string;
+}
+
 export interface ITuitionPreviewLine {
   idLesson: string;
   scheduledDate: string;

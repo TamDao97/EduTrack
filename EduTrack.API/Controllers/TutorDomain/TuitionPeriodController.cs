@@ -47,11 +47,29 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<TuitionPeriodDto>>> CloseAsync(Guid id, [FromBody] CloseReq req)
             => Ok(await _service.CloseAsync(id, req?.Adjustment ?? 0, req?.Notes));
 
+        [TDPermission("PreviewMonthAsync", "Bảng chốt kỳ tháng", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpGet("preview-month")]
+        public async Task<ActionResult<Response<MonthClosePreviewDto>>> PreviewMonthAsync([FromQuery] int month, [FromQuery] int year)
+            => Ok(await _service.PreviewMonthAsync(month, year));
+
+        [TDPermission("CloseMonthBulkAsync", "Chốt kỳ hàng loạt", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpPost("close-month-bulk")]
+        public async Task<ActionResult<Response<MonthCloseResultDto>>> CloseMonthBulkAsync(MonthCloseBulkReq req)
+            => Ok(await _service.CloseMonthBulkAsync(req));
+
         [TDPermission("RecordPaymentAsync", "Ghi nhận thanh toán", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpPost("record-payment/{id:Guid}")]
         public async Task<ActionResult<Response<TuitionPeriodDto>>> RecordPaymentAsync(Guid id, [FromBody] PaymentReq req)
-            => Ok(await _service.RecordPaymentAsync(id, req.Amount, req.Notes));
+            => Ok(await _service.RecordPaymentAsync(id, req.Amount, req.Notes, req.Method));
+
+        [TDPermission("GetPaymentsAsync", "Lịch sử thu của kỳ", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpGet("get-payments/{idPeriod:Guid}")]
+        public async Task<ActionResult<Response<List<TuitionPaymentDto>>>> GetPaymentsAsync(Guid idPeriod)
+            => Ok(await _service.GetPaymentsAsync(idPeriod));
 
         [TDPermission("DeleteAsync", "Xoá kỳ học phí", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
@@ -61,6 +79,6 @@ namespace EduTrack.API.Controllers.TutorDomain
 
         public class OpenOrGetReq { public Guid IdStudent { get; set; } public int Month { get; set; } public int Year { get; set; } }
         public class CloseReq { public decimal Adjustment { get; set; } public string? Notes { get; set; } }
-        public class PaymentReq { public decimal Amount { get; set; } public string? Notes { get; set; } }
+        public class PaymentReq { public decimal Amount { get; set; } public string? Notes { get; set; } public string? Method { get; set; } }
     }
 }

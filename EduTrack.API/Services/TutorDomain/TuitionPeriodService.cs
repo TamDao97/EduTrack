@@ -16,8 +16,11 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<PagingData<List<TuitionPeriodDetailDto>>>> GetByFilterAsync(TuitionPeriodGridFilter filter);
         Task<Response<TuitionPeriodDto>> OpenOrGetAsync(Guid idStudent, int month, int year);
         Task<Response<TuitionPeriodDto>> CloseAsync(Guid id, decimal adjustment, string? notes);
-        Task<Response<TuitionPeriodDto>> RecordPaymentAsync(Guid id, decimal amount, string? notes);
+        Task<Response<TuitionPeriodDto>> RecordPaymentAsync(Guid id, decimal amount, string? notes, string? method = null);
+        Task<Response<List<TuitionPaymentDto>>> GetPaymentsAsync(Guid idPeriod);
         Task<Response<TuitionPreviewDto>> PreviewAsync(Guid idStudent, int month, int year);
+        Task<Response<MonthClosePreviewDto>> PreviewMonthAsync(int month, int year);
+        Task<Response<MonthCloseResultDto>> CloseMonthBulkAsync(MonthCloseBulkReq req);
     }
 
     public class TuitionPeriodService : TutorScopedBaseService<TuitionPeriod, TuitionPeriodDto>, ITuitionPeriodService
@@ -36,6 +39,103 @@ namespace EduTrack.API.Services.TutorDomain
             _parentRepos = unitOfWork.GetRepository<Parent>();
             _notiGen = notiGen;
             _subService = subService;
+        }
+
+        /// <summary>
+        /// Bảng chốt kỳ THÁNG: quét HS có buổi Đã dạy chưa chốt trong tháng — hệ thống
+        /// tìm sẵn, tutor chỉ duyệt (loại HS có kỳ đã chốt: dùng "Chốt lại" trên card).
+        /// </summary>
+        public async Task<Response<MonthClosePreviewDto>> PreviewMonthAsync(int month, int year)
+        {
+            if (month < 1 || month > 12 || year < 2020 || year > 2100)
+                return Response<MonthClosePreviewDto>.Error(StatusCode.BadRequest, "Tháng/năm không hợp lệ");
+
+            var idTutor = await GetCurrentTutorIdAsync();
+
+            // Gom buổi Đã dạy chưa thuộc kỳ nào theo HS
+            var doneByStudent = await _lessonRepos.TableNoTracking
+                .Where(l => l.IdTutor == idTutor
+                         && l.Status == LessonStatusEnums.Done
+                         && l.ScheduledDate.Year == year && l.ScheduledDate.Month == month
+                         && l.IdTuitionPeriod == null)
+                .GroupBy(l => l.IdStudent)
+                .Select(g => new { IdStudent = g.Key, Count = g.Count(), Total = g.Sum(x => x.ChargeAmount) })
+                .ToListAsync();
+
+            // Loại HS có kỳ tháng này ĐÃ CHỐT (tránh đè — chốt bổ sung dùng luồng riêng)
+            var closedIds = await _repos.TableNoTracking
+                .Where(p => p.IdTutor == idTutor && p.PeriodMonth == month && p.PeriodYear == year && p.ClosedAt != null)
+                .Select(p => p.IdStudent)
+                .ToListAsync();
+            doneByStudent = doneByStudent.Where(x => !closedIds.Contains(x.IdStudent)).ToList();
+
+            var ids = doneByStudent.Select(x => x.IdStudent).ToList();
+            var names = await _studentRepos.TableNoTracking
+                .Where(s => ids.Contains(s.Id))
+                .ToDictionaryAsync(s => s.Id, s => s.FullName);
+
+            // Cảnh báo: buổi ĐÃ QUA trong tháng còn "Đã lên lịch" (quên đánh dấu → chốt sẽ thiếu)
+            var today = AppTime.VnNow.Date;
+            var pastScheduled = await _lessonRepos.TableNoTracking
+                .CountAsync(l => l.IdTutor == idTutor
+                              && l.Status == LessonStatusEnums.Scheduled
+                              && l.ScheduledDate.Year == year && l.ScheduledDate.Month == month
+                              && l.ScheduledDate < today);
+
+            var dto = new MonthClosePreviewDto
+            {
+                Month = month,
+                Year = year,
+                PastScheduledLessons = pastScheduled,
+                TotalAmount = doneByStudent.Sum(x => x.Total),
+                Candidates = doneByStudent
+                    .Select(x => new MonthCloseCandidateDto
+                    {
+                        IdStudent = x.IdStudent,
+                        StudentFullName = names.GetValueOrDefault(x.IdStudent, "—"),
+                        DoneLessons = x.Count,
+                        TotalAmount = x.Total,
+                    })
+                    .OrderBy(c => c.StudentFullName)
+                    .ToList(),
+            };
+            return Response<MonthClosePreviewDto>.Success(dto, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Chốt HÀNG LOẠT các HS đã chọn trong tháng: mỗi em = OpenOrGet + Close (tái dùng
+        /// luồng đơn lẻ → giữ nguyên validate + sinh nhắc học phí). Lỗi từng em không chặn em khác.
+        /// </summary>
+        public async Task<Response<MonthCloseResultDto>> CloseMonthBulkAsync(MonthCloseBulkReq req)
+        {
+            if (req.StudentIds.Count == 0)
+                return Response<MonthCloseResultDto>.Error(StatusCode.BadRequest, "Chưa chọn học sinh nào");
+
+            var result = new MonthCloseResultDto();
+            foreach (var idStudent in req.StudentIds.Distinct())
+            {
+                var open = await OpenOrGetAsync(idStudent, req.Month, req.Year);
+                if (open.Status != StatusCode.Ok || open.Data == null)
+                {
+                    result.Errors.Add(open.Message ?? "Không mở được kỳ");
+                    continue;
+                }
+                if (open.Data.ClosedAt.HasValue)
+                {
+                    result.Errors.Add($"{open.Data.IdStudent}: kỳ đã chốt trước đó");
+                    continue;
+                }
+
+                var close = await CloseAsync(open.Data.Id!.Value, adjustment: 0, notes: null);
+                if (close.Status != StatusCode.Ok || close.Data == null)
+                {
+                    result.Errors.Add(close.Message ?? "Chốt kỳ thất bại");
+                    continue;
+                }
+                result.ClosedCount++;
+                result.TotalAmount += close.Data.FinalAmount;
+            }
+            return Response<MonthCloseResultDto>.Success(result, StatusCode.Ok.ToDescription());
         }
 
         public async Task<Response<TuitionPeriodDto>> OpenOrGetAsync(Guid idStudent, int month, int year)
@@ -134,8 +234,11 @@ namespace EduTrack.API.Services.TutorDomain
             return Response<TuitionPeriodDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<TuitionPeriod, TuitionPeriodDto>(period), StatusCode.Ok.ToDescription());
         }
 
-        /// <summary>Ghi nhận thanh toán (1 phần hoặc đủ). Cộng dồn vào PaidAmount.</summary>
-        public async Task<Response<TuitionPeriodDto>> RecordPaymentAsync(Guid id, decimal amount, string? notes)
+        /// <summary>
+        /// Ghi nhận thanh toán (1 phần hoặc đủ): cộng dồn PaidAmount + LƯU 1 DÒNG
+        /// LỊCH SỬ TuitionPayment (số thực ghi nhận, hình thức, ghi chú).
+        /// </summary>
+        public async Task<Response<TuitionPeriodDto>> RecordPaymentAsync(Guid id, decimal amount, string? notes, string? method = null)
         {
             if (amount <= 0)
                 return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Số tiền phải > 0");
@@ -147,25 +250,46 @@ namespace EduTrack.API.Services.TutorDomain
             if (!period.ClosedAt.HasValue)
                 return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Kỳ chưa chốt — chốt trước khi thu tiền");
 
-            period.PaidAmount += amount;
-            if (period.PaidAmount >= period.FinalAmount)
-            {
-                period.PaidAmount = period.FinalAmount;
-                period.Status = TuitionPeriodStatusEnums.Paid;
-            }
-            else
-            {
-                period.Status = TuitionPeriodStatusEnums.PartialPaid;
-            }
-            if (!string.IsNullOrEmpty(notes))
-                period.Notes = string.IsNullOrEmpty(period.Notes) ? notes : $"{period.Notes}\n[Thu {amount:N0}] {notes}";
+            // Số THỰC ghi nhận: clamp về phần còn nợ (nhập dư không ghi dư)
+            var credited = Math.Min(amount, Math.Max(0, period.FinalAmount - period.PaidAmount));
+            if (credited <= 0)
+                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Kỳ này đã thu đủ");
+
+            period.PaidAmount += credited;
+            period.Status = period.PaidAmount >= period.FinalAmount
+                ? TuitionPeriodStatusEnums.Paid
+                : TuitionPeriodStatusEnums.PartialPaid;
 
             period.MarkDirty(nameof(period.PaidAmount));
             period.MarkDirty(nameof(period.Status));
-            period.MarkDirty(nameof(period.Notes));
+
+            // Lịch sử: mỗi đợt thu 1 dòng — sổ sách soi lại được từng lần
+            var paymentRepos = _unitOfWork.GetRepository<TuitionPayment>();
+            await paymentRepos.CreateAsync(new TuitionPayment
+            {
+                Id = Guid.NewGuid(),
+                IdTutor = idTutor,
+                IdPeriod = period.Id,
+                Amount = credited,
+                Method = method,
+                Notes = notes,
+            });
 
             await _unitOfWork.SaveChangesAsync();
             return Response<TuitionPeriodDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<TuitionPeriod, TuitionPeriodDto>(period), StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>Lịch sử các đợt thu của 1 kỳ — mới nhất trước.</summary>
+        public async Task<Response<List<TuitionPaymentDto>>> GetPaymentsAsync(Guid idPeriod)
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var list = await _unitOfWork.GetRepository<TuitionPayment>().TableNoTracking
+                .Where(p => p.IdPeriod == idPeriod && p.IdTutor == idTutor)
+                .OrderByDescending(p => p.DateCreated)
+                .ToListAsync();
+            return Response<List<TuitionPaymentDto>>.Success(
+                TD.Lib.AutoMapper.AutoMapperGeneric.Map<List<TuitionPayment>, List<TuitionPaymentDto>>(list),
+                StatusCode.Ok.ToDescription());
         }
 
         /// <summary>Preview số buổi Done + tổng tiền chưa chốt — KHÔNG sửa DB.</summary>

@@ -33,6 +33,16 @@
     </nz-form-control>
   </nz-form-item>
 
+  <!-- Hình thức -->
+  <nz-form-item>
+    <nz-form-label>Hình thức</nz-form-label>
+    <nz-form-control>
+      <nz-select formControlName="method">
+        <nz-option *ngFor="let m of methodOptions" [nzValue]="m" [nzLabel]="m"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
   <!-- Notes -->
   <nz-form-item>
     <nz-form-label>Ghi chú (tuỳ chọn)</nz-form-label>
@@ -41,6 +51,20 @@
         placeholder="Vd: Đã chuyển khoản TCB lúc 14:30 · Đóng tiền mặt"></textarea>
     </nz-form-control>
   </nz-form-item>
+
+  <!-- Lịch sử các đợt thu của kỳ -->
+  <div class="pf__history" *ngIf="payments.length > 0">
+    <div class="pf__history-title">Lịch sử thu ({{ payments.length }} đợt)</div>
+    <ul class="pf__history-list">
+      <li *ngFor="let p of payments">
+        <span class="pf__history-amount">+{{ fmt(p.amount) }}đ</span>
+        <span class="pf__history-meta">
+          {{ fmtDate(p.dateCreated) }}<ng-container *ngIf="p.method"> · {{ p.method }}</ng-container>
+          <ng-container *ngIf="p.notes"> · {{ p.notes }}</ng-container>
+        </span>
+      </li>
+    </ul>
+  </div>
 
   <div class="pf__actions">
     <button type="button" nz-button nzSize="large" (click)="onCancel()" [disabled]="isSubmitting">Huỷ</button>
