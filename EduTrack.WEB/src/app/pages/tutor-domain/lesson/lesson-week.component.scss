@@ -305,23 +305,22 @@
 
 // ────────────── Nâng cấp lịch: jump tuần + tổng quan + thu gọn quá khứ + trùng giờ ──────────────
 
-// Date-picker nhảy tuần — hoà vào nav glass, chỉ hiện icon lịch
-.page-lessons__nav-cal {
-  width: 44px; height: 40px;
-  flex-shrink: 0;
-  ::ng-deep .ant-picker {
-    width: 44px; height: 40px;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    border-radius: $radius-sm;
-    &:hover { background: rgba(255,255,255,0.18) !important; }
-  }
-  ::ng-deep .ant-picker-input > input { display: none; }
-  ::ng-deep .ant-picker-suffix { color: #fff; font-size: 17px; margin: 0; }
+// Nút nhảy tuần: nút glass thật, nz-date-picker tàng hình phủ lên (host mang class ant-picker
+// nên không style trực tiếp được — phủ invisible là cách chắc chắn nhất)
+.page-lessons__nav-btn--cal {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.page-lessons__nav-cal-input {
+  position: absolute !important;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  // đè style mặc định của ant-picker trên host
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
 }
 
 // Dải tổng quan tuần (glass, trong hero)

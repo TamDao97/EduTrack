@@ -36,11 +36,14 @@
         <div class="page-lessons__nav-label">{{ weekRangeLabel() }}</div>
         <div class="page-lessons__nav-hint">Bấm để về tuần này</div>
       </div>
-      <!-- Nhảy nhanh tới tuần bất kỳ -->
-      <nz-date-picker class="page-lessons__nav-cal"
-                      [ngModel]="weekStart" (ngModelChange)="onJumpToDate($event)"
-                      [nzAllowClear]="false" nzFormat="dd/MM"
-                      nz-tooltip nzTooltipTitle="Nhảy tới tuần bất kỳ"></nz-date-picker>
+      <!-- Nhảy nhanh tới tuần bất kỳ: nút glass + picker tàng hình phủ lên -->
+      <div class="page-lessons__nav-btn page-lessons__nav-btn--cal"
+           nz-tooltip nzTooltipTitle="Nhảy tới tuần bất kỳ">
+        <span nz-icon nzType="calendar"></span>
+        <nz-date-picker class="page-lessons__nav-cal-input"
+                        [ngModel]="weekStart" (ngModelChange)="onJumpToDate($event)"
+                        [nzAllowClear]="false" nzFormat="dd/MM"></nz-date-picker>
+      </div>
       <button class="page-lessons__nav-btn" (click)="onNextWeek()">
         <span nz-icon nzType="right"></span>
       </button>
