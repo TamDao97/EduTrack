@@ -53,6 +53,56 @@
     </div>
   </div>
 
+  <!-- ─── Bảng chốt kỳ tháng: tự quét HS cần chốt, tutor duyệt + 1 nút ─── -->
+  <section class="closeboard" *ngIf="closeCandidates.length > 0 || isLoadingCloseboard">
+    <header class="closeboard__head">
+      <div class="closeboard__title">
+        <span nz-icon nzType="thunderbolt" nzTheme="fill"></span>
+        Chốt kỳ {{ closeMonthLabel }}
+      </div>
+      <div class="closeboard__nav">
+        <button class="closeboard__nav-btn" (click)="onCloseboardPrevMonth()" title="Tháng trước">
+          <span nz-icon nzType="left"></span>
+        </button>
+        <button class="closeboard__nav-btn" (click)="onCloseboardNextMonth()" title="Tháng sau">
+          <span nz-icon nzType="right"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="closeboard__loading" *ngIf="isLoadingCloseboard"><nz-spin nzSize="small"></nz-spin></div>
+
+    <ng-container *ngIf="!isLoadingCloseboard">
+      <p class="closeboard__sub">
+        <strong>{{ closeCandidates.length }} HS</strong> có buổi đã dạy chưa chốt
+        · tổng <strong>{{ fmt(closeSelectedTotal) }}đ</strong>
+      </p>
+
+      <ul class="closeboard__list">
+        <li *ngFor="let c of closeCandidates" (click)="onToggleCandidate(c.idStudent)">
+          <label nz-checkbox [nzChecked]="closeSelected.has(c.idStudent)"
+                 (nzCheckedChange)="onToggleCandidate(c.idStudent)" (click)="$event.stopPropagation()"></label>
+          <span class="closeboard__name">{{ c.studentFullName }}</span>
+          <span class="closeboard__lessons">{{ c.doneLessons }} buổi</span>
+          <span class="closeboard__amount">{{ fmt(c.totalAmount) }}đ</span>
+        </li>
+      </ul>
+
+      <!-- Cảnh báo buổi đã qua chưa đánh dấu — chốt bây giờ sẽ thiếu các buổi đó -->
+      <div class="closeboard__warn" *ngIf="closePastScheduled > 0">
+        <span nz-icon nzType="warning" nzTheme="fill"></span>
+        Còn <strong>{{ closePastScheduled }} buổi đã qua</strong> chưa đánh dấu "Đã dạy"
+        — <a routerLink="/lesson">kiểm tra Lịch dạy</a> trước khi chốt để không thiếu tiền.
+      </div>
+
+      <button class="closeboard__cta" (click)="onBulkClose()"
+              [disabled]="closeSelected.size === 0 || isBulkClosing">
+        <span nz-icon [nzType]="isBulkClosing ? 'loading' : 'check-circle'"></span>
+        Chốt {{ closeSelected.size }} kỳ đã chọn
+      </button>
+    </ng-container>
+  </section>
+
   <!-- Empty -->
   <div *ngIf="!isLoading && periods.length === 0" class="empty">
     <div class="empty__art">

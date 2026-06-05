@@ -52,6 +52,53 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public List<TuitionPreviewLineDto> Lessons { get; set; } = new();
     }
 
+    /// <summary>
+    /// Bảng chốt kỳ THÁNG: hệ thống tự quét HS có buổi Đã dạy chưa chốt,
+    /// tutor chỉ duyệt + bấm 1 nút — thay vì đi tìm từng em.
+    /// </summary>
+    public class MonthClosePreviewDto
+    {
+        public int Month { get; set; }
+        public int Year { get; set; }
+        public decimal TotalAmount { get; set; }
+        /// <summary>Số buổi ĐÃ QUA còn "Đã lên lịch" (quên đánh dấu) — cảnh báo trước khi chốt.</summary>
+        public int PastScheduledLessons { get; set; }
+        public List<MonthCloseCandidateDto> Candidates { get; set; } = new();
+    }
+
+    /// <summary>1 HS đủ điều kiện chốt trong tháng.</summary>
+    public class MonthCloseCandidateDto
+    {
+        public Guid IdStudent { get; set; }
+        public string StudentFullName { get; set; } = string.Empty;
+        public int DoneLessons { get; set; }
+        public decimal TotalAmount { get; set; }
+    }
+
+    public class MonthCloseBulkReq
+    {
+        public int Month { get; set; }
+        public int Year { get; set; }
+        public List<Guid> StudentIds { get; set; } = new();
+    }
+
+    public class MonthCloseResultDto
+    {
+        public int ClosedCount { get; set; }
+        public decimal TotalAmount { get; set; }
+        public List<string> Errors { get; set; } = new();
+    }
+
+    /// <summary>1 đợt thu trong lịch sử thanh toán của kỳ.</summary>
+    public class TuitionPaymentDto : Base.BaseDto
+    {
+        public Guid IdTutor { get; set; }
+        public Guid IdPeriod { get; set; }
+        public decimal Amount { get; set; }
+        public string? Method { get; set; }
+        public string? Notes { get; set; }
+    }
+
     public class TuitionPreviewLineDto
     {
         public Guid IdLesson { get; set; }

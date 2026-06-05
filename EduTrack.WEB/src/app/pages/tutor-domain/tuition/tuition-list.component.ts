@@ -43,6 +43,73 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   monthOptions: { value: number; label: string; month: number; year: number }[] = [];
   selectedMonthYear: number | null = null;
 
+  /* ─── Bảng chốt kỳ THÁNG: hệ thống tìm sẵn HS cần chốt, tutor duyệt + 1 nút ─── */
+  closeMonth = new Date().getMonth() + 1;
+  closeYear = new Date().getFullYear();
+  closeCandidates: { idStudent: string; studentFullName: string; doneLessons: number; totalAmount: number }[] = [];
+  closePastScheduled = 0;
+  /** HS được tick (mặc định tick hết). */
+  closeSelected = new Set<string>();
+  isLoadingCloseboard = false;
+  isBulkClosing = false;
+
+  get closeSelectedTotal(): number {
+    return this.closeCandidates
+      .filter(c => this.closeSelected.has(c.idStudent))
+      .reduce((s, c) => s + c.totalAmount, 0);
+  }
+  get closeMonthLabel(): string { return `Tháng ${this.closeMonth}/${this.closeYear}`; }
+
+  loadCloseboard() {
+    this.isLoadingCloseboard = true;
+    this._service.previewMonth(this.closeMonth, this.closeYear)
+      .pipe(finalize(() => this.isLoadingCloseboard = false))
+      .subscribe(rs => {
+        if (rs.status === StatusCode.Ok) {
+          this.closeCandidates = rs.data?.candidates ?? [];
+          this.closePastScheduled = rs.data?.pastScheduledLessons ?? 0;
+          this.closeSelected = new Set(this.closeCandidates.map(c => c.idStudent));
+        }
+      });
+  }
+
+  onCloseboardPrevMonth() {
+    this.closeMonth--;
+    if (this.closeMonth === 0) { this.closeMonth = 12; this.closeYear--; }
+    this.loadCloseboard();
+  }
+  onCloseboardNextMonth() {
+    this.closeMonth++;
+    if (this.closeMonth === 13) { this.closeMonth = 1; this.closeYear++; }
+    this.loadCloseboard();
+  }
+
+  onToggleCandidate(id: string) {
+    if (this.closeSelected.has(id)) this.closeSelected.delete(id);
+    else this.closeSelected.add(id);
+  }
+
+  onBulkClose() {
+    const ids = [...this.closeSelected];
+    if (ids.length === 0) return;
+    this.isBulkClosing = true;
+    this._service.closeMonthBulk(this.closeMonth, this.closeYear, ids)
+      .pipe(finalize(() => this.isBulkClosing = false))
+      .subscribe({
+        next: rs => {
+          if (rs.status === StatusCode.Ok) {
+            const d = rs.data;
+            this._toast.success(StatusResponseTitle.SUCCESS,
+              `Đã chốt ${d?.closedCount ?? 0} kỳ · ${this.fmt(d?.totalAmount ?? 0)}đ — nhắc học phí đã sinh cho từng phụ huynh`);
+            if (d?.errors?.length) this._toast.warning(StatusResponseTitle.WARNING, `${d.errors.length} kỳ lỗi: ${d.errors[0]}`);
+            this.loadCloseboard();
+            this.reload();
+          } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+        },
+        error: () => this._toast.error(StatusResponseTitle.ERROR, 'Lỗi hệ thống'),
+      });
+  }
+
   onPageChange(page: number) { this.filter.pageNumber = page; this.reload(); }
   onPageSizeChange(size: number) { this.filter.pageSize = size; this.filter.pageNumber = 1; this.reload(); }
 
@@ -57,6 +124,7 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   ngOnInit() {
     this.buildMonthOptions();
     this.loadStudentOptions();
+    this.loadCloseboard();
     this.isLoading = true;
     forkJoin({
       profile: this._profileService.getMyProfile(),

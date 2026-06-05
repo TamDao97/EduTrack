@@ -238,3 +238,64 @@
   flex-wrap: wrap;
 }
 .tu__filter-select { min-width: 160px; flex: 1; max-width: 220px; }
+
+// ─── Bảng chốt kỳ tháng — hệ thống tìm sẵn, tutor duyệt + 1 nút ───
+.closeboard {
+  background: $surface;
+  border: 1.5px solid rgba(91, 95, 207, 0.35);
+  border-radius: $radius-lg;
+  padding: $sp-4;
+  margin-bottom: $sp-4;
+  box-shadow: $shadow;
+
+  &__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: $sp-1; }
+  &__title {
+    @include t-h3;
+    display: flex; align-items: center; gap: $sp-2;
+    [nz-icon] { color: $accent; }
+  }
+  &__nav { display: flex; gap: $sp-1; }
+  &__nav-btn {
+    @include btn-icon(32px);
+  }
+  &__loading { text-align: center; padding: $sp-4; }
+  &__sub { @include t-meta; margin: 0 0 $sp-3; strong { color: $text-1; } }
+
+  &__list {
+    list-style: none; margin: 0 0 $sp-3; padding: 0;
+    max-height: 280px; overflow-y: auto;
+    display: flex; flex-direction: column;
+
+    li {
+      display: flex; align-items: center; gap: $sp-2;
+      padding: $sp-2 $sp-1;
+      border-bottom: 1px dashed $border;
+      cursor: pointer;
+      transition: background $t-fast;
+      &:hover { background: $bg; }
+      &:last-child { border-bottom: none; }
+    }
+  }
+  &__name { flex: 1; font-size: $fs-body; font-weight: $fw-semi; color: $text-1; @include truncate; }
+  &__lessons { @include t-meta; white-space: nowrap; }
+  &__amount { font-size: $fs-body; font-weight: $fw-bold; color: $accent; white-space: nowrap; min-width: 90px; text-align: right; }
+
+  &__warn {
+    display: flex; align-items: flex-start; gap: $sp-2;
+    background: $warning-soft;
+    border-radius: $radius-sm;
+    padding: $sp-2 $sp-3;
+    margin-bottom: $sp-3;
+    font-size: $fs-sm; color: $text-2;
+    [nz-icon] { color: $warning; margin-top: 2px; }
+    a { color: $primary; font-weight: $fw-semi; }
+  }
+
+  &__cta {
+    @include btn-primary(48px);
+    width: 100%;
+    border-radius: $radius-md;
+    font-size: $fs-body-lg;
+    [nz-icon] { margin-right: 6px; }
+  }
+}
