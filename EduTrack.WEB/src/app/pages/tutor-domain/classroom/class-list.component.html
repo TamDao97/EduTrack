@@ -63,14 +63,24 @@
 
   <div class="cls__loading" *ngIf="isLoading"><nz-spin nzSize="large"></nz-spin></div>
 
-  <!-- Empty -->
+  <!-- Empty: phân biệt CHƯA CÓ LỚP NÀO vs lọc không ra kết quả -->
   <section class="cls__empty" *ngIf="!isLoading && classes.length === 0">
-    <span nz-icon nzType="cluster"></span>
-    <h3>Chưa có lớp nào</h3>
-    <p>Tạo lớp (vd "Toán 1A · T2-4-6 · 19h") → ghi danh HS → bấm "Xếp lịch" — cả tháng xong trong 1 phút.</p>
-    <button nz-button nzType="primary" nzSize="large" (click)="onAdd()">
-      <span nz-icon nzType="plus"></span> Tạo lớp đầu tiên
-    </button>
+    <ng-container *ngIf="!filter.keyword && activeFilterCount === 0 && filter.isActive === true; else noMatch">
+      <div class="cls__empty-art"><span nz-icon nzType="cluster"></span></div>
+      <h3 class="cls__empty-title">Chưa có lớp nào</h3>
+      <p class="cls__empty-desc">
+        Tạo lớp (vd "Toán 1A · T2-4-6 · 19h") → ghi danh học sinh → bấm "Xếp lịch"
+        — lịch cả tháng xong trong 1 phút.
+      </p>
+      <button class="cls__empty-cta" (click)="onAdd()">
+        <span nz-icon nzType="plus"></span> Tạo lớp đầu tiên
+      </button>
+    </ng-container>
+    <ng-template #noMatch>
+      <div class="cls__empty-art cls__empty-art--muted"><span nz-icon nzType="search"></span></div>
+      <h3 class="cls__empty-title">Không tìm thấy lớp nào</h3>
+      <p class="cls__empty-desc">Thử đổi từ khoá, tab trạng thái hoặc bỏ bớt bộ lọc.</p>
+    </ng-template>
   </section>
 
   <!-- Grid lớp -->

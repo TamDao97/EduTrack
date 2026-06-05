@@ -209,3 +209,25 @@
     &:hover { background: $primary; color: #fff; }
   }
 }
+
+// ─── Empty state theo design system (đồng bộ màn Học sinh) ───
+.cls__empty {
+  @include empty-state;
+}
+.cls__empty-art {
+  @include empty-icon-circles(160px, $primary);
+  &--muted { @include empty-icon-circles(120px, $text-3); }
+}
+.cls__empty-title { @include t-h1; margin: 0 0 $sp-2; letter-spacing: -0.3px; }
+.cls__empty-desc {
+  @include t-body;
+  color: $text-3; margin: 0 auto $sp-7;
+  line-height: $lh-relaxed; max-width: 340px;
+}
+.cls__empty-cta {
+  @include btn-primary(48px);
+  padding: 0 $sp-7;
+  border-radius: 24px;
+  font-size: $fs-body-lg;
+  [nz-icon] { margin-right: 6px; }
+}
