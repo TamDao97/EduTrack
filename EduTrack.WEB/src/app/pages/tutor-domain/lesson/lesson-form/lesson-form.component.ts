@@ -38,6 +38,11 @@ export class LessonFormComponent extends TdBaseComponent implements OnInit {
   /** Môn (đang active) của HS đang chọn — hiện select khi HS có ≥2 môn. */
   courses: IStudentCourse[] = [];
 
+  /** Buổi thuộc CA nhóm/lớp → per-em CHỈ sửa Ghi chú (ngày/giờ/môn thuộc về ca). */
+  isSessionLesson = false;
+  /** Tên ca hiển thị trong banner: tên lớp hoặc "ca nhóm". */
+  sessionLabel = '';
+
   ngOnInit() {
     this.initForm();
     this.loadStudents();
@@ -50,6 +55,14 @@ export class LessonFormComponent extends TdBaseComponent implements OnInit {
         endTime: this.parseTime(this.params.endTime),
       });
       this.loadCourses(this.params.idStudent, this.params.idCourse ?? null);
+
+      // HS trong lớp/ca phải theo yêu cầu của ca — khoá mọi trường thuộc ca
+      if (this.params.groupKey) {
+        this.isSessionLesson = true;
+        this.sessionLabel = (this.params as any).className || 'ca nhóm';
+        ['idCourse', 'scheduledDate', 'startTime', 'endTime', 'location'].forEach(name =>
+          this.frmGroup.get(name)!.disable());
+      }
     }
   }
 
@@ -106,7 +119,8 @@ export class LessonFormComponent extends TdBaseComponent implements OnInit {
       this._toast.warning(StatusResponseTitle.WARNING, StatusResponseMessage.INPUT_REQUIRED);
       return;
     }
-    const v = this.frmGroup.value;
+    // getRawValue: lấy cả control disabled (buổi thuộc ca khoá ngày/giờ/môn)
+    const v = this.frmGroup.getRawValue();
     const payload = {
       ...v,
       scheduledDate: this.toISODate(v.scheduledDate),

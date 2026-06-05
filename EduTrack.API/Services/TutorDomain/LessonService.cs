@@ -20,6 +20,7 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<LessonDto>> MarkDoneAsync(Guid id);
         Task<Response<int>> MarkDonePastAsync();
         Task<Response<int>> MarkDoneGroupAsync(Guid groupKey);
+        Task<Response<int>> UpdateGroupAsync(LessonGroupUpdateReq req);
         Task<Response<LessonDto>> CancelAsync(Guid id, string? reason);
         Task<Response<int>> CancelGroupAsync(Guid groupKey, string? reason);
     }
@@ -105,6 +106,22 @@ namespace EduTrack.API.Services.TutorDomain
                 return Response<LessonDto>.Error(StatusCode.NotFound, "Không tìm thấy");
             if (existing.IdTuitionPeriod.HasValue)
                 return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi học đã được chốt vào kỳ học phí, không thể sửa");
+
+            // Buổi thuộc CA NHÓM/LỚP: per-em CHỈ được sửa Ghi chú — ngày/giờ/môn/địa điểm
+            // thuộc về ca (sửa ở "Sửa cả ca"), HS trong lớp phải theo yêu cầu của lớp.
+            if (existing.GroupKey.HasValue)
+            {
+                entity.IdStudent = existing.IdStudent;
+                entity.IdCourse = existing.IdCourse;
+                entity.IdClass = existing.IdClass;
+                entity.GroupKey = existing.GroupKey;
+                entity.ScheduledDate = existing.ScheduledDate;
+                entity.StartTime = existing.StartTime;
+                entity.EndTime = existing.EndTime;
+                entity.Location = existing.Location;
+                entity.ChargeAmount = existing.ChargeAmount;
+                entity.Status = existing.Status;
+            }
 
             entity.MarkDirty(nameof(entity.IdCourse));
             entity.MarkDirty(nameof(entity.ScheduledDate));
@@ -295,6 +312,46 @@ namespace EduTrack.API.Services.TutorDomain
             // Buổi đã dạy thì không nhắc nữa
             foreach (var l in lessons)
                 await _notiGen.CancelForLessonAsync(l.Id);
+
+            return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Sửa CẢ CA: đổi ngày/giờ/địa điểm đồng loạt mọi buổi Scheduled cùng GroupKey
+        /// (buổi Done/Cancelled/đã chốt kỳ giữ nguyên). Nhắc cũ huỷ + sinh lại theo giờ mới.
+        /// </summary>
+        public async Task<Response<int>> UpdateGroupAsync(LessonGroupUpdateReq req)
+        {
+            if (req.EndTime <= req.StartTime)
+                return Response<int>.Error(StatusCode.BadRequest, "Giờ kết thúc phải sau giờ bắt đầu");
+
+            var idTutor = await GetCurrentTutorIdAsync();
+            var lessons = await _repos.Table
+                .Where(l => l.IdTutor == idTutor && l.GroupKey == req.GroupKey
+                         && l.Status == LessonStatusEnums.Scheduled && l.IdTuitionPeriod == null)
+                .ToListAsync();
+            if (lessons.Count == 0)
+                return Response<int>.Success(0, "Không có buổi nào còn sửa được trong ca");
+
+            foreach (var l in lessons)
+            {
+                l.ScheduledDate = req.ScheduledDate.Date;
+                l.StartTime = req.StartTime;
+                l.EndTime = req.EndTime;
+                l.Location = req.Location;
+                l.MarkDirty(nameof(l.ScheduledDate));
+                l.MarkDirty(nameof(l.StartTime));
+                l.MarkDirty(nameof(l.EndTime));
+                l.MarkDirty(nameof(l.Location));
+            }
+            await _unitOfWork.SaveChangesAsync();
+
+            // Nhắc cũ sai giờ → huỷ + sinh lại theo lịch mới cho từng phụ huynh
+            foreach (var l in lessons)
+            {
+                await _notiGen.CancelForLessonAsync(l.Id);
+                await _notiGen.GenerateForLessonAsync(l);
+            }
 
             return Response<int>.Success(lessons.Count, StatusCode.Ok.ToDescription());
         }

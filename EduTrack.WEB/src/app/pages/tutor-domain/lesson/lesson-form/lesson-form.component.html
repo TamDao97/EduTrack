@@ -1,4 +1,11 @@
 <form nz-form [formGroup]="frmGroup" class="lesson-form" nzLayout="vertical">
+  <!-- Buổi thuộc ca: chỉ sửa được Ghi chú -->
+  <div class="lesson-form__session-banner" *ngIf="isSessionLesson">
+    <span nz-icon nzType="team"></span>
+    Buổi thuộc <strong>{{ sessionLabel }}</strong> — ngày, giờ, môn, địa điểm theo CA
+    (đổi bằng "Sửa cả ca" trên thẻ ca). Ở đây chỉ sửa được <strong>Ghi chú</strong> riêng của em.
+  </div>
+
   <nz-form-item>
     <nz-form-label nzRequired>Học sinh</nz-form-label>
     <nz-form-control nzErrorTip="Chọn học sinh">

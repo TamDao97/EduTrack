@@ -1,3 +1,5 @@
+@use 'palette' as *;
+
 .lesson-form {
   .full-w { width: 100%; }
   &__actions {
@@ -17,4 +19,16 @@
 
 @media (max-width: 767px) {
   .lesson-form__actions button { flex: 1; }
+}
+
+// Banner buổi thuộc ca nhóm/lớp
+.lesson-form__session-banner {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: #F3E8FF;
+  border-radius: $radius-sm;
+  padding: $sp-3;
+  margin-bottom: $sp-4;
+  font-size: $fs-sm; color: $text-2;
+  [nz-icon] { color: #7C3AED; margin-top: 2px; }
+  strong { color: $text-1; }
 }

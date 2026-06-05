@@ -10,6 +10,7 @@ import { StatusCode } from '../../../shared/utils/enums';
 import { TdBaseComponent } from '../../../shared/utils/extends-components/td-base.component';
 import { LessonBulkFormComponent } from './lesson-bulk-form/lesson-bulk-form.component';
 import { LessonGroupFormComponent } from './lesson-group-form/lesson-group-form.component';
+import { SessionEditFormComponent } from './session-edit-form/session-edit-form.component';
 import { LessonFormComponent } from './lesson-form/lesson-form.component';
 
 /** 1 CA nhóm trong ngày — các lesson cùng groupKey gộp thành 1 thẻ "chiều lớp học". */
@@ -183,6 +184,25 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     else this.expandedSessions.add(s.groupKey);
   }
   isExpanded(s: SessionGroup): boolean { return this.expandedSessions.has(s.groupKey); }
+
+  /** Sửa CẢ CA: đổi ngày/giờ/địa điểm đồng loạt (per-em chỉ sửa được ghi chú). */
+  onEditSession(s: SessionGroup, ev: Event) {
+    ev.stopPropagation();
+    const first = s.lessons[0];
+    this.openModal(
+      { title: `Sửa cả ca — ${s.className || 'Nhóm'}`, width: 460, className: 'sheet-bottom-mobile' },
+      SessionEditFormComponent,
+      { params: {
+          groupKey: s.groupKey,
+          className: s.className,
+          scheduledDate: first?.scheduledDate,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          location: s.location,
+          scheduledCount: s.scheduledCount,
+        } }
+    ).afterClose.subscribe((rs) => { if (rs?.saved) this.load(); });
+  }
 
   onMarkDoneSession(s: SessionGroup, ev: Event) {
     ev.stopPropagation();

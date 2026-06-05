@@ -63,6 +63,16 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public int NumberOfWeeks { get; set; } = 1;
     }
 
+    /// <summary>Sửa CẢ CA: đổi ngày/giờ/địa điểm cho mọi buổi Scheduled cùng GroupKey.</summary>
+    public class LessonGroupUpdateReq
+    {
+        public Guid GroupKey { get; set; }
+        public DateTime ScheduledDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public string? Location { get; set; }
+    }
+
     /// <summary>Request tạo nhiều Lesson recurring 1 lần (vd 12 tuần liên tiếp).</summary>
     public class LessonBulkCreateReq
     {

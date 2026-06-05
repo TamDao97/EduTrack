@@ -126,6 +126,10 @@
                 </button>
                 <nz-dropdown-menu #sessionMenu="nzDropdownMenu">
                   <ul nz-menu>
+                    <li nz-menu-item (click)="onEditSession(it.session, $event)"
+                        *ngIf="it.session.scheduledCount > 0">
+                      <span nz-icon nzType="edit"></span> Sửa cả ca (giờ / địa điểm)
+                    </li>
                     <li nz-menu-item (click)="onCancelSession(it.session, $event)"
                         *ngIf="it.session.scheduledCount > 0">
                       <span nz-icon nzType="close-circle"></span> Huỷ cả ca

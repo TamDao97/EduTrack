@@ -38,6 +38,11 @@ export class LessonService extends TdBaseService {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/mark-done-group/${groupKey}`, {});
   }
 
+  /** Sửa CẢ CA: đổi ngày/giờ/địa điểm cho mọi buổi Scheduled cùng groupKey */
+  updateGroup(payload: { groupKey: string; scheduledDate: string; startTime: string; endTime: string; location?: string | null }): Observable<IResponse> {
+    return this._httpClient.post<IResponse>(`${this.apiUrl}/update-group`, payload);
+  }
+
   /** Huỷ CẢ CA nhóm */
   cancelGroup(groupKey: string, reason?: string): Observable<IResponse> {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/cancel-group/${groupKey}`, { reason });

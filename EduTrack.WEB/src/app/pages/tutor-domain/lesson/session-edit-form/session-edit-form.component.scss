@@ -1,0 +1,23 @@
+@use 'palette' as *;
+
+.session-edit {
+  .full-w { width: 100%; }
+
+  &__info {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: #F3E8FF;
+    border-radius: $radius-sm;
+    padding: $sp-3;
+    margin-bottom: $sp-4;
+    font-size: $fs-sm; color: $text-2;
+    [nz-icon] { color: #7C3AED; margin-top: 2px; }
+    strong { color: $text-1; }
+  }
+
+  &__actions {
+    display: flex; gap: $sp-2; justify-content: flex-end;
+    padding-top: $sp-3;
+    border-top: 1px solid $border;
+    button { min-width: 120px; }
+  }
+}
