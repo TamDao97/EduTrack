@@ -116,7 +116,8 @@
           <!-- ─── CA NHÓM: 1 thẻ cho cả lớp, bấm để xổ từng em ─── -->
           <li *ngIf="it.kind === 'group'" class="session-card"
               [class.is-open]="isExpanded(it.session)"
-              [class.is-alldone]="it.session.scheduledCount === 0 && it.session.doneCount > 0">
+              [class.is-alldone]="it.session.scheduledCount === 0 && it.session.doneCount > 0"
+              [class.is-allcancelled]="it.session.scheduledCount === 0 && it.session.doneCount === 0">
             <div class="session-card__head" (click)="toggleSession(it.session)">
               <div class="lesson-card__time">
                 <div class="lesson-card__time-start">{{ fmtTime(it.session.startTime) }}</div>
@@ -127,6 +128,15 @@
                   <span nz-icon nzType="team"></span>
                   {{ it.session.className || 'Buổi nhóm' }}
                   <span class="lesson-card__subject" *ngIf="it.session.courseSubject">{{ it.session.courseSubject }}</span>
+                  <!-- Chip trạng thái CẢ CA -->
+                  <span class="status-chip status-chip--done"
+                        *ngIf="it.session.scheduledCount === 0 && it.session.doneCount > 0">
+                    <span nz-icon nzType="check-circle" nzTheme="fill"></span> Đã dạy cả ca
+                  </span>
+                  <span class="status-chip status-chip--cancelled"
+                        *ngIf="it.session.scheduledCount === 0 && it.session.doneCount === 0">
+                    <span nz-icon nzType="close-circle" nzTheme="fill"></span> Đã huỷ cả ca
+                  </span>
                   <span class="conflict-badge" *ngIf="it.conflict" title="Giao giờ với ca/buổi khác cùng ngày">
                     <span nz-icon nzType="warning"></span> Trùng giờ
                   </span>
@@ -206,6 +216,13 @@
       <div class="lesson-card__name">
         {{ l.studentFullName || '—' }}
         <span class="lesson-card__subject" *ngIf="!inGroup && l.courseSubject">{{ l.courseSubject }}</span>
+        <!-- Chip trạng thái chữ rõ — không bắt mắt phải đoán theo màu nền -->
+        <span class="status-chip status-chip--done" *ngIf="l.status === LessonStatus.Done">
+          <span nz-icon nzType="check-circle" nzTheme="fill"></span> Đã dạy
+        </span>
+        <span class="status-chip status-chip--cancelled" *ngIf="l.status === LessonStatus.Cancelled">
+          <span nz-icon nzType="close-circle" nzTheme="fill"></span> Đã huỷ
+        </span>
         <span class="conflict-badge" *ngIf="conflict" title="Giao giờ với ca/buổi khác cùng ngày">
           <span nz-icon nzType="warning"></span> Trùng giờ
         </span>

@@ -134,18 +134,24 @@
   @include card-clickable;
   display: flex; gap: $sp-3;
   padding: 14px;
+  // Vạch trạng thái viền trái — nhận biết khi lướt nhanh, đồng bộ với session-card
+  border-left: 4px solid transparent;
 
+  // ĐÃ DẠY: xanh + ✓, KHÔNG gạch ngang (gạch ngang = "bỏ", dành cho huỷ)
   &.is-done {
     background: $success-soft;
-    .lesson-card__name { text-decoration: line-through; color: $text-3; }
+    border-left-color: $success;
+    .lesson-card__name { color: $text-2; }
     .lesson-card__time-start { color: $success; }
   }
+  // ĐÃ HUỶ: xám mờ + gạch ngang + vạch đỏ nhạt
   &.is-cancelled {
     background: $bg;
-    opacity: 0.55;
-    .lesson-card__name { text-decoration: line-through; }
+    opacity: 0.6;
+    border-left-color: rgba(245, 34, 45, 0.45);
+    .lesson-card__name { text-decoration: line-through; color: $text-3; }
   }
-  &.is-locked { border-color: rgba(250,173,20,0.4); }
+  &.is-locked { border-color: rgba(250,173,20,0.4); border-left-color: $warning; }
 
   &__time {
     flex-shrink: 0;
@@ -361,4 +367,28 @@
 @keyframes conflict-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.65; }
+}
+
+// ────────────── Chip trạng thái buổi/ca (Đã dạy / Đã huỷ) ──────────────
+.status-chip {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 9px;
+  font-size: $fs-caption;
+  font-weight: $fw-bold;
+  vertical-align: 2px;
+  white-space: nowrap;
+  [nz-icon] { font-size: 10px; }
+
+  &--done { background: $success-soft; color: $success-dark; }
+  &--cancelled { background: rgba(140, 140, 140, 0.14); color: $text-3; }
+}
+
+// Ca đã huỷ toàn bộ: mờ + vạch trái xám (đồng bộ lesson-card.is-cancelled)
+.session-card.is-allcancelled {
+  opacity: 0.6;
+  border-left-color: rgba(245, 34, 45, 0.45);
+  border-color: $border;
+  .session-card__name { color: $text-3; }
 }
