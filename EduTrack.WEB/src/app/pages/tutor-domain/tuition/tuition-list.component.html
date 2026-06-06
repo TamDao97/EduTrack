@@ -113,8 +113,13 @@
         — <a routerLink="/lesson">kiểm tra Lịch dạy</a> trước khi tính để không thiếu tiền.
       </div>
 
+      <!-- Tháng tương lai: chưa tới thì chưa tính (BE cũng chặn) -->
+      <p class="closeboard__future-note" *ngIf="isFutureCloseMonth">
+        <span nz-icon nzType="info-circle"></span>
+        {{ closeMonthLabel }} chưa tới — đến tháng đó mới tính được (buổi đã dạy không mất đi đâu).
+      </p>
       <button class="closeboard__cta" (click)="onBulkClose()"
-              [disabled]="closeSelected.size === 0 || isBulkClosing">
+              [disabled]="closeSelected.size === 0 || isBulkClosing || isFutureCloseMonth">
         <span nz-icon [nzType]="isBulkClosing ? 'loading' : 'check-circle'"></span>
         Tính học phí {{ closeSelected.size }} em đã chọn
       </button>
@@ -234,6 +239,14 @@
                 nz-tooltip nzTooltipTitle="Gom thêm buổi mới phát sinh sau lần tính trước">
           <span nz-icon nzType="reload"></span>
           Tính lại
+        </button>
+        <!-- Xoá kỳ: chỉ kỳ CHƯA THU — buổi trong kỳ trở về "chờ tính" -->
+        <button class="tu-card__btn tu-card__btn--danger"
+                *ngIf="p.paidAmount === 0"
+                (click)="onDeletePeriod(p)"
+                nz-tooltip nzTooltipTitle="Xoá kỳ — các buổi trở về chờ tính, không mất">
+          <span nz-icon nzType="delete"></span>
+          Xoá
         </button>
       </div>
     </li>

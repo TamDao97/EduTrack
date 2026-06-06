@@ -323,3 +323,14 @@
 
 // Empty khi LỌC không ra (icon xám nhỏ hơn)
 .empty__art--muted { @include empty-icon-circles(120px, $text-3); }
+
+.closeboard__future-note {
+  @include t-meta;
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 $sp-2;
+  [nz-icon] { color: $primary; }
+}
+.tu-card__btn--danger {
+  color: $danger;
+  &:hover { background: $danger-soft; border-color: $danger; }
+}

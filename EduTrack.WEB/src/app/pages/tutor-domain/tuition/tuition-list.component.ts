@@ -65,6 +65,27 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   }
   get closeMonthLabel(): string { return `Tháng ${this.closeMonth}/${this.closeYear}`; }
 
+  /** Tháng panel đang xem ở TƯƠNG LAI? — BE chặn tính (cửa sổ gộp tồn sẽ nuốt nhầm tháng chưa tới). */
+  get isFutureCloseMonth(): boolean {
+    const now = new Date();
+    return this.closeYear * 100 + this.closeMonth > now.getFullYear() * 100 + (now.getMonth() + 1);
+  }
+
+  /** Xoá kỳ chưa thu: BE nhả các buổi về "chờ tính" + huỷ nhắc của kỳ. */
+  onDeletePeriod(p: ITuitionPeriodDetail) {
+    this.confirmModal(
+      `Xoá kỳ T${p.periodMonth}/${p.periodYear} của ${p.studentFullName}? Các buổi trong kỳ sẽ trở về trạng thái "chờ tính" (không mất buổi nào).`,
+      () => {
+        this._service.delete(p.id!).subscribe(rs => {
+          if (rs.status === StatusCode.Ok) {
+            this._toast.success(StatusResponseTitle.SUCCESS, 'Đã xoá kỳ — các buổi đã trở về chờ tính');
+            this.loadCloseboard();
+            this.reload();
+          } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+        });
+      });
+  }
+
   /** Đang bật bộ lọc nào đó (HS / kỳ tháng / tab trạng thái)? — đổi empty state cho đúng ngữ cảnh. */
   get isFiltering(): boolean {
     return !!this.filter.idStudent || !!this.selectedMonthYear || this.filter.status !== null;

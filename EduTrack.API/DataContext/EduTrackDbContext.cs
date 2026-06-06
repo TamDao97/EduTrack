@@ -94,7 +94,9 @@ namespace EduTrack.API.DataContext
             modelBuilder.Entity<Lesson>().HasIndex(l => new { l.IdTutor, l.ScheduledDate });
             modelBuilder.Entity<Lesson>().HasIndex(l => new { l.IdStudent, l.ScheduledDate });
             modelBuilder.Entity<Lesson>().HasIndex(l => l.IdTuitionPeriod);
-            modelBuilder.Entity<TuitionPeriod>().HasIndex(t => new { t.IdStudent, t.PeriodYear, t.PeriodMonth }).IsUnique();
+            // Unique CHỈ trên bản ghi sống — xoá mềm kỳ xong phải tạo lại được kỳ cùng tháng
+            modelBuilder.Entity<TuitionPeriod>().HasIndex(t => new { t.IdStudent, t.PeriodYear, t.PeriodMonth })
+                .IsUnique().HasFilter("[IsDeleted] = 0");
             modelBuilder.Entity<TutorProfile>().HasIndex(t => t.IdUser).IsUnique();
             modelBuilder.Entity<Notification>().HasIndex(n => new { n.IdTutor, n.Status, n.ScheduledAt });
             modelBuilder.Entity<Notification>().HasIndex(n => n.RefId);

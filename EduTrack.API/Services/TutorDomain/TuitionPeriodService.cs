@@ -205,6 +205,13 @@ namespace EduTrack.API.Services.TutorDomain
             if (period == null)
                 return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy kỳ học phí");
 
+            // CHẶN tính kỳ THÁNG TƯƠNG LAI: cửa sổ gộp-tồn sẽ nuốt nhầm buổi các tháng
+            // chưa tới kỳ (vd đứng T6 tính T9 → hút sạch buổi T7-T8 vào hoá đơn T9).
+            var now = AppTime.VnNow;
+            if (new DateTime(period.PeriodYear, period.PeriodMonth, 1) > new DateTime(now.Year, now.Month, 1))
+                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest,
+                    $"Chưa thể tính học phí cho Tháng {period.PeriodMonth}/{period.PeriodYear} — chỉ tính được đến tháng hiện tại");
+
             // TÍNH LẠI: chỉ khi CHƯA THU đồng nào (số đã giao dịch phải đứng yên).
             // Nhả buổi đang khoá để gom lại từ đầu kèm buổi mới + huỷ nhắc học phí cũ.
             var relocked = new List<Lesson>();
@@ -264,6 +271,32 @@ namespace EduTrack.API.Services.TutorDomain
             await _notiGen.GenerateForTuitionPeriodAsync(period);
 
             return Response<TuitionPeriodDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<TuitionPeriod, TuitionPeriodDto>(period), StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// Xoá kỳ: chỉ khi CHƯA THU đồng nào. NHẢ các buổi đang khoá (về lại "chờ tính",
+        /// không treo vĩnh viễn theo kỳ đã xoá) + huỷ nhắc học phí của kỳ.
+        /// </summary>
+        public override async Task<Response<TuitionPeriodDto>> DeleteAsync(Guid id, bool isActual = false)
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var period = await _repos.TableNoTracking.FirstOrDefaultAsync(t => t.Id == id && t.IdTutor == idTutor);
+            if (period == null)
+                return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy kỳ học phí");
+            if (period.PaidAmount > 0)
+                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest,
+                    "Kỳ đã có giao dịch thu — không thể xoá. Hoá đơn có tiền phải giữ làm sổ sách.");
+
+            var locked = await _lessonRepos.Table.Where(l => l.IdTuitionPeriod == id).ToListAsync();
+            foreach (var l in locked)
+            {
+                l.IdTuitionPeriod = null;
+                l.MarkDirty(nameof(l.IdTuitionPeriod));
+            }
+            if (locked.Count > 0) await _unitOfWork.SaveChangesAsync();
+            await _notiGen.CancelForTuitionPeriodAsync(id);
+
+            return await base.DeleteAsync(id, isActual);
         }
 
         /// <summary>
