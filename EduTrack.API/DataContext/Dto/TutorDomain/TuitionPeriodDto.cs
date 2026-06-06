@@ -65,6 +65,10 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public decimal TotalAmount { get; set; }
         /// <summary>Số buổi ĐÃ QUA còn "Đã lên lịch" (quên đánh dấu) — cảnh báo trước khi chốt.</summary>
         public int PastScheduledLessons { get; set; }
+        /// <summary>Buổi Done phát sinh SAU khi kỳ tháng này đã tính (đang chờ) — sẽ gộp
+        /// vào tháng sau hoặc "Tính lại" nếu kỳ chưa thu. Để FE báo ngay, không im lặng.</summary>
+        public int PendingAfterCloseLessons { get; set; }
+        public int PendingAfterCloseStudents { get; set; }
         public List<MonthCloseCandidateDto> Candidates { get; set; } = new();
     }
 

@@ -48,6 +48,9 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   closeYear = new Date().getFullYear();
   closeCandidates: { idStudent: string; studentFullName: string; doneLessons: number; carryoverLessons: number; totalAmount: number }[] = [];
   closePastScheduled = 0;
+  /** Buổi Done phát sinh SAU khi kỳ tháng này đã tính — đang chờ gộp/tính lại. */
+  closePendingLessons = 0;
+  closePendingStudents = 0;
   /** HS được tick (mặc định tick hết). */
   closeSelected = new Set<string>();
   isLoadingCloseboard = false;
@@ -70,6 +73,8 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
         if (rs.status === StatusCode.Ok) {
           this.closeCandidates = rs.data?.candidates ?? [];
           this.closePastScheduled = rs.data?.pastScheduledLessons ?? 0;
+          this.closePendingLessons = rs.data?.pendingAfterCloseLessons ?? 0;
+          this.closePendingStudents = rs.data?.pendingAfterCloseStudents ?? 0;
           this.closeSelected = new Set(this.closeCandidates.map(c => c.idStudent));
         }
       });

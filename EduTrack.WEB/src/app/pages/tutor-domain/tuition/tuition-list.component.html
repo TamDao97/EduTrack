@@ -54,8 +54,8 @@
   </div>
 
   <!-- ─── Bảng chốt kỳ tháng: tự quét HS cần chốt, tutor duyệt + 1 nút ─── -->
-  <!-- Tự ẩn khi sạch việc, NHƯNG đã bấm ◀▶ thì giữ lại (tháng trống vẫn cần nút quay về) -->
-  <section class="closeboard" *ngIf="closeCandidates.length > 0 || isLoadingCloseboard || closeboardTouched">
+  <!-- Tự ẩn khi sạch việc, NHƯNG hiện khi: có HS cần tính / có buổi CHỜ sau tính / đã bấm ◀▶ -->
+  <section class="closeboard" *ngIf="closeCandidates.length > 0 || closePendingLessons > 0 || isLoadingCloseboard || closeboardTouched">
     <header class="closeboard__head">
       <div class="closeboard__title">
         <span nz-icon nzType="thunderbolt" nzTheme="fill"></span>
@@ -74,9 +74,19 @@
     <div class="closeboard__loading" *ngIf="isLoadingCloseboard"><nz-spin nzSize="small"></nz-spin></div>
 
     <!-- Tháng trống: vẫn giữ panel + nav để qua lại -->
-    <p class="closeboard__empty" *ngIf="!isLoadingCloseboard && closeCandidates.length === 0">
+    <p class="closeboard__empty" *ngIf="!isLoadingCloseboard && closeCandidates.length === 0 && closePendingLessons === 0">
       ✅ {{ closeMonthLabel }} không có buổi nào cần tính học phí — dùng ◀ ▶ để xem tháng khác.
     </p>
+
+    <!-- Buổi CHỜ: phát sinh sau khi kỳ tháng này đã tính — báo ngay, không im lặng -->
+    <div class="closeboard__pending" *ngIf="!isLoadingCloseboard && closePendingLessons > 0">
+      <span nz-icon nzType="clock-circle" nzTheme="fill"></span>
+      <div>
+        <strong>{{ closePendingLessons }} buổi mới</strong> ({{ closePendingStudents }} HS) phát sinh
+        <strong>sau khi đã tính học phí</strong> {{ closeMonthLabel }} — không mất đi đâu:
+        bấm <strong>"Tính lại"</strong> trên thẻ kỳ (nếu chưa thu) hoặc để tự gộp vào tháng sau.
+      </div>
+    </div>
 
     <ng-container *ngIf="!isLoadingCloseboard && closeCandidates.length > 0">
       <p class="closeboard__sub">

@@ -76,6 +76,11 @@ namespace EduTrack.API.Services.TutorDomain
                 .Where(p => p.IdTutor == idTutor && p.PeriodMonth == month && p.PeriodYear == year && p.ClosedAt != null)
                 .Select(p => p.IdStudent)
                 .ToListAsync();
+
+            // Buổi "CHỜ": Done chưa vào hoá đơn của HS có kỳ tháng này ĐÃ TÍNH —
+            // app phải báo ngay tại tháng đang xem, không để tutor tưởng bị nuốt.
+            var pendingAfterClose = doneByStudent.Where(x => closedIds.Contains(x.IdStudent)).ToList();
+
             doneByStudent = doneByStudent.Where(x => !closedIds.Contains(x.IdStudent)).ToList();
 
             var ids = doneByStudent.Select(x => x.IdStudent).ToList();
@@ -96,6 +101,8 @@ namespace EduTrack.API.Services.TutorDomain
                 Month = month,
                 Year = year,
                 PastScheduledLessons = pastScheduled,
+                PendingAfterCloseLessons = pendingAfterClose.Sum(x => x.Count),
+                PendingAfterCloseStudents = pendingAfterClose.Count,
                 TotalAmount = doneByStudent.Sum(x => x.Total),
                 Candidates = doneByStudent
                     .Select(x => new MonthCloseCandidateDto
