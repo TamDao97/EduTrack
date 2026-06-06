@@ -390,7 +390,7 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
 
   onEdit(lesson: ILessonDetail) {
     if (lesson.idTuitionPeriod) {
-      this._toast.warning(StatusResponseTitle.WARNING, 'Buổi đã chốt vào kỳ học phí — không sửa được');
+      this._toast.warning(StatusResponseTitle.WARNING, 'Buổi đã vào hoá đơn học phí — không sửa được');
       return;
     }
     this.openModal(
@@ -402,7 +402,7 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
 
   onDelete(lesson: ILessonDetail) {
     if (lesson.idTuitionPeriod) {
-      this._toast.warning(StatusResponseTitle.WARNING, 'Buổi đã chốt vào kỳ học phí — không xoá được');
+      this._toast.warning(StatusResponseTitle.WARNING, 'Buổi đã vào hoá đơn học phí — không xoá được');
       return;
     }
     this.confirmModal('Xoá buổi học này?', () => {

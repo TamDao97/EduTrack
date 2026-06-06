@@ -122,14 +122,14 @@ namespace EduTrack.API.Services.TutorDomain
                 }
                 if (open.Data.ClosedAt.HasValue)
                 {
-                    result.Errors.Add($"{open.Data.IdStudent}: kỳ đã chốt trước đó");
+                    result.Errors.Add($"{open.Data.IdStudent}: đã tính học phí trước đó");
                     continue;
                 }
 
                 var close = await CloseAsync(open.Data.Id!.Value, adjustment: 0, notes: null);
                 if (close.Status != StatusCode.Ok || close.Data == null)
                 {
-                    result.Errors.Add(close.Message ?? "Chốt kỳ thất bại");
+                    result.Errors.Add(close.Message ?? "Tính học phí thất bại");
                     continue;
                 }
                 result.ClosedCount++;
@@ -188,7 +188,7 @@ namespace EduTrack.API.Services.TutorDomain
             if (period == null)
                 return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy kỳ học phí");
             if (period.ClosedAt.HasValue)
-                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Kỳ học phí đã được chốt trước đó");
+                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Kỳ này đã tính học phí trước đó");
 
             // Lấy lesson Done của HS trong tháng-năm này, chưa thuộc kỳ nào
             var lessons = await _lessonRepos.Table
@@ -248,7 +248,7 @@ namespace EduTrack.API.Services.TutorDomain
             if (period == null)
                 return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy kỳ học phí");
             if (!period.ClosedAt.HasValue)
-                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Kỳ chưa chốt — chốt trước khi thu tiền");
+                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Kỳ chưa tính học phí — bấm Tính học phí trước khi ghi nhận thu");
 
             // Số THỰC ghi nhận: clamp về phần còn nợ (nhập dư không ghi dư)
             var credited = Math.Min(amount, Math.Max(0, period.FinalAmount - period.PaidAmount));

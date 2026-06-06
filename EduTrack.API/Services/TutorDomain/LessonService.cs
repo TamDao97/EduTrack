@@ -105,7 +105,7 @@ namespace EduTrack.API.Services.TutorDomain
             if (existing == null)
                 return Response<LessonDto>.Error(StatusCode.NotFound, "Không tìm thấy");
             if (existing.IdTuitionPeriod.HasValue)
-                return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi học đã được chốt vào kỳ học phí, không thể sửa");
+                return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi đã vào hoá đơn học phí, không thể sửa");
 
             // Buổi thuộc CA NHÓM/LỚP: per-em CHỈ được sửa Ghi chú — ngày/giờ/môn/địa điểm
             // thuộc về ca (sửa ở "Sửa cả ca"), HS trong lớp phải theo yêu cầu của lớp.
@@ -261,7 +261,7 @@ namespace EduTrack.API.Services.TutorDomain
             var lesson = await _repos.Table.FirstOrDefaultAsync(l => l.Id == id && l.IdTutor == idTutor);
             if (lesson == null) return Response<LessonDto>.Error(StatusCode.NotFound, "Không tìm thấy");
             if (lesson.IdTuitionPeriod.HasValue)
-                return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi học đã chốt vào kỳ học phí");
+                return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi đã vào hoá đơn học phí");
 
             lesson.Status = LessonStatusEnums.Done;
             lesson.DoneAt = AppTime.VnNow;
@@ -412,7 +412,7 @@ namespace EduTrack.API.Services.TutorDomain
             var lesson = await _repos.Table.FirstOrDefaultAsync(l => l.Id == id && l.IdTutor == idTutor);
             if (lesson == null) return Response<LessonDto>.Error(StatusCode.NotFound, "Không tìm thấy");
             if (lesson.IdTuitionPeriod.HasValue)
-                return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi học đã chốt vào kỳ học phí");
+                return Response<LessonDto>.Error(StatusCode.BadRequest, "Buổi đã vào hoá đơn học phí");
 
             lesson.Status = LessonStatusEnums.Cancelled;
             if (!string.IsNullOrEmpty(reason))

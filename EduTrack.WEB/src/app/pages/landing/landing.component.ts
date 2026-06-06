@@ -49,7 +49,7 @@ export class LandingComponent {
       icon: 'dollar',
       color: '#FF8A65',
       title: 'Học phí + VietQR',
-      desc: 'Chốt kỳ học phí theo tháng. Phụ huynh chuyển khoản bằng QR có sẵn nội dung — bạn xác nhận 1 cú click.',
+      desc: 'Tính học phí theo tháng. Phụ huynh chuyển khoản bằng QR có sẵn nội dung — bạn xác nhận 1 cú click.',
       bullets: ['QR động auto-fill số tiền', 'Theo dõi đã/chưa thu', 'Hỗ trợ 20+ ngân hàng'],
     },
   ];

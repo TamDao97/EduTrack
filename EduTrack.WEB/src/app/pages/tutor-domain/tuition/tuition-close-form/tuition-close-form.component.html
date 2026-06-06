@@ -51,7 +51,7 @@
       <span nz-icon nzType="info-circle"></span>
       <ng-container *ngIf="preview.scheduledLessons > 0; else noLessonAtAll">
         Tháng này có <strong>{{ preview.scheduledLessons }} buổi</strong> nhưng chưa được đánh dấu "Đã dạy".
-        <small>Đánh dấu xong quay lại đây chốt kỳ.</small>
+        <small>Đánh dấu xong quay lại đây tính học phí.</small>
         <button type="button" nz-button nzType="primary" nzSize="small" class="cf__goto-lessons"
                 (click)="goToLessons()">
           <span nz-icon nzType="calendar"></span> Mở Lịch dạy
@@ -59,7 +59,7 @@
       </ng-container>
       <ng-template #noLessonAtAll>
         Chưa có buổi học nào trong tháng này.
-        <small>Tạo buổi học ở Lịch dạy trước, dạy xong đánh dấu "Đã dạy" rồi chốt kỳ.</small>
+        <small>Tạo buổi học ở Lịch dạy trước, dạy xong đánh dấu "Đã dạy" rồi tính học phí.</small>
       </ng-template>
     </div>
   </div>

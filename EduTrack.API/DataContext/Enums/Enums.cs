@@ -34,9 +34,9 @@ namespace EduTrack.API.DataContext.Enums
 
     public enum TuitionPeriodStatusEnums
     {
-        [Description("Đang mở (chưa chốt)")]
+        [Description("Đang mở (chưa tính)")]
         Open = 1,
-        [Description("Đã chốt (chờ thu)")]
+        [Description("Đã tính (chờ thu)")]
         Closed = 2,
         [Description("Thu một phần")]
         PartialPaid = 3,

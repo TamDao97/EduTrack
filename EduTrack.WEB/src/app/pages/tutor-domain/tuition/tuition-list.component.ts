@@ -104,7 +104,7 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
           if (rs.status === StatusCode.Ok) {
             const d = rs.data;
             this._toast.success(StatusResponseTitle.SUCCESS,
-              `Đã chốt ${d?.closedCount ?? 0} kỳ · ${this.fmt(d?.totalAmount ?? 0)}đ — nhắc học phí đã sinh cho từng phụ huynh`);
+              `Đã tính học phí ${d?.closedCount ?? 0} kỳ · ${this.fmt(d?.totalAmount ?? 0)}đ — nhắc học phí đã sinh cho từng phụ huynh`);
             if (d?.errors?.length) this._toast.warning(StatusResponseTitle.WARNING, `${d.errors.length} kỳ lỗi: ${d.errors[0]}`);
             this.loadCloseboard();
             this.reload();
@@ -210,7 +210,7 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
 
   onClose(period?: ITuitionPeriodDetail) {
     this.openModal(
-      { title: period ? 'Chốt lại kỳ' : 'Chốt kỳ học phí', width: 600, className: 'sheet-bottom-mobile' },
+      { title: period ? 'Tính lại học phí' : 'Tính học phí tháng', width: 600, className: 'sheet-bottom-mobile' },
       TuitionCloseFormComponent,
       { params: period }
     ).afterClose.subscribe((rs) => { if (rs?.saved) this.reload(); });

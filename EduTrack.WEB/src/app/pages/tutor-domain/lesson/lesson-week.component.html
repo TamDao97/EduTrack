@@ -234,7 +234,7 @@
         <span *ngIf="!inGroup && l.location">{{ l.location }}</span>
         <span *ngIf="!inGroup && l.location && l.chargeAmount" class="lesson-card__dot">·</span>
         <span *ngIf="l.chargeAmount">{{ l.chargeAmount | number:'1.0-0' }}đ</span>
-        <span class="lesson-card__lock" *ngIf="l.idTuitionPeriod" title="Đã chốt kỳ học phí">
+        <span class="lesson-card__lock" *ngIf="l.idTuitionPeriod" title="Đã vào hoá đơn học phí">
           <span nz-icon nzType="lock"></span>
         </span>
       </div>

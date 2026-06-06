@@ -59,7 +59,7 @@
     <header class="closeboard__head">
       <div class="closeboard__title">
         <span nz-icon nzType="thunderbolt" nzTheme="fill"></span>
-        Chốt kỳ {{ closeMonthLabel }}
+        Tính học phí {{ closeMonthLabel }}
       </div>
       <div class="closeboard__nav">
         <button class="closeboard__nav-btn" (click)="onCloseboardPrevMonth()" title="Tháng trước">
@@ -75,12 +75,12 @@
 
     <!-- Tháng trống: vẫn giữ panel + nav để qua lại -->
     <p class="closeboard__empty" *ngIf="!isLoadingCloseboard && closeCandidates.length === 0">
-      ✅ {{ closeMonthLabel }} không có buổi nào cần chốt — dùng ◀ ▶ để xem tháng khác.
+      ✅ {{ closeMonthLabel }} không có buổi nào cần tính học phí — dùng ◀ ▶ để xem tháng khác.
     </p>
 
     <ng-container *ngIf="!isLoadingCloseboard && closeCandidates.length > 0">
       <p class="closeboard__sub">
-        <strong>{{ closeCandidates.length }} HS</strong> có buổi đã dạy chưa chốt
+        <strong>{{ closeCandidates.length }} HS</strong> có buổi đã dạy chưa tính học phí
         · tổng <strong>{{ fmt(closeSelectedTotal) }}đ</strong>
       </p>
 
@@ -98,13 +98,13 @@
       <div class="closeboard__warn" *ngIf="closePastScheduled > 0">
         <span nz-icon nzType="warning" nzTheme="fill"></span>
         Còn <strong>{{ closePastScheduled }} buổi đã qua</strong> chưa đánh dấu "Đã dạy"
-        — <a routerLink="/lesson">kiểm tra Lịch dạy</a> trước khi chốt để không thiếu tiền.
+        — <a routerLink="/lesson">kiểm tra Lịch dạy</a> trước khi tính để không thiếu tiền.
       </div>
 
       <button class="closeboard__cta" (click)="onBulkClose()"
               [disabled]="closeSelected.size === 0 || isBulkClosing">
         <span nz-icon [nzType]="isBulkClosing ? 'loading' : 'check-circle'"></span>
-        Chốt {{ closeSelected.size }} kỳ đã chọn
+        Tính học phí {{ closeSelected.size }} em đã chọn
       </button>
     </ng-container>
   </section>
@@ -115,10 +115,10 @@
       <span nz-icon nzType="dollar"></span>
     </div>
     <h3>Chưa có kỳ học phí nào</h3>
-    <p>Chốt kỳ đầu tiên để thu học phí cho HS đã dạy.</p>
+    <p>Tính học phí tháng đầu tiên cho các buổi đã dạy.</p>
     <button class="empty__cta" (click)="onClose()">
       <span nz-icon nzType="plus"></span>
-      Chốt kỳ đầu tiên
+      Tính học phí lần đầu
     </button>
   </div>
 
@@ -183,7 +183,7 @@
       <div class="tu-card__actions">
         <button class="tu-card__btn tu-card__btn--primary" *ngIf="p.status === TuitionStatus.Open" (click)="onClose(p)">
           <span nz-icon nzType="check-circle"></span>
-          Chốt kỳ này
+          Tính học phí kỳ này
         </button>
         <button class="tu-card__btn tu-card__btn--accent"
                 *ngIf="p.status === TuitionStatus.Closed || p.status === TuitionStatus.PartialPaid"
@@ -216,7 +216,7 @@
   </div>
 
   <!-- FAB (mobile only) -->
-  <button class="fab" *ngIf="periods.length > 0" (click)="onClose()" aria-label="Chốt kỳ mới">
+  <button class="fab" *ngIf="periods.length > 0" (click)="onClose()" aria-label="Tính học phí">
     <span nz-icon nzType="plus"></span>
   </button>
 </div>

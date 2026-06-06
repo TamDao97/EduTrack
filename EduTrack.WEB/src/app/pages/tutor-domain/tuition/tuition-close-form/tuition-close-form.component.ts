@@ -163,7 +163,7 @@ export class TuitionCloseFormComponent extends TdBaseComponent implements OnInit
       .subscribe({
         next: rs => {
           if (rs.status === StatusCode.Ok) {
-            this._toast.success(StatusResponseTitle.SUCCESS, 'Đã chốt kỳ. Hệ thống đã sinh nhắc cho phụ huynh.');
+            this._toast.success(StatusResponseTitle.SUCCESS, 'Đã tính học phí. Hệ thống đã sinh nhắc cho phụ huynh.');
             this.closeModal({ saved: true });
           } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
         },
@@ -180,7 +180,7 @@ export class TuitionCloseFormComponent extends TdBaseComponent implements OnInit
   }
 
   statusLabel(s: TuitionStatus): string {
-    return ({ [TuitionStatus.Open]: 'Đang mở', [TuitionStatus.Closed]: 'Đã chốt',
+    return ({ [TuitionStatus.Open]: 'Đang mở', [TuitionStatus.Closed]: 'Cần thu',
              [TuitionStatus.PartialPaid]: 'Thu 1 phần', [TuitionStatus.Paid]: 'Đã thu' } as any)[s];
   }
 
