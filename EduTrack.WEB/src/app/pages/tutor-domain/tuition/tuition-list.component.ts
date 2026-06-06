@@ -65,6 +65,21 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   }
   get closeMonthLabel(): string { return `Tháng ${this.closeMonth}/${this.closeYear}`; }
 
+  /** Đang bật bộ lọc nào đó (HS / kỳ tháng / tab trạng thái)? — đổi empty state cho đúng ngữ cảnh. */
+  get isFiltering(): boolean {
+    return !!this.filter.idStudent || !!this.selectedMonthYear || this.filter.status !== null;
+  }
+
+  /** Lọc kỳ tháng X rỗng → bắc cầu: trỏ bảng Tính học phí về đúng tháng đó. */
+  onOpenCloseboardForFilterMonth() {
+    if (!this.selectedMonthYear) return;
+    this.closeMonth = this.selectedMonthYear % 100;
+    this.closeYear = Math.floor(this.selectedMonthYear / 100);
+    this.closeboardTouched = true; // giữ panel hiển thị kể cả tháng trống
+    this.loadCloseboard();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   loadCloseboard() {
     this.isLoadingCloseboard = true;
     this._service.previewMonth(this.closeMonth, this.closeYear)

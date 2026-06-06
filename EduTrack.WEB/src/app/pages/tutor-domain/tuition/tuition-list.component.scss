@@ -320,3 +320,6 @@
   [nz-icon] { color: $primary; margin-top: 2px; }
   strong { color: $primary-dark; }
 }
+
+// Empty khi LỌC không ra (icon xám nhỏ hơn)
+.empty__art--muted { @include empty-icon-circles(120px, $text-3); }

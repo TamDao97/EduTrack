@@ -121,17 +121,35 @@
     </ng-container>
   </section>
 
-  <!-- Empty -->
+  <!-- Empty: phân biệt CHƯA CÓ HOÁ ĐƠN NÀO vs BỘ LỌC không ra kết quả -->
   <div *ngIf="!isLoading && periods.length === 0" class="empty">
-    <div class="empty__art">
-      <span nz-icon nzType="dollar"></span>
-    </div>
-    <h3>Chưa có kỳ học phí nào</h3>
-    <p>Tính học phí tháng đầu tiên cho các buổi đã dạy.</p>
-    <button class="empty__cta" (click)="onClose()">
-      <span nz-icon nzType="plus"></span>
-      Tính học phí lần đầu
-    </button>
+    <ng-container *ngIf="!isFiltering; else filterEmpty">
+      <div class="empty__art">
+        <span nz-icon nzType="dollar"></span>
+      </div>
+      <h3>Chưa có kỳ học phí nào</h3>
+      <p>Tính học phí tháng đầu tiên cho các buổi đã dạy.</p>
+      <button class="empty__cta" (click)="onClose()">
+        <span nz-icon nzType="plus"></span>
+        Tính học phí lần đầu
+      </button>
+    </ng-container>
+    <!-- Lọc rỗng: nói rõ "hoá đơn" + bắc cầu sang bảng tính nếu tháng đó CÓ buổi chờ tính -->
+    <ng-template #filterEmpty>
+      <div class="empty__art empty__art--muted">
+        <span nz-icon nzType="search"></span>
+      </div>
+      <h3>Không có hoá đơn nào khớp bộ lọc</h3>
+      <p *ngIf="!selectedMonthYear">Bộ lọc chỉ tìm trong các kỳ ĐÃ TÍNH — thử đổi điều kiện lọc.</p>
+      <p *ngIf="selectedMonthYear">
+        Tháng này <strong>chưa tính kỳ nào</strong> — buổi đã dạy (nếu có) đang nằm ở
+        <strong>bảng Tính học phí</strong> phía trên.
+      </p>
+      <button class="empty__cta" *ngIf="selectedMonthYear" (click)="onOpenCloseboardForFilterMonth()">
+        <span nz-icon nzType="thunderbolt"></span>
+        Mở bảng Tính học phí tháng này
+      </button>
+    </ng-template>
   </div>
 
   <!-- Period cards -->
