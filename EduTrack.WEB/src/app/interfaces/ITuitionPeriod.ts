@@ -71,5 +71,7 @@ export interface ITuitionPreview {
   totalAmount: number;
   /** Số buổi trong tháng còn "Đã lên lịch" (chưa đánh dấu Đã dạy) */
   scheduledLessons: number;
+  /** Số buổi TỒN từ các tháng trước được gộp vào hoá đơn này */
+  carryoverLessons: number;
   lessons: ITuitionPreviewLine[];
 }

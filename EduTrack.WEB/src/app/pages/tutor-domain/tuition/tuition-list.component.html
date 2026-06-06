@@ -89,7 +89,9 @@
           <label nz-checkbox [nzChecked]="closeSelected.has(c.idStudent)"
                  (nzCheckedChange)="onToggleCandidate(c.idStudent)" (click)="$event.stopPropagation()"></label>
           <span class="closeboard__name">{{ c.studentFullName }}</span>
-          <span class="closeboard__lessons">{{ c.doneLessons }} buổi</span>
+          <span class="closeboard__lessons">
+            {{ c.doneLessons }} buổi<ng-container *ngIf="c.carryoverLessons > 0"> · <span class="closeboard__carry">{{ c.carryoverLessons }} tồn th.trước</span></ng-container>
+          </span>
           <span class="closeboard__amount">{{ fmt(c.totalAmount) }}đ</span>
         </li>
       </ul>
@@ -196,6 +198,14 @@
                 (click)="onPayment(p)">
           <span nz-icon nzType="dollar"></span>
           Ghi nhận đã nhận
+        </button>
+        <!-- Tính lại: CHỈ khi đã tính nhưng chưa thu đồng nào (gom thêm buổi mới phát sinh) -->
+        <button class="tu-card__btn"
+                *ngIf="p.status === TuitionStatus.Closed && p.paidAmount === 0"
+                (click)="onClose(p)"
+                nz-tooltip nzTooltipTitle="Gom thêm buổi mới phát sinh sau lần tính trước">
+          <span nz-icon nzType="reload"></span>
+          Tính lại
         </button>
       </div>
     </li>

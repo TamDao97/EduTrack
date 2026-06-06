@@ -106,3 +106,15 @@
     @include mobile-only { button { flex: 1; } }
   }
 }
+
+// Buổi tồn tháng trước gộp vào hoá đơn
+.cf__carryover {
+  display: flex; align-items: flex-start; gap: 6px;
+  background: $primary-soft;
+  border-radius: $radius-sm;
+  padding: $sp-2 $sp-3;
+  margin-bottom: $sp-3;
+  font-size: $fs-sm; color: $text-2;
+  [nz-icon] { color: $primary; margin-top: 2px; }
+  strong { color: $primary-dark; }
+}

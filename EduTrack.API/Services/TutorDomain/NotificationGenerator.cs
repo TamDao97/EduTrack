@@ -17,6 +17,7 @@ namespace EduTrack.API.Services.TutorDomain
     {
         Task GenerateForLessonAsync(Lesson lesson);
         Task CancelForLessonAsync(Guid idLesson);
+        Task CancelForTuitionPeriodAsync(Guid idPeriod);
         Task GenerateForTuitionPeriodAsync(TuitionPeriod period);
     }
 
@@ -90,6 +91,23 @@ namespace EduTrack.API.Services.TutorDomain
                 .Where(n => n.RefId == idLesson
                          && (n.Type == NotificationTypeEnums.LessonReminderEvening
                           || n.Type == NotificationTypeEnums.LessonReminderHourBefore)
+                         && n.Status == NotificationStatusEnums.Pending)
+                .ToListAsync();
+
+            foreach (var n in pending)
+            {
+                n.Status = NotificationStatusEnums.Cancelled;
+                n.MarkDirty(nameof(n.Status));
+            }
+            if (pending.Count > 0) await _uow.SaveChangesAsync();
+        }
+
+        /// <summary>Huỷ nhắc học phí Pending của 1 kỳ — dùng khi TÍNH LẠI (nhắc mới sẽ thay thế).</summary>
+        public async Task CancelForTuitionPeriodAsync(Guid idPeriod)
+        {
+            var pending = await _notiRepos.Table
+                .Where(n => n.RefId == idPeriod
+                         && n.Type == NotificationTypeEnums.TuitionIssued
                          && n.Status == NotificationStatusEnums.Pending)
                 .ToListAsync();
 

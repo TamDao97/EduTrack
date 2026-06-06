@@ -52,14 +52,23 @@ namespace EduTrack.API.Services.TutorDomain
 
             var idTutor = await GetCurrentTutorIdAsync();
 
-            // Gom buổi Đã dạy chưa thuộc kỳ nào theo HS
+            // Gom buổi Đã dạy chưa vào hoá đơn TÍNH ĐẾN HẾT tháng — buổi TỒN tháng trước
+            // (phát sinh sau khi đã tính kỳ cũ) tự gộp vào tháng này, không buổi nào bị rơi.
+            var startOfMonth = new DateTime(year, month, 1);
+            var endExclusive = startOfMonth.AddMonths(1);
             var doneByStudent = await _lessonRepos.TableNoTracking
                 .Where(l => l.IdTutor == idTutor
                          && l.Status == LessonStatusEnums.Done
-                         && l.ScheduledDate.Year == year && l.ScheduledDate.Month == month
+                         && l.ScheduledDate < endExclusive
                          && l.IdTuitionPeriod == null)
                 .GroupBy(l => l.IdStudent)
-                .Select(g => new { IdStudent = g.Key, Count = g.Count(), Total = g.Sum(x => x.ChargeAmount) })
+                .Select(g => new
+                {
+                    IdStudent = g.Key,
+                    Count = g.Count(),
+                    Total = g.Sum(x => x.ChargeAmount),
+                    Carryover = g.Count(x => x.ScheduledDate < startOfMonth),
+                })
                 .ToListAsync();
 
             // Loại HS có kỳ tháng này ĐÃ CHỐT (tránh đè — chốt bổ sung dùng luồng riêng)
@@ -74,12 +83,12 @@ namespace EduTrack.API.Services.TutorDomain
                 .Where(s => ids.Contains(s.Id))
                 .ToDictionaryAsync(s => s.Id, s => s.FullName);
 
-            // Cảnh báo: buổi ĐÃ QUA trong tháng còn "Đã lên lịch" (quên đánh dấu → chốt sẽ thiếu)
+            // Cảnh báo: buổi ĐÃ QUA (tính đến hết tháng xem) còn "Đã lên lịch" — quên đánh dấu
             var today = AppTime.VnNow.Date;
             var pastScheduled = await _lessonRepos.TableNoTracking
                 .CountAsync(l => l.IdTutor == idTutor
                               && l.Status == LessonStatusEnums.Scheduled
-                              && l.ScheduledDate.Year == year && l.ScheduledDate.Month == month
+                              && l.ScheduledDate < endExclusive
                               && l.ScheduledDate < today);
 
             var dto = new MonthClosePreviewDto
@@ -94,6 +103,7 @@ namespace EduTrack.API.Services.TutorDomain
                         IdStudent = x.IdStudent,
                         StudentFullName = names.GetValueOrDefault(x.IdStudent, "—"),
                         DoneLessons = x.Count,
+                        CarryoverLessons = x.Carryover,
                         TotalAmount = x.Total,
                     })
                     .OrderBy(c => c.StudentFullName)
@@ -187,18 +197,33 @@ namespace EduTrack.API.Services.TutorDomain
             var period = await _repos.Table.FirstOrDefaultAsync(t => t.Id == id && t.IdTutor == idTutor);
             if (period == null)
                 return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy kỳ học phí");
-            if (period.ClosedAt.HasValue)
-                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Kỳ này đã tính học phí trước đó");
 
-            // Lấy lesson Done của HS trong tháng-năm này, chưa thuộc kỳ nào
+            // TÍNH LẠI: chỉ khi CHƯA THU đồng nào (số đã giao dịch phải đứng yên).
+            // Nhả buổi đang khoá để gom lại từ đầu kèm buổi mới + huỷ nhắc học phí cũ.
+            var relocked = new List<Lesson>();
+            if (period.ClosedAt.HasValue)
+            {
+                if (period.PaidAmount > 0)
+                    return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest,
+                        "Kỳ đã có giao dịch thu — không thể tính lại. Buổi mới phát sinh sẽ tự gộp vào kỳ tháng sau.");
+
+                relocked = await _lessonRepos.Table
+                    .Where(l => l.IdTuitionPeriod == period.Id)
+                    .ToListAsync();
+                await _notiGen.CancelForTuitionPeriodAsync(period.Id);
+            }
+
+            // Gom buổi Done chưa vào hoá đơn TÍNH ĐẾN HẾT tháng kỳ — buổi TỒN các tháng
+            // trước (phát sinh sau khi đã tính) tự gộp vào, không buổi nào bị rơi.
+            var endExclusive = new DateTime(period.PeriodYear, period.PeriodMonth, 1).AddMonths(1);
             var lessons = await _lessonRepos.Table
                 .Where(l => l.IdTutor == idTutor
                          && l.IdStudent == period.IdStudent
                          && l.Status == LessonStatusEnums.Done
-                         && l.ScheduledDate.Year == period.PeriodYear
-                         && l.ScheduledDate.Month == period.PeriodMonth
+                         && l.ScheduledDate < endExclusive
                          && l.IdTuitionPeriod == null)
                 .ToListAsync();
+            lessons.AddRange(relocked); // buổi nhả ra khi tính lại (DB chưa save nên query trên không thấy)
 
             decimal total = lessons.Sum(l => l.ChargeAmount);
 
@@ -304,6 +329,16 @@ namespace EduTrack.API.Services.TutorDomain
             if (!studentOk)
                 return Response<TuitionPreviewDto>.Error(StatusCode.BadRequest, "Học sinh không hợp lệ");
 
+            // Cửa sổ tính đến HẾT tháng (gộp buổi tồn tháng trước). Khi TÍNH LẠI kỳ
+            // chưa-thu: buổi đang khoá vào kỳ đó cũng hiện (sẽ được gom lại khi tính).
+            var startOfMonth = new DateTime(year, month, 1);
+            var endExclusive = startOfMonth.AddMonths(1);
+            var recloseId = await _repos.TableNoTracking
+                .Where(p => p.IdStudent == idStudent && p.PeriodMonth == month && p.PeriodYear == year
+                         && p.ClosedAt != null && p.PaidAmount == 0)
+                .Select(p => (Guid?)p.Id)
+                .FirstOrDefaultAsync();
+
             var courseRepos = _unitOfWork.GetRepository<StudentCourse>();
             var classRepos = _unitOfWork.GetRepository<ClassRoom>();
             var lessons = await (from l in _lessonRepos.TableNoTracking
@@ -314,9 +349,8 @@ namespace EduTrack.API.Services.TutorDomain
                                  where l.IdTutor == idTutor
                                     && l.IdStudent == idStudent
                                     && l.Status == LessonStatusEnums.Done
-                                    && l.ScheduledDate.Year == year
-                                    && l.ScheduledDate.Month == month
-                                    && l.IdTuitionPeriod == null
+                                    && l.ScheduledDate < endExclusive
+                                    && (l.IdTuitionPeriod == null || l.IdTuitionPeriod == recloseId)
                                  orderby l.ScheduledDate, l.StartTime
                                  select new TuitionPreviewLineDto
                                  {
@@ -346,6 +380,7 @@ namespace EduTrack.API.Services.TutorDomain
                 TotalLessons = lessons.Count,
                 TotalAmount = lessons.Sum(x => x.ChargeAmount),
                 ScheduledLessons = scheduledCount,
+                CarryoverLessons = lessons.Count(x => x.ScheduledDate < startOfMonth),
                 Lessons = lessons,
             };
             return Response<TuitionPreviewDto>.Success(preview, StatusCode.Ok.ToDescription());

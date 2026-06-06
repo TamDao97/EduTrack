@@ -46,7 +46,7 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   /* ─── Bảng chốt kỳ THÁNG: hệ thống tìm sẵn HS cần chốt, tutor duyệt + 1 nút ─── */
   closeMonth = new Date().getMonth() + 1;
   closeYear = new Date().getFullYear();
-  closeCandidates: { idStudent: string; studentFullName: string; doneLessons: number; totalAmount: number }[] = [];
+  closeCandidates: { idStudent: string; studentFullName: string; doneLessons: number; carryoverLessons: number; totalAmount: number }[] = [];
   closePastScheduled = 0;
   /** HS được tick (mặc định tick hết). */
   closeSelected = new Set<string>();

@@ -30,6 +30,12 @@
       <span class="cf__preview-label">{{ preview.totalLessons }} buổi đã dạy</span>
       <span class="cf__preview-total">{{ fmt(preview.totalAmount) }}đ</span>
     </div>
+    <!-- Buổi tồn tháng trước được gộp vào hoá đơn này -->
+    <div class="cf__carryover" *ngIf="preview.carryoverLessons > 0">
+      <span nz-icon nzType="history"></span>
+      Gồm <strong>{{ preview.carryoverLessons }} buổi tồn tháng trước</strong>
+      (phát sinh sau lần tính kỳ cũ — tự gộp để không sót tiền).
+    </div>
     <!-- Breakdown theo môn — chỉ hiện khi học ≥2 môn trong kỳ -->
     <div class="cf__subjects" *ngIf="subjectGroups.length > 1">
       <div class="cf__subject-row" *ngFor="let g of subjectGroups">

@@ -49,6 +49,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public decimal TotalAmount { get; set; }
         /// <summary>Số buổi trong tháng còn "Đã lên lịch" (chưa đánh dấu Đã dạy) — để FE gợi ý vì sao 0 buổi.</summary>
         public int ScheduledLessons { get; set; }
+        /// <summary>Số buổi TỒN từ các tháng trước được gộp vào hoá đơn này.</summary>
+        public int CarryoverLessons { get; set; }
         public List<TuitionPreviewLineDto> Lessons { get; set; } = new();
     }
 
@@ -66,12 +68,15 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public List<MonthCloseCandidateDto> Candidates { get; set; } = new();
     }
 
-    /// <summary>1 HS đủ điều kiện chốt trong tháng.</summary>
+    /// <summary>1 HS đủ điều kiện tính học phí trong tháng.</summary>
     public class MonthCloseCandidateDto
     {
         public Guid IdStudent { get; set; }
         public string StudentFullName { get; set; } = string.Empty;
+        /// <summary>Tổng buổi sẽ vào hoá đơn (gồm cả buổi tồn tháng trước).</summary>
         public int DoneLessons { get; set; }
+        /// <summary>Số buổi TỒN từ các tháng trước (phát sinh sau khi kỳ cũ đã tính).</summary>
+        public int CarryoverLessons { get; set; }
         public decimal TotalAmount { get; set; }
     }
 
