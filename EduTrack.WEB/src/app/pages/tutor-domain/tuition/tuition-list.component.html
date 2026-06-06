@@ -54,7 +54,8 @@
   </div>
 
   <!-- ─── Bảng chốt kỳ tháng: tự quét HS cần chốt, tutor duyệt + 1 nút ─── -->
-  <section class="closeboard" *ngIf="closeCandidates.length > 0 || isLoadingCloseboard">
+  <!-- Tự ẩn khi sạch việc, NHƯNG đã bấm ◀▶ thì giữ lại (tháng trống vẫn cần nút quay về) -->
+  <section class="closeboard" *ngIf="closeCandidates.length > 0 || isLoadingCloseboard || closeboardTouched">
     <header class="closeboard__head">
       <div class="closeboard__title">
         <span nz-icon nzType="thunderbolt" nzTheme="fill"></span>
@@ -72,7 +73,12 @@
 
     <div class="closeboard__loading" *ngIf="isLoadingCloseboard"><nz-spin nzSize="small"></nz-spin></div>
 
-    <ng-container *ngIf="!isLoadingCloseboard">
+    <!-- Tháng trống: vẫn giữ panel + nav để qua lại -->
+    <p class="closeboard__empty" *ngIf="!isLoadingCloseboard && closeCandidates.length === 0">
+      ✅ {{ closeMonthLabel }} không có buổi nào cần chốt — dùng ◀ ▶ để xem tháng khác.
+    </p>
+
+    <ng-container *ngIf="!isLoadingCloseboard && closeCandidates.length > 0">
       <p class="closeboard__sub">
         <strong>{{ closeCandidates.length }} HS</strong> có buổi đã dạy chưa chốt
         · tổng <strong>{{ fmt(closeSelectedTotal) }}đ</strong>

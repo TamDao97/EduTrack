@@ -52,6 +52,8 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   closeSelected = new Set<string>();
   isLoadingCloseboard = false;
   isBulkClosing = false;
+  /** Đã bấm ◀▶ → giữ panel hiển thị kể cả tháng trống (nếu không sẽ mất luôn nút quay lại). */
+  closeboardTouched = false;
 
   get closeSelectedTotal(): number {
     return this.closeCandidates
@@ -74,11 +76,13 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   }
 
   onCloseboardPrevMonth() {
+    this.closeboardTouched = true;
     this.closeMonth--;
     if (this.closeMonth === 0) { this.closeMonth = 12; this.closeYear--; }
     this.loadCloseboard();
   }
   onCloseboardNextMonth() {
+    this.closeboardTouched = true;
     this.closeMonth++;
     if (this.closeMonth === 13) { this.closeMonth = 1; this.closeYear++; }
     this.loadCloseboard();

@@ -299,3 +299,10 @@
     [nz-icon] { margin-right: 6px; }
   }
 }
+
+.closeboard__empty {
+  @include t-meta;
+  text-align: center;
+  padding: $sp-3 0 $sp-1;
+  margin: 0;
+}
