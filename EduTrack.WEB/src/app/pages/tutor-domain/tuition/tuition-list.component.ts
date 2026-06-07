@@ -68,6 +68,33 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   }
   get closeMonthLabel(): string { return `Tháng ${this.closeMonth}/${this.closeYear}`; }
 
+  /* ─── Chi tiết buổi của từng HS trong bảng tính (bấm chevron để xổ) ─── */
+  expandedCandidates = new Set<string>();
+  candidateDetails: Record<string, { scheduledDate: string; startTime: string; endTime: string; chargeAmount: number; subject?: string | null }[]> = {};
+  loadingCandidateDetail = new Set<string>();
+
+  onToggleCandidateDetail(idStudent: string, ev: Event) {
+    ev.stopPropagation(); // không đụng checkbox chọn
+    if (this.expandedCandidates.has(idStudent)) {
+      this.expandedCandidates.delete(idStudent);
+      return;
+    }
+    this.expandedCandidates.add(idStudent);
+    if (this.candidateDetails[idStudent]) return; // đã cache
+    this.loadingCandidateDetail.add(idStudent);
+    this._service.preview(idStudent, this.closeMonth, this.closeYear)
+      .pipe(finalize(() => this.loadingCandidateDetail.delete(idStudent)))
+      .subscribe(rs => {
+        if (rs.status === StatusCode.Ok) this.candidateDetails[idStudent] = rs.data?.lessons ?? [];
+      });
+  }
+
+  /** Buổi thuộc tháng TRƯỚC tháng panel (buổi tồn)? — gắn tag trong list chi tiết. */
+  isCarryoverLesson(scheduledDate: string): boolean {
+    const d = new Date(scheduledDate);
+    return d.getFullYear() * 100 + (d.getMonth() + 1) < this.closeYear * 100 + this.closeMonth;
+  }
+
   fmtPendingDate(s: string): string {
     const d = new Date(s);
     const dows = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -116,6 +143,9 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
       .pipe(finalize(() => this.isLoadingCloseboard = false))
       .subscribe(rs => {
         if (rs.status === StatusCode.Ok) {
+          // Đổi tháng → bỏ cache chi tiết cũ
+          this.expandedCandidates.clear();
+          this.candidateDetails = {};
           this.closeCandidates = rs.data?.candidates ?? [];
           this.closePastScheduled = rs.data?.pastScheduledLessons ?? 0;
           this.closePendingLessons = rs.data?.pendingAfterCloseLessons ?? 0;

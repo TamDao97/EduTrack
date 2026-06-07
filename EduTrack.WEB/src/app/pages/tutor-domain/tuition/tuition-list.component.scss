@@ -359,3 +359,39 @@
 .closeboard__pending-date { color: $text-3; font-size: $fs-xs; white-space: nowrap; min-width: 130px; }
 .closeboard__pending-name { flex: 1; font-weight: $fw-semi; color: $text-1; @include truncate; }
 .closeboard__pending-amount { font-weight: $fw-bold; color: $accent; white-space: nowrap; }
+
+// Xổ chi tiết buổi của 1 HS trong bảng tính
+.closeboard__detail-btn {
+  @include btn-icon(28px);
+  flex-shrink: 0;
+  [nz-icon] { font-size: 11px; }
+}
+.closeboard__detail {
+  cursor: default !important;
+  padding: 0 0 $sp-2 36px !important;
+  &:hover { background: transparent !important; }
+
+  > ul {
+    list-style: none; margin: 0; padding: $sp-1 $sp-3;
+    border-left: 3px solid $primary-soft;
+    width: 100%;
+
+    li {
+      display: flex; align-items: baseline; gap: $sp-2;
+      padding: 3px 0;
+      border-bottom: 1px dashed $border;
+      font-size: $fs-sm;
+      cursor: default;
+      &:hover { background: transparent; }
+      &:last-child { border-bottom: none; }
+    }
+  }
+}
+.closeboard__detail-subject {
+  padding: 0 8px;
+  border-radius: 9px;
+  background: $primary-soft;
+  color: $primary;
+  font-size: $fs-caption; font-weight: $fw-bold;
+}
+.closeboard__detail-spacer { flex: 1; }

@@ -109,15 +109,34 @@
       </p>
 
       <ul class="closeboard__list">
-        <li *ngFor="let c of closeCandidates" (click)="onToggleCandidate(c.idStudent)">
-          <label nz-checkbox [nzChecked]="closeSelected.has(c.idStudent)"
-                 (nzCheckedChange)="onToggleCandidate(c.idStudent)" (click)="$event.stopPropagation()"></label>
-          <span class="closeboard__name">{{ c.studentFullName }}</span>
-          <span class="closeboard__lessons">
-            {{ c.doneLessons }} buổi<ng-container *ngIf="c.carryoverLessons > 0"> · <span class="closeboard__carry">{{ c.carryoverLessons }} tồn th.trước</span></ng-container>
-          </span>
-          <span class="closeboard__amount">{{ fmt(c.totalAmount) }}đ</span>
-        </li>
+        <ng-container *ngFor="let c of closeCandidates">
+          <li (click)="onToggleCandidate(c.idStudent)">
+            <label nz-checkbox [nzChecked]="closeSelected.has(c.idStudent)"
+                   (nzCheckedChange)="onToggleCandidate(c.idStudent)" (click)="$event.stopPropagation()"></label>
+            <span class="closeboard__name">{{ c.studentFullName }}</span>
+            <span class="closeboard__lessons">
+              {{ c.doneLessons }} buổi<ng-container *ngIf="c.carryoverLessons > 0"> · <span class="closeboard__carry">{{ c.carryoverLessons }} tồn th.trước</span></ng-container>
+            </span>
+            <span class="closeboard__amount">{{ fmt(c.totalAmount) }}đ</span>
+            <!-- Xổ chi tiết buổi của em này -->
+            <button class="closeboard__detail-btn" (click)="onToggleCandidateDetail(c.idStudent, $event)"
+                    [title]="expandedCandidates.has(c.idStudent) ? 'Thu gọn' : 'Xem chi tiết buổi'">
+              <span nz-icon [nzType]="loadingCandidateDetail.has(c.idStudent) ? 'loading' : (expandedCandidates.has(c.idStudent) ? 'up' : 'down')"></span>
+            </button>
+          </li>
+          <!-- Chi tiết từng buổi sẽ vào hoá đơn của em -->
+          <li class="closeboard__detail" *ngIf="expandedCandidates.has(c.idStudent) && candidateDetails[c.idStudent]">
+            <ul>
+              <li *ngFor="let l of candidateDetails[c.idStudent]">
+                <span class="closeboard__pending-date">{{ fmtPendingDate(l.scheduledDate) }} · {{ l.startTime }}-{{ l.endTime }}</span>
+                <span class="closeboard__detail-subject" *ngIf="l.subject">{{ l.subject }}</span>
+                <span class="closeboard__carry" *ngIf="isCarryoverLesson(l.scheduledDate)">tồn</span>
+                <span class="closeboard__detail-spacer"></span>
+                <span class="closeboard__pending-amount">{{ fmt(l.chargeAmount) }}đ</span>
+              </li>
+            </ul>
+          </li>
+        </ng-container>
       </ul>
 
       <!-- Cảnh báo buổi đã qua chưa đánh dấu — chốt bây giờ sẽ thiếu các buổi đó -->
