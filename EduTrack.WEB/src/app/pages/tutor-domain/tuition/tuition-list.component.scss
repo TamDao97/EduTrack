@@ -334,3 +334,28 @@
   color: $danger;
   &:hover { background: $danger-soft; border-color: $danger; }
 }
+
+// Chi tiết buổi chờ (xổ từ dòng 🕐)
+.closeboard__pending--clickable { cursor: pointer; &:hover { filter: brightness(0.97); } }
+.closeboard__pending-toggle {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-left: 6px;
+  color: $primary; font-weight: $fw-bold; font-size: $fs-xs;
+  [nz-icon] { font-size: 10px; }
+}
+.closeboard__pending-list {
+  list-style: none; margin: 0 0 $sp-2; padding: $sp-1 $sp-3;
+  border-left: 3px solid $primary-soft;
+  max-height: 220px; overflow-y: auto;
+
+  li {
+    display: flex; align-items: baseline; gap: $sp-2;
+    padding: 4px 0;
+    border-bottom: 1px dashed $border;
+    font-size: $fs-sm;
+    &:last-child { border-bottom: none; }
+  }
+}
+.closeboard__pending-date { color: $text-3; font-size: $fs-xs; white-space: nowrap; min-width: 130px; }
+.closeboard__pending-name { flex: 1; font-weight: $fw-semi; color: $text-1; @include truncate; }
+.closeboard__pending-amount { font-weight: $fw-bold; color: $accent; white-space: nowrap; }

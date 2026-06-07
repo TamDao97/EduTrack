@@ -51,6 +51,9 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
   /** Buổi Done phát sinh SAU khi kỳ tháng này đã tính — đang chờ gộp/tính lại. */
   closePendingLessons = 0;
   closePendingStudents = 0;
+  /** Chi tiết từng buổi chờ — bấm dòng 🕐 để xổ. */
+  closePendingDetails: { studentFullName: string; scheduledDate: string; startTime: string; endTime: string; chargeAmount: number }[] = [];
+  showPendingDetails = false;
   /** HS được tick (mặc định tick hết). */
   closeSelected = new Set<string>();
   isLoadingCloseboard = false;
@@ -64,6 +67,12 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
       .reduce((s, c) => s + c.totalAmount, 0);
   }
   get closeMonthLabel(): string { return `Tháng ${this.closeMonth}/${this.closeYear}`; }
+
+  fmtPendingDate(s: string): string {
+    const d = new Date(s);
+    const dows = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    return `${dows[d.getDay()]} ${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
 
   /** Tháng panel đang xem ở TƯƠNG LAI? — BE chặn tính (cửa sổ gộp tồn sẽ nuốt nhầm tháng chưa tới). */
   get isFutureCloseMonth(): boolean {
@@ -111,6 +120,8 @@ export class TuitionListComponent extends TdBaseComponent implements OnInit {
           this.closePastScheduled = rs.data?.pastScheduledLessons ?? 0;
           this.closePendingLessons = rs.data?.pendingAfterCloseLessons ?? 0;
           this.closePendingStudents = rs.data?.pendingAfterCloseStudents ?? 0;
+          this.closePendingDetails = rs.data?.pendingLessonDetails ?? [];
+          this.showPendingDetails = false;
           this.closeSelected = new Set(this.closeCandidates.map(c => c.idStudent));
         }
       });

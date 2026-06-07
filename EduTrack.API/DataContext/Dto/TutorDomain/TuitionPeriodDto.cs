@@ -69,6 +69,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         /// vào tháng sau hoặc "Tính lại" nếu kỳ chưa thu. Để FE báo ngay, không im lặng.</summary>
         public int PendingAfterCloseLessons { get; set; }
         public int PendingAfterCloseStudents { get; set; }
+        /// <summary>Chi tiết từng buổi chờ — tutor cần soi được đó là buổi nào.</summary>
+        public List<MonthPendingLessonDto> PendingLessonDetails { get; set; } = new();
         public List<MonthCloseCandidateDto> Candidates { get; set; } = new();
     }
 
@@ -82,6 +84,16 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         /// <summary>Số buổi TỒN từ các tháng trước (phát sinh sau khi kỳ cũ đã tính).</summary>
         public int CarryoverLessons { get; set; }
         public decimal TotalAmount { get; set; }
+    }
+
+    /// <summary>1 buổi đang CHỜ (Done sau khi kỳ tháng đã tính) — hiển thị chi tiết.</summary>
+    public class MonthPendingLessonDto
+    {
+        public string StudentFullName { get; set; } = string.Empty;
+        public DateTime ScheduledDate { get; set; }
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
+        public decimal ChargeAmount { get; set; }
     }
 
     public class MonthCloseBulkReq

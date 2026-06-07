@@ -78,15 +78,29 @@
       ✅ {{ closeMonthLabel }} không có buổi nào cần tính học phí — dùng ◀ ▶ để xem tháng khác.
     </p>
 
-    <!-- Buổi CHỜ: phát sinh sau khi kỳ tháng này đã tính — báo ngay, không im lặng -->
-    <div class="closeboard__pending" *ngIf="!isLoadingCloseboard && closePendingLessons > 0">
+    <!-- Buổi CHỜ: phát sinh sau khi kỳ tháng này đã tính — báo ngay + bấm xổ chi tiết -->
+    <div class="closeboard__pending closeboard__pending--clickable"
+         *ngIf="!isLoadingCloseboard && closePendingLessons > 0"
+         (click)="showPendingDetails = !showPendingDetails">
       <span nz-icon nzType="clock-circle" nzTheme="fill"></span>
       <div>
         <strong>{{ closePendingLessons }} buổi mới</strong> ({{ closePendingStudents }} HS) phát sinh
         <strong>sau khi đã tính học phí</strong> {{ closeMonthLabel }} — không mất đi đâu:
         bấm <strong>"Tính lại"</strong> trên thẻ kỳ (nếu chưa thu) hoặc để tự gộp vào tháng sau.
+        <span class="closeboard__pending-toggle">
+          {{ showPendingDetails ? 'Thu gọn' : 'Xem đó là buổi nào' }}
+          <span nz-icon [nzType]="showPendingDetails ? 'up' : 'down'"></span>
+        </span>
       </div>
     </div>
+    <!-- Danh sách từng buổi chờ -->
+    <ul class="closeboard__pending-list" *ngIf="showPendingDetails && closePendingDetails.length > 0">
+      <li *ngFor="let l of closePendingDetails">
+        <span class="closeboard__pending-date">{{ fmtPendingDate(l.scheduledDate) }} · {{ l.startTime }}-{{ l.endTime }}</span>
+        <span class="closeboard__pending-name">{{ l.studentFullName }}</span>
+        <span class="closeboard__pending-amount">{{ fmt(l.chargeAmount) }}đ</span>
+      </li>
+    </ul>
 
     <ng-container *ngIf="!isLoadingCloseboard && closeCandidates.length > 0">
       <p class="closeboard__sub">

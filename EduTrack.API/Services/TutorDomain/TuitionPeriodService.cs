@@ -83,10 +83,38 @@ namespace EduTrack.API.Services.TutorDomain
 
             doneByStudent = doneByStudent.Where(x => !closedIds.Contains(x.IdStudent)).ToList();
 
-            var ids = doneByStudent.Select(x => x.IdStudent).ToList();
+            // Tên HS: cả candidates lẫn HS có buổi chờ (hiện chi tiết buổi chờ)
+            var ids = doneByStudent.Select(x => x.IdStudent)
+                .Concat(pendingAfterClose.Select(x => x.IdStudent))
+                .Distinct().ToList();
             var names = await _studentRepos.TableNoTracking
                 .Where(s => ids.Contains(s.Id))
                 .ToDictionaryAsync(s => s.Id, s => s.FullName);
+
+            // Chi tiết từng buổi CHỜ — tutor soi được đó là buổi nào (cap 100 cho an toàn)
+            var pendingDetails = new List<MonthPendingLessonDto>();
+            if (pendingAfterClose.Count > 0)
+            {
+                var pendingIds = pendingAfterClose.Select(x => x.IdStudent).ToList();
+                var rawPending = await _lessonRepos.TableNoTracking
+                    .Where(l => l.IdTutor == idTutor
+                             && l.Status == LessonStatusEnums.Done
+                             && l.ScheduledDate < endExclusive
+                             && l.IdTuitionPeriod == null
+                             && pendingIds.Contains(l.IdStudent))
+                    .OrderBy(l => l.ScheduledDate).ThenBy(l => l.StartTime)
+                    .Take(100)
+                    .Select(l => new { l.IdStudent, l.ScheduledDate, l.StartTime, l.EndTime, l.ChargeAmount })
+                    .ToListAsync();
+                pendingDetails = rawPending.Select(l => new MonthPendingLessonDto
+                {
+                    StudentFullName = names.GetValueOrDefault(l.IdStudent, "—"),
+                    ScheduledDate = l.ScheduledDate,
+                    StartTime = l.StartTime.ToString(@"hh\:mm"),
+                    EndTime = l.EndTime.ToString(@"hh\:mm"),
+                    ChargeAmount = l.ChargeAmount,
+                }).ToList();
+            }
 
             // Cảnh báo: buổi ĐÃ QUA (tính đến hết tháng xem) còn "Đã lên lịch" — quên đánh dấu
             var today = AppTime.VnNow.Date;
@@ -103,6 +131,7 @@ namespace EduTrack.API.Services.TutorDomain
                 PastScheduledLessons = pastScheduled,
                 PendingAfterCloseLessons = pendingAfterClose.Sum(x => x.Count),
                 PendingAfterCloseStudents = pendingAfterClose.Count,
+                PendingLessonDetails = pendingDetails,
                 TotalAmount = doneByStudent.Sum(x => x.Total),
                 Candidates = doneByStudent
                     .Select(x => new MonthCloseCandidateDto
