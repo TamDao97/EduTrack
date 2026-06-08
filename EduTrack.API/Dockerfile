@@ -7,12 +7,12 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy csproj trước để cache restore layer
-COPY Base.Lib/*.csproj          Base.Lib/
+COPY TD.Lib/*.csproj            TD.Lib/
 COPY EduTrack.API/*.csproj      EduTrack.API/
 RUN dotnet restore EduTrack.API/EduTrack.API.csproj
 
 # Copy source + publish
-COPY Base.Lib/      Base.Lib/
+COPY TD.Lib/        TD.Lib/
 COPY EduTrack.API/  EduTrack.API/
 RUN dotnet publish EduTrack.API/EduTrack.API.csproj \
     -c Release -o /app \

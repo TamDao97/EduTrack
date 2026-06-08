@@ -7,7 +7,7 @@ Bộ core khởi đầu cho dự án EduTrack, clone từ TDSolution (OrderDebt)
 ```
 EduTrack/
 ├── EduTrack.sln
-├── Base.Lib/                  # Generic UoW + Repository + AutoMapper + Response + JwtHelper
+├── TD.Lib/                    # Generic UoW + Repository + AutoMapper + Response + JwtHelper
 ├── EduTrack.API/              # ASP.NET Core 8 Web API
 │   ├── Attributes/            # TDModule, TDPermission, TDAuthorize
 │   ├── Commons/               # Constants (RoleCodes), ErrorMessage, ValidateData, SqlLogQuery

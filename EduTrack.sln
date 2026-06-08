@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TD.Lib", "Base.Lib\TD.Lib.csproj", "{E1794501-A3DA-4029-8570-6558DD929CCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TD.Lib", "TD.Lib\TD.Lib.csproj", "{E1794501-A3DA-4029-8570-6558DD929CCE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduTrack.API", "EduTrack.API\EduTrack.API.csproj", "{F98AA9C0-527F-7686-BE4D-76CA50ABF78B}"
 EndProject
