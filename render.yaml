@@ -10,9 +10,11 @@
 #   - Cors__AllowedOrigins
 # ══════════════════════════════════════════════════════════════════════
 services:
+  # ─── BE: .NET 8 API (Docker) ───
   - type: web
     name: edutrack-api
     runtime: docker
+    region: singapore                # gần VPS VN nhất → giảm latency mỗi query EF
     dockerfilePath: ./EduTrack.API/Dockerfile
     dockerContext: .
     plan: free                       # 750h/month, sleeps 15min idle
@@ -26,5 +28,23 @@ services:
         value: https://edutrack.app
       - key: Jwt__Audience
         value: edutrack.app
-      # Sensitive vars (Connection string, Jwt:Key, Cors origins) — set ở dashboard
-      # và đánh dấu "secret"
+      # Sensitive vars — set ở dashboard và đánh dấu "secret":
+      #   - ConnectionStrings__EduTrackDbContextConnection
+      #   - Jwt__Key
+      #   - Cors__AllowedOrigins  (= URL static site bên dưới, vd https://edutrack-web.onrender.com)
+      #   - SMTP (Smtp__Enabled, Smtp__User, Smtp__Password, Smtp__FromAddress)
+
+  # ─── FE: Angular static site (build bằng Node, serve tĩnh — free) ───
+  - type: web
+    name: edutrack-web
+    runtime: static
+    rootDir: EduTrack.WEB
+    buildCommand: npm install --legacy-peer-deps && npm run build:prod
+    staticPublishPath: dist/edutrack.web-prod/browser
+    autoDeploy: true
+    branch: develop
+    # SPA deep-link: mọi route chưa khớp file tĩnh → trả index.html (Angular router lo phần còn lại)
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

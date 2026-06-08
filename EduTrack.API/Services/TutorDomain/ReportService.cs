@@ -13,12 +13,12 @@ namespace EduTrack.API.Services.TutorDomain
 {
     public interface IReportService
     {
-        Task<Response<TutorReportDto>> GetMyReportAsync();
+        Task<Response<TutorReportDto>> GetMyReportAsync(int months = 6);
     }
 
     /// <summary>
-    /// Tính báo cáo cho tutor đang login: tổng quan + bar chart 6 tháng + top HS.
-    /// Đọc no-tracking, tutor-scoped.
+    /// Tính báo cáo cho tutor đang login: tổng quan lifetime + bar chart / theo môn / top HS
+    /// trong N tháng gần nhất (mặc định 6). Đọc no-tracking, tutor-scoped.
     /// </summary>
     public class ReportService : IReportService
     {
@@ -39,17 +39,19 @@ namespace EduTrack.API.Services.TutorDomain
             _classRepos = uow.GetRepository<ClassRoom>();
         }
 
-        public async Task<Response<TutorReportDto>> GetMyReportAsync()
+        public async Task<Response<TutorReportDto>> GetMyReportAsync(int months = 6)
         {
             var cu = await _userContext.GetCurrentUserAsync();
             if (cu == null) return Response<TutorReportDto>.Error(StatusCode.Unauthorized, "Chưa đăng nhập");
             var idTutor = cu.Id;
 
-            // ── 6 tháng gần nhất (oldest → newest) — neo theo lịch VN ──
+            // ── N tháng gần nhất (oldest → newest) — neo theo lịch VN.
+            // Clamp 1..24: đủ cho "Năm nay" lẫn 12 tháng, chặn kéo vô hạn dữ liệu.
+            months = Math.Clamp(months, 1, 24);
             var today = AppTime.VnNow;
             var anchors = new List<(int Year, int Month)>();
-            var start = new DateTime(today.Year, today.Month, 1).AddMonths(-5);
-            for (int i = 0; i < 6; i++)
+            var start = new DateTime(today.Year, today.Month, 1).AddMonths(-(months - 1));
+            for (int i = 0; i < months; i++)
             {
                 var m = start.AddMonths(i);
                 anchors.Add((m.Year, m.Month));
@@ -57,7 +59,7 @@ namespace EduTrack.API.Services.TutorDomain
             var fromYear = anchors[0].Year;
             var fromMonth = anchors[0].Month;
 
-            // Lessons done trong 6 tháng — group by year-month
+            // Lessons done trong khoảng xem — group by year-month
             var lessonGroups = await _lessonRepos.TableNoTracking
                 .Where(l => l.IdTutor == idTutor
                          && l.Status == LessonStatusEnums.Done
@@ -67,7 +69,7 @@ namespace EduTrack.API.Services.TutorDomain
                 .Select(g => new { g.Key.Year, g.Key.Month, Count = g.Count() })
                 .ToListAsync();
 
-            // TuitionPeriod 6 tháng (kỳ đã chốt)
+            // TuitionPeriod trong khoảng xem (kỳ đã chốt)
             var periodGroups = await _periodRepos.TableNoTracking
                 .Where(p => p.IdTutor == idTutor
                          && p.ClosedAt != null
@@ -83,7 +85,7 @@ namespace EduTrack.API.Services.TutorDomain
                 })
                 .ToListAsync();
 
-            var months = anchors.Select(a => new MonthlyPointDto
+            var monthPoints = anchors.Select(a => new MonthlyPointDto
             {
                 Year = a.Year,
                 Month = a.Month,
@@ -106,10 +108,12 @@ namespace EduTrack.API.Services.TutorDomain
             var revenueLifetime = lifetimePeriods.Sum(p => p.FinalAmount);
             var collectedLifetime = lifetimePeriods.Sum(p => p.PaidAmount);
 
-            // ── Top 5 students ──
+            // ── Top 5 students — cùng khoảng xem với chart, không phải lifetime ──
             var topStudents = await (from p in _periodRepos.TableNoTracking
                                      join s in _studentRepos.TableNoTracking on p.IdStudent equals s.Id
                                      where p.IdTutor == idTutor && p.ClosedAt != null
+                                        && (p.PeriodYear > fromYear
+                                         || (p.PeriodYear == fromYear && p.PeriodMonth >= fromMonth))
                                      group new { p, s } by new { p.IdStudent, s.FullName } into g
                                      select new TopStudentDto
                                      {
@@ -122,7 +126,7 @@ namespace EduTrack.API.Services.TutorDomain
                 .Take(5)
                 .ToListAsync();
 
-            // ── Doanh thu theo MÔN (6 tháng, theo ChargeAmount các buổi Done) ──
+            // ── Doanh thu theo MÔN (khoảng xem, theo ChargeAmount các buổi Done) ──
             // Môn: từ đăng ký 1-1 (StudentCourse) hoặc môn của Lớp (buổi sinh từ ClassRoom)
             var revenueBySubject = await (from l in _lessonRepos.TableNoTracking
                                           join c in _courseRepos.TableNoTracking on l.IdCourse equals c.Id into cj
@@ -153,7 +157,7 @@ namespace EduTrack.API.Services.TutorDomain
                     CollectedLifetime = collectedLifetime,
                     OutstandingTotal = revenueLifetime - collectedLifetime,
                 },
-                Months = months,
+                Months = monthPoints,
                 TopStudents = topStudents,
                 RevenueBySubject = revenueBySubject,
             };

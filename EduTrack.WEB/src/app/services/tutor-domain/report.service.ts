@@ -9,7 +9,8 @@ export class ReportService {
   apiUrl = `${environment.apiUrl}/tutor-report`;
   constructor(private _http: HttpClient) {}
 
-  getMyReport(): Observable<IResponse> {
-    return this._http.get<IResponse>(`${this.apiUrl}/get-my-report`);
+  /** Báo cáo N tháng gần nhất (mặc định 6) — BE clamp 1..24 */
+  getMyReport(months = 6): Observable<IResponse> {
+    return this._http.get<IResponse>(`${this.apiUrl}/get-my-report?months=${months}`);
   }
 }

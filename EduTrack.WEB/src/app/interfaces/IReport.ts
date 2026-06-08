@@ -21,7 +21,7 @@ export interface IReportSummary {
   outstandingTotal: number;
 }
 
-/** Doanh thu theo môn — tính từ các buổi Done 6 tháng gần nhất */
+/** Doanh thu theo môn — tính từ các buổi Done trong khoảng xem (6/12 tháng hoặc năm nay) */
 export interface ISubjectRevenue {
   subject: string;
   lessonsDone: number;

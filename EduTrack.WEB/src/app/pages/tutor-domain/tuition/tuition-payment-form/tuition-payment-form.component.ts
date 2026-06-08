@@ -31,6 +31,10 @@ export class TuitionPaymentFormComponent extends TdBaseComponent implements OnIn
   /** Lịch sử các đợt thu của kỳ — soi lại từng lần. */
   payments: ITuitionPayment[] = [];
   isLoadingHistory = false;
+  /** Id các đợt thu ĐÃ bị hoàn tác — để ẩn nút hoàn + gắn badge. */
+  reversedIds = new Set<string>();
+  /** Đã có thay đổi (hoàn tác) trong phiên modal — đóng kiểu gì list ngoài cũng phải reload. */
+  private changed = false;
 
   methodOptions = ['Chuyển khoản', 'Tiền mặt', 'Khác'];
 
@@ -50,8 +54,52 @@ export class TuitionPaymentFormComponent extends TdBaseComponent implements OnIn
     this._service.getPayments(this.params.id)
       .pipe(finalize(() => this.isLoadingHistory = false))
       .subscribe(rs => {
-        if (rs.status === StatusCode.Ok) this.payments = rs.data ?? [];
+        if (rs.status === StatusCode.Ok) {
+          this.payments = rs.data ?? [];
+          this.reversedIds = new Set(
+            this.payments.filter(p => p.idReversalOf).map(p => p.idReversalOf!)
+          );
+        }
       });
+  }
+
+  /** Đợt thu thường, chưa bị hoàn → hiện nút Hoàn tác. */
+  canReverse(p: ITuitionPayment): boolean {
+    return p.amount > 0 && !!p.id && !this.reversedIds.has(p.id);
+  }
+
+  isReversed(p: ITuitionPayment): boolean {
+    return !!p.id && this.reversedIds.has(p.id);
+  }
+
+  /** Hoàn tác 1 đợt thu (ghi nhầm người/nhầm số) — confirm vì là hành động sổ sách. */
+  onReverse(p: ITuitionPayment) {
+    this.confirmModal(
+      `Hoàn tác đợt thu ${this.fmt(p.amount)}đ ngày ${this.fmtDate(p.dateCreated)}? Kỳ sẽ trở về trạng thái chờ thu phần này.`,
+      () => {
+        this._service.reversePayment(p.id!, `Hoàn tác đợt thu ${this.fmtDate(p.dateCreated)} bởi gia sư`)
+          .subscribe({
+            next: rs => {
+              if (rs.status === StatusCode.Ok) {
+                this._toast.success(StatusResponseTitle.SUCCESS, 'Đã hoàn tác đợt thu');
+                this.changed = true;
+                this.applyPeriodUpdate(rs.data);
+                this.loadHistory();
+              } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
+            },
+            error: () => this._toast.error(StatusResponseTitle.ERROR, 'Lỗi hệ thống'),
+          });
+      }
+    );
+  }
+
+  /** Đồng bộ lại summary + ô số tiền theo kỳ vừa được BE cập nhật sau hoàn tác. */
+  private applyPeriodUpdate(period: { paidAmount: number; status: number } | null) {
+    if (!this.params || !period) return;
+    this.params.paidAmount = period.paidAmount;
+    this.params.status = period.status;
+    this.params.outstandingAmount = this.params.finalAmount - period.paidAmount;
+    this.frmGroup.patchValue({ amount: this.outstanding });
   }
 
   fmtDate(s?: string): string {
@@ -95,7 +143,8 @@ export class TuitionPaymentFormComponent extends TdBaseComponent implements OnIn
       });
   }
 
-  onCancel() { this.closeModal(); }
+  // Đã hoàn tác gì đó thì dù bấm Huỷ, list ngoài vẫn phải reload (saved=true)
+  onCancel() { this.closeModal(this.changed ? { saved: true } : undefined); }
 
   fmt(n: number): string { return new Intl.NumberFormat('vi-VN').format(n || 0); }
 }

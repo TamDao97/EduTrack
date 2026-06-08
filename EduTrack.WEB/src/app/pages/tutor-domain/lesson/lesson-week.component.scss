@@ -391,3 +391,110 @@
   border-color: $border;
   .session-card__name { color: $text-3; }
 }
+
+// ────────────── Chuyển chế độ xem Tuần / Tháng (segmented glass trong hero) ──────────────
+.page-lessons__mode {
+  @include glass;
+  display: inline-flex; gap: 2px;
+  border-radius: $radius-pill;
+  padding: 3px;
+  margin-bottom: $sp-2;
+  position: relative; z-index: 1;
+}
+.page-lessons__mode-btn {
+  border: none; background: transparent;
+  color: rgba(255,255,255,0.85);
+  font-size: $fs-sm; font-weight: $fw-semi;
+  padding: 6px 18px;
+  border-radius: $radius-pill;
+  cursor: pointer;
+  transition: all $t-fast $ease-out;
+
+  &.is-active { background: #fff; color: $primary; }
+  &:not(.is-active):hover { background: rgba(255,255,255,0.18); }
+}
+
+// ────────────── VIEW THÁNG: lưới mật độ ──────────────
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: $sp-1;
+  margin-bottom: $sp-3;
+
+  &__dow {
+    text-align: center;
+    font-size: $fs-caption; font-weight: $fw-bold;
+    color: $text-3;
+    padding: $sp-1 0;
+  }
+}
+
+.month-cell {
+  border: 1px solid $border;
+  background: $surface;
+  border-radius: $radius-sm;
+  min-height: 52px;
+  padding: $sp-1 0;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  cursor: pointer;
+  transition: all $t-fast $ease-out;
+
+  &:hover:not(:disabled) { border-color: $primary; }
+
+  // Ô lấp tuần đầu/cuối thuộc tháng khác — mờ, không bấm được
+  &.is-out { opacity: 0.35; cursor: default; background: $bg; }
+
+  // Cả ngày đã dạy xong → nền xanh nhạt, liếc qua là biết
+  &.is-alldone { background: $success-soft; border-color: rgba(82,196,26,0.35); }
+
+  // is-selected khai báo SAU is-alldone — ngày chọn luôn nổi rõ
+  &.is-selected { border-color: $primary; background: $primary-soft; box-shadow: 0 0 0 2px rgba(91,95,207,0.25); }
+
+  &.is-today .month-cell__num {
+    background: $gradient-primary; color: #fff;
+    box-shadow: 0 2px 6px rgba(91,95,207,0.4);
+  }
+
+  &__num {
+    font-size: $fs-sm; font-weight: $fw-semi; color: $text-1;
+    width: 24px; height: 24px; line-height: 24px;
+    border-radius: 50%;
+    text-align: center;
+  }
+  &__dots {
+    display: flex; align-items: center; justify-content: center;
+    gap: 3px; flex-wrap: wrap;
+    min-height: 8px;
+    padding: 0 2px;
+  }
+  &__dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: $primary;
+    flex-shrink: 0;
+    &.is-done { background: $success; }
+  }
+  &__extra { font-size: 9px; font-weight: $fw-bold; color: $text-3; }
+}
+
+// Chú giải màu dot
+.month-legend {
+  display: flex; justify-content: center; gap: $sp-4;
+  margin-bottom: $sp-3;
+
+  &__item {
+    display: inline-flex; align-items: center; gap: $sp-1;
+    font-size: $fs-caption; color: $text-3;
+  }
+}
+
+// Chi tiết ngày được chọn — ngăn cách với lưới
+.day-group--selected {
+  border-top: 1px solid $border;
+  padding-top: $sp-2;
+}
+
+.month-hint {
+  text-align: center;
+  color: $text-3; font-size: $fs-sm;
+  padding: $sp-4 0;
+}

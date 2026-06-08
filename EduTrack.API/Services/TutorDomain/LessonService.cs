@@ -15,6 +15,7 @@ namespace EduTrack.API.Services.TutorDomain
     {
         Task<Response<PagingData<List<LessonDetailDto>>>> GetByFilterAsync(LessonGridFilter filter);
         Task<Response<List<LessonDetailDto>>> GetWeekAsync(DateTime weekStart);
+        Task<Response<List<LessonDetailDto>>> GetRangeAsync(DateTime from, DateTime to);
         Task<Response<int>> BulkCreateRecurringAsync(LessonBulkCreateReq req);
         Task<Response<int>> CreateGroupAsync(LessonGroupCreateReq req);
         Task<Response<LessonDto>> MarkDoneAsync(Guid id);
@@ -463,10 +464,19 @@ namespace EduTrack.API.Services.TutorDomain
         }
 
         public async Task<Response<List<LessonDetailDto>>> GetWeekAsync(DateTime weekStart)
+            => await GetRangeAsync(weekStart.Date, weekStart.Date.AddDays(6));
+
+        /// <summary>
+        /// Lịch theo khoảng ngày [from..to] (gồm cả 2 đầu) — dùng cho view tháng.
+        /// Giới hạn 62 ngày để tránh kéo cả năm dữ liệu trong 1 request.
+        /// </summary>
+        public async Task<Response<List<LessonDetailDto>>> GetRangeAsync(DateTime from, DateTime to)
         {
             var idTutor = await GetCurrentTutorIdAsync();
-            var ws = weekStart.Date;
-            var we = ws.AddDays(7);
+            var ws = from.Date;
+            var we = to.Date.AddDays(1); // exclusive
+            if (we <= ws || (we - ws).TotalDays > 62)
+                return Response<List<LessonDetailDto>>.Error(StatusCode.BadRequest, "Khoảng ngày không hợp lệ (tối đa 62 ngày)");
 
             var datas = await (from l in _repos.TableNoTracking
                                join s in _studentRepos.TableNoTracking on l.IdStudent equals s.Id

@@ -118,6 +118,8 @@ namespace EduTrack.API.DataContext.Dto.TutorDomain
         public decimal Amount { get; set; }
         public string? Method { get; set; }
         public string? Notes { get; set; }
+        /// <summary>Dòng hoàn tác trỏ về đợt thu gốc (Amount âm). Null = đợt thu thường.</summary>
+        public Guid? IdReversalOf { get; set; }
     }
 
     public class TuitionPreviewLineDto

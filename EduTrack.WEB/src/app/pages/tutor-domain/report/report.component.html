@@ -29,7 +29,7 @@
   <section class="rp__section" *ngIf="report">
     <div class="rp__section-head">
       <h2 class="rp__section-title">
-        <span nz-icon nzType="bar-chart"></span> 6 tháng gần nhất
+        <span nz-icon nzType="bar-chart"></span> {{ rangeTitle }}
       </h2>
 
       <div class="rp__metric-tabs">
@@ -39,29 +39,41 @@
       </div>
     </div>
 
+    <!-- Khoảng xem — áp cho cả 3 khối bên dưới (hero giữ lifetime) -->
+    <div class="rp__metric-tabs rp__range-tabs">
+      <button class="rp__tab" [class.is-on]="range === '6m'"  (click)="setRange('6m')">6 tháng</button>
+      <button class="rp__tab" [class.is-on]="range === '12m'" (click)="setRange('12m')">12 tháng</button>
+      <button class="rp__tab" [class.is-on]="range === 'ytd'" (click)="setRange('ytd')">Năm nay</button>
+    </div>
+
     <div class="chart">
       <div class="chart__y-axis">
         <span>{{ metric === 'lessons' ? maxValue : fmtCompact(maxValue) }}</span>
         <span>{{ metric === 'lessons' ? Math.round(maxValue/2) : fmtCompact(maxValue/2) }}</span>
         <span>0</span>
       </div>
-      <div class="chart__bars">
-        <div *ngFor="let p of report.months" class="chart-bar" [class.is-now]="isCurrentMonth(p)">
-          <div class="chart-bar__val" *ngIf="valOf(p) > 0">
-            {{ metric === 'lessons' ? valOf(p) : fmtCompact(valOf(p)) }}
+      <!-- Quá 8 cột (12 tháng) → trục ngang cuộn được trên mobile -->
+      <div class="chart__scroll">
+        <div class="chart__bars"
+             [style.grid-template-columns]="'repeat(' + report.months.length + ', 1fr)'"
+             [style.min-width.px]="report.months.length > 8 ? report.months.length * 44 : null">
+          <div *ngFor="let p of report.months" class="chart-bar" [class.is-now]="isCurrentMonth(p)">
+            <div class="chart-bar__val" *ngIf="valOf(p) > 0">
+              {{ metric === 'lessons' ? valOf(p) : fmtCompact(valOf(p)) }}
+            </div>
+            <div class="chart-bar__fill"
+                 [style.height.%]="barHeight(p)"
+                 [class.is-empty]="valOf(p) === 0">
+            </div>
+            <div class="chart-bar__label">{{ monthLabel(p) }}</div>
           </div>
-          <div class="chart-bar__fill"
-               [style.height.%]="barHeight(p)"
-               [class.is-empty]="valOf(p) === 0">
-          </div>
-          <div class="chart-bar__label">{{ monthLabel(p) }}</div>
         </div>
       </div>
     </div>
 
     <div class="chart-legend">
       <span class="chart-legend__dot"></span>
-      <span class="chart-legend__txt">{{ metricLabel }} · 6 tháng</span>
+      <span class="chart-legend__txt">{{ metricLabel }} · {{ rangeShort }}</span>
     </div>
   </section>
 
@@ -69,7 +81,7 @@
   <section class="rp__section" *ngIf="report && report.revenueBySubject && report.revenueBySubject.length > 0">
     <div class="rp__section-head">
       <h2 class="rp__section-title">
-        <span nz-icon nzType="book"></span> Doanh thu theo môn <small class="rp__section-hint">6 tháng · theo buổi đã dạy</small>
+        <span nz-icon nzType="book"></span> Doanh thu theo môn <small class="rp__section-hint">{{ rangeShort }} · theo buổi đã dạy</small>
       </h2>
     </div>
 
@@ -91,12 +103,13 @@
   <section class="rp__section" *ngIf="report && report.topStudents.length > 0">
     <div class="rp__section-head">
       <h2 class="rp__section-title">
-        <span nz-icon nzType="trophy"></span> Top học sinh
+        <span nz-icon nzType="trophy"></span> Top học sinh <small class="rp__section-hint">{{ rangeShort }}</small>
       </h2>
     </div>
 
     <ul class="top-list">
-      <li *ngFor="let s of report.topStudents; let i = index" class="top-row">
+      <!-- Bấm 1 HS → trang chi tiết em đó (drill-down) -->
+      <li *ngFor="let s of report.topStudents; let i = index" class="top-row" (click)="goToStudent(s)">
         <div class="top-row__rank" [attr.data-rank]="i + 1">{{ i + 1 }}</div>
         <div class="top-row__body">
           <div class="top-row__name">{{ s.fullName }}</div>
@@ -105,6 +118,7 @@
         <div class="top-row__amount">
           {{ fmtCompact(s.revenue) }}<small>đ</small>
         </div>
+        <span class="top-row__go" nz-icon nzType="right"></span>
       </li>
     </ul>
   </section>

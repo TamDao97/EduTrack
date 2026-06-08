@@ -27,24 +27,30 @@
       </nz-dropdown-menu>
     </div>
 
-    <!-- Week navigator -->
+    <!-- Chuyển chế độ xem: Tuần (tác nghiệp) / Tháng (toàn cảnh) -->
+    <div class="page-lessons__mode">
+      <button class="page-lessons__mode-btn" [class.is-active]="viewMode === 'week'" (click)="setViewMode('week')">Tuần</button>
+      <button class="page-lessons__mode-btn" [class.is-active]="viewMode === 'month'" (click)="setViewMode('month')">Tháng</button>
+    </div>
+
+    <!-- Period navigator (tuần hoặc tháng theo mode) -->
     <div class="page-lessons__nav">
-      <button class="page-lessons__nav-btn" (click)="onPrevWeek()">
+      <button class="page-lessons__nav-btn" (click)="onPrevPeriod()">
         <span nz-icon nzType="left"></span>
       </button>
-      <div class="page-lessons__nav-info" (click)="onThisWeek()">
-        <div class="page-lessons__nav-label">{{ weekRangeLabel() }}</div>
-        <div class="page-lessons__nav-hint">Bấm để về tuần này</div>
+      <div class="page-lessons__nav-info" (click)="onThisPeriod()">
+        <div class="page-lessons__nav-label">{{ navLabel() }}</div>
+        <div class="page-lessons__nav-hint">{{ navHint() }}</div>
       </div>
-      <!-- Nhảy nhanh tới tuần bất kỳ: nút glass + picker tàng hình phủ lên -->
+      <!-- Nhảy nhanh tới ngày bất kỳ: nút glass + picker tàng hình phủ lên -->
       <div class="page-lessons__nav-btn page-lessons__nav-btn--cal"
-           nz-tooltip nzTooltipTitle="Nhảy tới tuần bất kỳ">
+           nz-tooltip nzTooltipTitle="Nhảy tới ngày bất kỳ">
         <span nz-icon nzType="calendar"></span>
         <nz-date-picker class="page-lessons__nav-cal-input"
-                        [ngModel]="weekStart" (ngModelChange)="onJumpToDate($event)"
+                        [ngModel]="navAnchor" (ngModelChange)="onJumpToDate($event)"
                         [nzAllowClear]="false" nzFormat="dd/MM"></nz-date-picker>
       </div>
-      <button class="page-lessons__nav-btn" (click)="onNextWeek()">
+      <button class="page-lessons__nav-btn" (click)="onNextPeriod()">
         <span nz-icon nzType="right"></span>
       </button>
     </div>
@@ -87,8 +93,10 @@
     <nz-spin nzSize="large" [nzSpinning]="isLoading"></nz-spin>
   </div>
 
-  <!-- Day groups -->
+  <!-- Content: tuần (7 ngày) hoặc tháng (lưới mật độ + chi tiết ngày chọn) -->
   <div class="page-lessons__days" *ngIf="!isLoading">
+    <!-- ─── VIEW TUẦN ─── -->
+    <ng-container *ngIf="viewMode === 'week'">
     <section class="day-group" *ngFor="let day of days"
              [class.is-today]="day.isToday" [class.is-past]="day.isPast">
       <header class="day-group__header" [class.is-clickable]="day.isPast" (click)="toggleDayOpen(day)">
@@ -112,8 +120,67 @@
         Không có lịch
       </div>
 
-      <!-- Items: ca nhóm (view chiều lớp) + buổi 1-1 -->
-      <ul class="day-group__list" *ngIf="day.items.length > 0 && isDayOpen(day)">
+      <!-- Items: dùng chung template dayList với chi tiết ngày bên view tháng -->
+      <ng-container *ngIf="isDayOpen(day)">
+        <ng-container *ngTemplateOutlet="dayList; context: { $implicit: day }"></ng-container>
+      </ng-container>
+    </section>
+    </ng-container>
+
+    <!-- ─── VIEW THÁNG: lưới mật độ — dot mỗi CA, ✓ xanh lá = đã dạy ─── -->
+    <ng-container *ngIf="viewMode === 'month'">
+      <div class="month-grid">
+        <div class="month-grid__dow" *ngFor="let d of dowLabels">{{ d }}</div>
+        <ng-container *ngFor="let week of monthWeeks">
+          <button class="month-cell" type="button" *ngFor="let c of week"
+                  [class.is-out]="!c.inMonth"
+                  [class.is-today]="c.isToday"
+                  [class.is-alldone]="c.total > 0 && c.doneCount === c.total"
+                  [class.is-selected]="c.iso === selectedDayIso"
+                  [disabled]="!c.inMonth"
+                  (click)="onSelectDay(c)">
+            <span class="month-cell__num">{{ c.dayNum }}</span>
+            <span class="month-cell__dots" *ngIf="c.inMonth">
+              <i class="month-cell__dot" *ngFor="let dt of c.dots" [class.is-done]="dt === 'done'"></i>
+              <span class="month-cell__extra" *ngIf="c.extra > 0">+{{ c.extra }}</span>
+            </span>
+          </button>
+        </ng-container>
+      </div>
+
+      <!-- Chú giải màu dot -->
+      <div class="month-legend" *ngIf="!hasNoLessons">
+        <span class="month-legend__item"><i class="month-cell__dot"></i> Sắp tới</span>
+        <span class="month-legend__item"><i class="month-cell__dot is-done"></i> Đã dạy</span>
+      </div>
+
+      <!-- Tháng trống: dẫn về nút Thêm lịch -->
+      <div class="day-group__empty" *ngIf="hasNoLessons">
+        Tháng này chưa có buổi học nào — bấm "Thêm lịch" để tạo
+      </div>
+
+      <!-- Chi tiết ngày được chọn: tái dùng card buổi/ca của view tuần -->
+      <section class="day-group day-group--selected" *ngIf="selectedDayGroup" [class.is-today]="selectedDayGroup.isToday">
+        <header class="day-group__header">
+          <div class="day-group__date">
+            <span class="day-group__day">{{ selectedDayGroup.dayLabel }}</span>
+            <span class="day-group__dot">·</span>
+            <span class="day-group__num">{{ selectedDayGroup.dateLabel }}</span>
+            <span class="day-group__today-badge" *ngIf="selectedDayGroup.isToday">HÔM NAY</span>
+          </div>
+          <span class="day-group__count" *ngIf="selectedDayGroup.lessons.length > 0">{{ selectedDayGroup.lessons.length }} buổi</span>
+        </header>
+        <div class="day-group__empty" *ngIf="selectedDayGroup.lessons.length === 0">Không có lịch</div>
+        <ng-container *ngTemplateOutlet="dayList; context: { $implicit: selectedDayGroup }"></ng-container>
+      </section>
+      <div class="month-hint" *ngIf="!selectedDayGroup && !hasNoLessons">Bấm vào ngày để xem chi tiết buổi học</div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- ═══ Danh sách item 1 ngày: ca nhóm + buổi 1-1 (dùng chung view tuần + ngày chọn của tháng) ═══ -->
+<ng-template #dayList let-day>
+  <ul class="day-group__list" *ngIf="day.items.length > 0">
         <ng-container *ngFor="let it of day.items">
 
           <!-- ─── CA NHÓM: 1 thẻ cho cả lớp, bấm để xổ từng em ─── -->
@@ -198,10 +265,8 @@
             <ng-container *ngTemplateOutlet="lessonCard; context: { $implicit: it.lesson, inGroup: false, conflict: it.conflict }"></ng-container>
           </li>
         </ng-container>
-      </ul>
-    </section>
-  </div>
-</div>
+  </ul>
+</ng-template>
 
 <!-- ═══ Thẻ 1 buổi học (dùng chung cho buổi lẻ + dòng HS trong ca nhóm) ═══ -->
 <ng-template #lessonCard let-l let-inGroup="inGroup" let-conflict="conflict">

@@ -80,7 +80,34 @@
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 4px;
 
-  li { display: flex; align-items: baseline; gap: $sp-2; font-size: $fs-sm; }
+  li {
+    display: flex; align-items: center; gap: $sp-2; font-size: $fs-sm;
+
+    // Dòng hoàn tác (âm) — mờ nhẹ, đỏ nhạt
+    &.is-reversal { opacity: 0.75; }
+    // Đợt thu gốc đã bị hoàn — gạch ngang số tiền
+    &.is-reversed .pf__history-amount { text-decoration: line-through; color: $text-3; }
+  }
 }
-.pf__history-amount { font-weight: $fw-bold; color: $success-dark; white-space: nowrap; }
-.pf__history-meta { color: $text-3; font-size: $fs-xs; }
+.pf__history-amount {
+  font-weight: $fw-bold; color: $success-dark; white-space: nowrap;
+  &--neg { color: $danger; }
+}
+.pf__history-meta { color: $text-3; font-size: $fs-xs; flex: 1; min-width: 0; }
+.pf__history-badge {
+  font-size: $fs-caption; font-weight: $fw-bold;
+  color: $text-3; background: $bg-strong;
+  padding: 1px 8px; border-radius: $radius-pill;
+  white-space: nowrap;
+}
+// Nút hoàn tác 1 đợt thu — hành động sổ sách, có confirm
+.pf__reverse-btn {
+  border: 1px solid $border; background: $surface;
+  color: $text-3;
+  width: 28px; height: 28px; border-radius: $radius-sm;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: all $t-fast $ease-out;
+  &:hover { color: $danger; border-color: $danger; }
+  [nz-icon] { font-size: 13px; }
+}

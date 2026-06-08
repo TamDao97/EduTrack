@@ -65,6 +65,12 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<TuitionPeriodDto>>> RecordPaymentAsync(Guid id, [FromBody] PaymentReq req)
             => Ok(await _service.RecordPaymentAsync(id, req.Amount, req.Notes, req.Method));
 
+        [TDPermission("ReversePaymentAsync", "Hoàn tác đợt thu", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpPost("reverse-payment/{idPayment:Guid}")]
+        public async Task<ActionResult<Response<TuitionPeriodDto>>> ReversePaymentAsync(Guid idPayment, [FromBody] ReverseReq? req)
+            => Ok(await _service.ReversePaymentAsync(idPayment, req?.Reason));
+
         [TDPermission("GetPaymentsAsync", "Lịch sử thu của kỳ", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpGet("get-payments/{idPeriod:Guid}")]
@@ -80,5 +86,6 @@ namespace EduTrack.API.Controllers.TutorDomain
         public class OpenOrGetReq { public Guid IdStudent { get; set; } public int Month { get; set; } public int Year { get; set; } }
         public class CloseReq { public decimal Adjustment { get; set; } public string? Notes { get; set; } }
         public class PaymentReq { public decimal Amount { get; set; } public string? Notes { get; set; } public string? Method { get; set; } }
+        public class ReverseReq { public string? Reason { get; set; } }
     }
 }

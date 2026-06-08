@@ -7,7 +7,7 @@ using TD.Lib.Common;
 
 namespace EduTrack.API.Controllers.TutorDomain
 {
-    /// <summary>Báo cáo nhanh cho tutor — số liệu 6 tháng + lifetime + top HS.</summary>
+    /// <summary>Báo cáo nhanh cho tutor — số liệu N tháng gần nhất (mặc định 6) + lifetime + top HS.</summary>
     [ApiController]
     [Route("api/[controller]")]
     [TDModule("Báo cáo", 40)]
@@ -18,7 +18,7 @@ namespace EduTrack.API.Controllers.TutorDomain
 
         [TDAuthorize]
         [HttpGet("get-my-report")]
-        public async Task<ActionResult<Response<TutorReportDto>>> GetMyReportAsync()
-            => Ok(await _service.GetMyReportAsync());
+        public async Task<ActionResult<Response<TutorReportDto>>> GetMyReportAsync([FromQuery] int months = 6)
+            => Ok(await _service.GetMyReportAsync(months));
     }
 }

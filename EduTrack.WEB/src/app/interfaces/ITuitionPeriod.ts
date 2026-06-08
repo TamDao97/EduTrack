@@ -51,6 +51,8 @@ export interface ITuitionPayment {
   method?: string | null;
   notes?: string | null;
   dateCreated?: string;
+  /** Dòng hoàn tác trỏ về đợt thu gốc (amount âm). Null = đợt thu thường. */
+  idReversalOf?: string | null;
 }
 
 export interface ITuitionPreviewLine {

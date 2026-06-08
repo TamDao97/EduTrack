@@ -43,12 +43,25 @@ interface DayGroup {
   items: DayItem[];
 }
 
-/** Tổng quan tuần — dải số đầu màn. */
+/** Tổng quan tuần/tháng — dải số đầu màn. */
 interface WeekSummary {
   totalLessons: number;   // buổi-HS (không tính đã huỷ)
   doneLessons: number;
   todayLessons: number;   // buổi hôm nay chưa huỷ
   teachHours: number;     // giờ dạy thật (mỗi CA tính 1 lần, không nhân theo số HS)
+}
+
+/** 1 ô ngày trên lưới tháng — dot mật độ theo CA (nhóm tính 1, buổi 1-1 tính 1). */
+interface MonthCell {
+  date: Date;
+  iso: string;
+  dayNum: number;
+  inMonth: boolean;       // ô thuộc tháng đang xem (ô lấp tuần đầu/cuối thì mờ + disabled)
+  isToday: boolean;
+  total: number;          // buổi-HS chưa huỷ
+  doneCount: number;      // buổi-HS đã dạy
+  dots: ('scheduled' | 'done')[];  // tối đa MAX_CELL_DOTS dot
+  extra: number;          // số CA vượt quá số dot hiển thị
 }
 
 @Component({
@@ -71,6 +84,16 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
   days: DayGroup[] = [];
   isLoading = false;
 
+  /* ─── Chế độ xem: Tuần (mặc định, tác nghiệp hàng ngày) / Tháng (toàn cảnh) ─── */
+  viewMode: 'week' | 'month' = 'week';
+  /** Ngày 1 của tháng đang xem (mode tháng) */
+  monthStart: Date = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  monthWeeks: MonthCell[][] = [];
+  /** Ngày đang chọn trên lưới tháng — xổ chi tiết buổi bên dưới */
+  selectedDayIso: string | null = null;
+  selectedDayGroup: DayGroup | null = null;
+  readonly dowLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
   /** Toàn bộ buổi của tuần (chưa lọc) — bộ lọc áp client-side trên đây. */
   private rawLessons: ILessonDetail[] = [];
 
@@ -91,12 +114,12 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     return this.filterClass !== null || this.filterStudent !== null || this.filterStatus !== null;
   }
 
-  onFilterChange() { this.buildDays(this.rawLessons); }
+  onFilterChange() { this.rebuild(); }
 
   onClearFilters() {
     this.filterClass = this.filterStudent = null;
     this.filterStatus = null;
-    this.buildDays(this.rawLessons);
+    this.rebuild();
   }
 
   private applyFilters(lessons: ILessonDetail[]): ILessonDetail[] {
@@ -113,21 +136,28 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
 
   load() {
     this.isLoading = true;
-    const iso = this.toISODate(this.weekStart);
-    this._service.getWeek(iso)
-      .pipe(finalize(() => this.isLoading = false))
+    const req = this.viewMode === 'week'
+      ? this._service.getWeek(this.toISODate(this.weekStart))
+      : this._service.getRange(this.toISODate(this.monthStart), this.toISODate(this.monthEnd()));
+    req.pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: (rs) => {
           if (rs.status === StatusCode.Ok) {
             this.rawLessons = rs.data ?? [];
-            // Dựng options từ tuần hiện tại
+            // Dựng options từ khoảng thời gian hiện tại
             this.classOptions = [...new Set(this.rawLessons.map(l => l.className).filter(Boolean))] as string[];
             this.studentOptions = [...new Set(this.rawLessons.map(l => l.studentFullName).filter(Boolean))].sort() as string[];
-            this.buildDays(this.rawLessons);
+            this.rebuild();
           } else this._toast.error(StatusResponseTitle.ERROR, rs.message);
         },
-        error: () => this._toast.error(StatusResponseTitle.ERROR, 'Không tải được lịch tuần'),
+        error: () => this._toast.error(StatusResponseTitle.ERROR, 'Không tải được lịch dạy'),
       });
+  }
+
+  /** Dựng lại view từ rawLessons theo mode hiện tại (filter áp client-side). */
+  private rebuild() {
+    if (this.viewMode === 'week') this.buildDays(this.rawLessons);
+    else this.buildMonth(this.rawLessons);
   }
 
   /** Tổng quan tuần (tính từ rawLessons, KHÔNG phụ thuộc bộ lọc). */
@@ -183,6 +213,120 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     };
   }
 
+  /* ─── VIEW THÁNG: lưới mật độ + chi tiết ngày được chọn ─── */
+
+  /** Tháng trống hoàn toàn → empty state dẫn về nút "Thêm lịch". */
+  get hasNoLessons(): boolean { return this.rawLessons.length === 0; }
+
+  private static readonly MAX_CELL_DOTS = 4;
+
+  buildMonth(lessons: ILessonDetail[]) {
+    const filtered = this.applyFilters(lessons);
+    const todayIso = this.toISODate(new Date());
+    // Gom buổi theo ngày — tra nhanh khi dựng từng ô
+    const byDate = new Map<string, ILessonDetail[]>();
+    for (const l of filtered) {
+      const iso = l.scheduledDate.substring(0, 10);
+      const arr = byDate.get(iso);
+      if (arr) arr.push(l); else byDate.set(iso, [l]);
+    }
+    const weeks: MonthCell[][] = [];
+    const monthEnd = this.monthEnd();
+    let cursor = this.getMondayOfWeek(this.monthStart);
+    while (cursor <= monthEnd) {
+      weeks.push(Array.from({ length: 7 }, (_, i) =>
+        this.buildMonthCell(this.addDays(cursor, i), todayIso, byDate)));
+      cursor = this.addDays(cursor, 7);
+    }
+    this.monthWeeks = weeks;
+    this.summary = this.buildSummary(this.rawLessons, todayIso);
+    this.refreshSelectedDay(byDate, todayIso);
+  }
+
+  private buildMonthCell(d: Date, todayIso: string, byDate: Map<string, ILessonDetail[]>): MonthCell {
+    const iso = this.toISODate(d);
+    const dayLessons = (byDate.get(iso) ?? [])
+      .slice().sort((a, b) => a.startTime.localeCompare(b.startTime));
+    const active = dayLessons.filter(l => l.status !== LessonStatus.Cancelled);
+    const dots = this.buildCellDots(dayLessons);
+    const max = LessonWeekComponent.MAX_CELL_DOTS;
+    return {
+      date: d, iso, dayNum: d.getDate(),
+      inMonth: d.getMonth() === this.monthStart.getMonth(),
+      isToday: iso === todayIso,
+      total: active.length,
+      doneCount: active.filter(l => l.status === LessonStatus.Done).length,
+      dots: dots.slice(0, max),
+      extra: Math.max(0, dots.length - max),
+    };
+  }
+
+  /** Dot mật độ 1 ngày: mỗi CA 1 dot — xanh lá = đã dạy trọn ca, xanh tím = còn buổi sắp tới. Ca huỷ toàn bộ không vẽ. */
+  private buildCellDots(dayLessons: ILessonDetail[]): ('scheduled' | 'done')[] {
+    const dots: ('scheduled' | 'done')[] = [];
+    for (const it of this.buildDayItems(dayLessons)) {
+      if (it.kind === 'single') {
+        if (it.lesson.status === LessonStatus.Cancelled) continue;
+        dots.push(it.lesson.status === LessonStatus.Done ? 'done' : 'scheduled');
+      } else {
+        if (it.session.scheduledCount === 0 && it.session.doneCount === 0) continue;
+        dots.push(it.session.scheduledCount === 0 ? 'done' : 'scheduled');
+      }
+    }
+    return dots;
+  }
+
+  /** Dựng lại DayGroup của ngày đang chọn — null nếu chưa chọn ngày nào. */
+  private refreshSelectedDay(byDate: Map<string, ILessonDetail[]>, todayIso: string) {
+    if (!this.selectedDayIso) { this.selectedDayGroup = null; return; }
+    const d = this.parseISODate(this.selectedDayIso);
+    const dayLessons = (byDate.get(this.selectedDayIso) ?? [])
+      .slice().sort((a, b) => a.startTime.localeCompare(b.startTime));
+    this.selectedDayGroup = {
+      date: d,
+      iso: this.selectedDayIso,
+      dayLabel: this.dayName(d.getDay()),
+      dateLabel: `${this.pad(d.getDate())}/${this.pad(d.getMonth() + 1)}`,
+      isToday: this.selectedDayIso === todayIso,
+      isPast: this.selectedDayIso < todayIso,
+      lessons: dayLessons,
+      items: this.buildDayItems(dayLessons),
+    };
+  }
+
+  onSelectDay(cell: MonthCell) {
+    if (!cell.inMonth) return;
+    this.selectedDayIso = cell.iso;
+    this.buildMonth(this.rawLessons); // data đã ở client — dựng lại rẻ
+  }
+
+  /* ─── Chuyển chế độ xem Tuần ⇄ Tháng ─── */
+  setViewMode(mode: 'week' | 'month') {
+    if (this.viewMode === mode) return;
+    this.viewMode = mode;
+    if (mode === 'month') {
+      this.monthStart = new Date(this.weekStart.getFullYear(), this.weekStart.getMonth(), 1);
+      this.selectedDayIso = this.isoInCurrentMonth(this.toISODate(new Date()));
+    } else {
+      // Về tuần chứa ngày đang chọn — giữ mạch ngữ cảnh đang xem
+      const base = this.selectedDayIso ? this.parseISODate(this.selectedDayIso) : this.monthStart;
+      this.weekStart = this.getMondayOfWeek(base);
+      this.weekEnd = this.addDays(this.weekStart, 6);
+    }
+    this.load();
+  }
+
+  /** iso nếu thuộc tháng đang xem, ngược lại null (tháng khác thì chưa chọn ngày nào). */
+  private isoInCurrentMonth(iso: string): string | null {
+    const monthKey = `${this.monthStart.getFullYear()}-${this.pad(this.monthStart.getMonth() + 1)}`;
+    return iso.startsWith(monthKey) ? iso : null;
+  }
+
+  /** Ngày cuối của tháng đang xem. */
+  private monthEnd(): Date {
+    return new Date(this.monthStart.getFullYear(), this.monthStart.getMonth() + 1, 0);
+  }
+
   /* ─── Thu gọn ngày đã qua — hôm nay luôn mở, quá khứ bấm mới xổ ─── */
   expandedPastDays = new Set<string>();
   isDayOpen(day: DayGroup): boolean { return !day.isPast || this.expandedPastDays.has(day.iso); }
@@ -195,11 +339,16 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     return day.lessons.filter(l => l.status === LessonStatus.Done).length;
   }
 
-  /** Nhảy nhanh tới tuần chứa ngày bất kỳ (date-picker trên nav). */
+  /** Nhảy nhanh tới tuần/tháng chứa ngày bất kỳ (date-picker trên nav). */
   onJumpToDate(d: Date | null) {
     if (!d) return;
-    this.weekStart = this.getMondayOfWeek(d);
-    this.weekEnd = this.addDays(this.weekStart, 6);
+    if (this.viewMode === 'week') {
+      this.weekStart = this.getMondayOfWeek(d);
+      this.weekEnd = this.addDays(this.weekStart, 6);
+    } else {
+      this.monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+      this.selectedDayIso = this.toISODate(d); // mode tháng: nhảy là chọn luôn ngày đó
+    }
     this.load();
   }
 
@@ -315,9 +464,32 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
 
   fmtVnd(n: number): string { return new Intl.NumberFormat('vi-VN').format(n || 0); }
 
-  onPrevWeek() { this.weekStart = this.addDays(this.weekStart, -7); this.weekEnd = this.addDays(this.weekStart, 6); this.load(); }
-  onNextWeek() { this.weekStart = this.addDays(this.weekStart, 7); this.weekEnd = this.addDays(this.weekStart, 6); this.load(); }
-  onThisWeek() { this.weekStart = this.getMondayOfWeek(new Date()); this.weekEnd = this.addDays(this.weekStart, 6); this.load(); }
+  onPrevPeriod() { if (this.viewMode === 'week') this.shiftWeek(-7); else this.shiftMonth(-1); }
+  onNextPeriod() { if (this.viewMode === 'week') this.shiftWeek(7); else this.shiftMonth(1); }
+
+  onThisPeriod() {
+    const now = new Date();
+    if (this.viewMode === 'week') {
+      this.weekStart = this.getMondayOfWeek(now);
+      this.weekEnd = this.addDays(this.weekStart, 6);
+    } else {
+      this.monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      this.selectedDayIso = this.toISODate(now);
+    }
+    this.load();
+  }
+
+  private shiftWeek(days: number) {
+    this.weekStart = this.addDays(this.weekStart, days);
+    this.weekEnd = this.addDays(this.weekStart, 6);
+    this.load();
+  }
+
+  private shiftMonth(months: number) {
+    this.monthStart = new Date(this.monthStart.getFullYear(), this.monthStart.getMonth() + months, 1);
+    this.selectedDayIso = this.isoInCurrentMonth(this.toISODate(new Date()));
+    this.load();
+  }
 
   onAddOne() {
     this.openModal(
@@ -428,9 +600,17 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     return t.substring(0, 5); // "HH:mm"
   }
 
-  weekRangeLabel(): string {
+  navLabel(): string {
+    if (this.viewMode === 'month') return `Tháng ${this.monthStart.getMonth() + 1}/${this.monthStart.getFullYear()}`;
     return `${this.pad(this.weekStart.getDate())}/${this.pad(this.weekStart.getMonth() + 1)} — ${this.pad(this.weekEnd.getDate())}/${this.pad(this.weekEnd.getMonth() + 1)}/${this.weekEnd.getFullYear()}`;
   }
+
+  navHint(): string {
+    return this.viewMode === 'week' ? 'Bấm để về tuần này' : 'Bấm để về tháng này';
+  }
+
+  /** Mốc đang xem cho date-picker nhảy nhanh. */
+  get navAnchor(): Date { return this.viewMode === 'week' ? this.weekStart : this.monthStart; }
 
   trackById(_: number, l: ILessonDetail) { return l.id; }
 
@@ -443,6 +623,11 @@ export class LessonWeekComponent extends TdBaseComponent implements OnInit {
     return x;
   }
   private addDays(d: Date, n: number): Date { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  /** Parse "yyyy-MM-dd" theo giờ ĐỊA PHƯƠNG — new Date(iso) parse UTC, lệch ngày ở timezone âm. */
+  private parseISODate(iso: string): Date {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
   private toISODate(d: Date): string {
     return `${d.getFullYear()}-${this.pad(d.getMonth() + 1)}-${this.pad(d.getDate())}`;
   }

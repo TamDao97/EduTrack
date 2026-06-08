@@ -24,5 +24,11 @@ namespace EduTrack.API.DataContext.Entity.TutorDomain
 
         [MaxLength(500)]
         public string? Notes { get; set; }
+
+        /// <summary>
+        /// Nếu là dòng HOÀN TÁC: trỏ về đợt thu gốc bị hoàn (Amount mang dấu âm).
+        /// Null = đợt thu thường. Không xoá dòng gốc — sổ sách giữ đủ cả thu lẫn hoàn.
+        /// </summary>
+        public Guid? IdReversalOf { get; set; }
     }
 }

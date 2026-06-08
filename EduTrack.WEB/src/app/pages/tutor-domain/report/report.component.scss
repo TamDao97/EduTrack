@@ -63,6 +63,9 @@
     }
   }
 
+  // Khoảng xem (6 tháng / 12 tháng / Năm nay) — hàng riêng dưới section head
+  &__range-tabs { margin-bottom: $sp-3; }
+
   &__empty-inner {
     text-align: center;
     padding: $sp-8 $sp-4;
@@ -123,10 +126,16 @@
     text-align: right;
     padding-bottom: 24px;
   }
-  &__bars {
+  // Vùng cuộn ngang khi nhiều cột (12 tháng trên mobile)
+  &__scroll {
     flex: 1;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  &__bars {
+    height: 100%;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, 1fr); // fallback — template bind theo số tháng thực tế
     gap: $sp-2;
     border-bottom: 1px solid $border;
     align-items: end;
@@ -200,7 +209,8 @@
   border: 1px solid $border;
   border-radius: $radius-md;
   transition: background $t-fast;
-  &:hover { background: $surface-alt; }
+  cursor: pointer; // bấm → chi tiết HS
+  &:hover { background: $surface-alt; .top-row__go { color: $primary; } }
 
   &__rank {
     width: 32px; height: 32px;
@@ -223,6 +233,7 @@
     white-space: nowrap;
     small { font-size: $fs-caption; opacity: 0.7; margin-left: 1px; }
   }
+  &__go { color: $text-3; font-size: 12px; flex-shrink: 0; transition: color $t-fast; }
 }
 
 // ─── Doanh thu theo môn ───

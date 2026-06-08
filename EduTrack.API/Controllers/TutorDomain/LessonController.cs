@@ -30,6 +30,12 @@ namespace EduTrack.API.Controllers.TutorDomain
         public async Task<ActionResult<Response<List<LessonDetailDto>>>> GetWeekAsync([FromQuery] DateTime weekStart)
             => Ok(await _service.GetWeekAsync(weekStart));
 
+        [TDPermission("GetRangeAsync", "Lịch theo khoảng ngày", $"{RoleCodes.Tutor}")]
+        [TDAuthorize]
+        [HttpGet("get-range")]
+        public async Task<ActionResult<Response<List<LessonDetailDto>>>> GetRangeAsync([FromQuery] DateTime from, [FromQuery] DateTime to)
+            => Ok(await _service.GetRangeAsync(from, to));
+
         [TDPermission("GetByIdAsync", "Xem buổi học", $"{RoleCodes.Tutor}")]
         [TDAuthorize]
         [HttpGet("get-by-id/{id:Guid}")]

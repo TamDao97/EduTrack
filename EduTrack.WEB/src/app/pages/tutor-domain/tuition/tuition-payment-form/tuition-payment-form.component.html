@@ -52,16 +52,25 @@
     </nz-form-control>
   </nz-form-item>
 
-  <!-- Lịch sử các đợt thu của kỳ -->
+  <!-- Lịch sử các đợt thu của kỳ — dòng âm = hoàn tác, không xoá dòng gốc -->
   <div class="pf__history" *ngIf="payments.length > 0">
-    <div class="pf__history-title">Lịch sử thu ({{ payments.length }} đợt)</div>
+    <div class="pf__history-title">Lịch sử thu ({{ payments.length }} dòng)</div>
     <ul class="pf__history-list">
-      <li *ngFor="let p of payments">
-        <span class="pf__history-amount">+{{ fmt(p.amount) }}đ</span>
+      <li *ngFor="let p of payments"
+          [class.is-reversal]="p.amount < 0"
+          [class.is-reversed]="isReversed(p)">
+        <span class="pf__history-amount" [class.pf__history-amount--neg]="p.amount < 0">
+          {{ p.amount < 0 ? '−' : '+' }}{{ fmt(p.amount < 0 ? -p.amount : p.amount) }}đ
+        </span>
         <span class="pf__history-meta">
           {{ fmtDate(p.dateCreated) }}<ng-container *ngIf="p.method"> · {{ p.method }}</ng-container>
           <ng-container *ngIf="p.notes"> · {{ p.notes }}</ng-container>
         </span>
+        <span class="pf__history-badge" *ngIf="isReversed(p)">đã hoàn</span>
+        <button type="button" class="pf__reverse-btn" *ngIf="canReverse(p)"
+                (click)="onReverse(p)" title="Hoàn tác đợt thu này (ghi nhầm)">
+          <span nz-icon nzType="undo"></span>
+        </button>
       </li>
     </ul>
   </div>

@@ -1,19 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
-import { IMonthlyPoint, ISubjectRevenue, ITutorReport } from '../../../interfaces/IReport';
+import { IMonthlyPoint, ISubjectRevenue, ITopStudent, ITutorReport } from '../../../interfaces/IReport';
 import { ReportService } from '../../../services/tutor-domain/report.service';
 import { SharedModule } from '../../../shared/modules/shared.module';
 import { StatusCode } from '../../../shared/utils/enums';
 import { TdBaseComponent } from '../../../shared/utils/extends-components/td-base.component';
 
 type MetricKey = 'lessons' | 'revenue' | 'collected';
+type RangeKey = '6m' | '12m' | 'ytd';
 
 /**
  * Trang /report — báo cáo nhanh cho tutor:
- * - 4 stat boxes lifetime
- * - Bar chart 6 tháng (toggle metric: buổi / doanh thu / đã thu)
- * - Top 5 HS theo doanh thu
+ * - 4 stat boxes lifetime (KHÔNG đổi theo khoảng xem — thành tựu tích luỹ)
+ * - Bar chart / doanh thu theo môn / top HS theo khoảng xem (6 tháng / 12 tháng / năm nay)
+ * - Toggle metric chart: buổi / doanh thu / đã thu
  */
 @Component({
   selector: 'app-report',
@@ -24,11 +26,13 @@ type MetricKey = 'lessons' | 'revenue' | 'collected';
 })
 export class ReportComponent extends TdBaseComponent implements OnInit {
   private _service = inject(ReportService);
+  private _router = inject(Router);
 
   Math = Math;  // expose cho template
   report: ITutorReport | null = null;
   isLoading = false;
   metric: MetricKey = 'revenue';
+  range: RangeKey = '6m';
 
   ngOnInit() {
     this.load();
@@ -36,7 +40,7 @@ export class ReportComponent extends TdBaseComponent implements OnInit {
 
   load() {
     this.isLoading = true;
-    this._service.getMyReport()
+    this._service.getMyReport(this.rangeMonths)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe(rs => {
         if (rs.status === StatusCode.Ok) this.report = rs.data;
@@ -44,6 +48,38 @@ export class ReportComponent extends TdBaseComponent implements OnInit {
   }
 
   setMetric(m: MetricKey) { this.metric = m; }
+
+  /* ─── Khoảng xem: áp cho chart + theo môn + top HS (hero giữ lifetime) ─── */
+
+  setRange(r: RangeKey) {
+    if (this.range === r) return;
+    this.range = r;
+    this.load();
+  }
+
+  /** Số tháng gửi BE — "Năm nay" = từ tháng 1 đến tháng hiện tại. */
+  private get rangeMonths(): number {
+    if (this.range === '12m') return 12;
+    if (this.range === 'ytd') return new Date().getMonth() + 1;
+    return 6;
+  }
+
+  /** Tiêu đề khối chart theo khoảng xem. */
+  get rangeTitle(): string {
+    if (this.range === '12m') return '12 tháng gần nhất';
+    if (this.range === 'ytd') return `Năm ${new Date().getFullYear()}`;
+    return '6 tháng gần nhất';
+  }
+
+  /** Nhãn ngắn gắn vào legend / hint các khối. */
+  get rangeShort(): string {
+    if (this.range === '12m') return '12 tháng';
+    if (this.range === 'ytd') return `năm ${new Date().getFullYear()}`;
+    return '6 tháng';
+  }
+
+  /** Drill-down: bấm HS trong Top → trang chi tiết em đó. */
+  goToStudent(s: ITopStudent) { this._router.navigate(['/student', s.idStudent]); }
 
   /** % chiều rộng bar môn — so với môn cao nhất. */
   subjectBarWidth(s: ISubjectRevenue): number {

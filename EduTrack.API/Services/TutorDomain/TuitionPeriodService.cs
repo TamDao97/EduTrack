@@ -17,6 +17,7 @@ namespace EduTrack.API.Services.TutorDomain
         Task<Response<TuitionPeriodDto>> OpenOrGetAsync(Guid idStudent, int month, int year);
         Task<Response<TuitionPeriodDto>> CloseAsync(Guid id, decimal adjustment, string? notes);
         Task<Response<TuitionPeriodDto>> RecordPaymentAsync(Guid id, decimal amount, string? notes, string? method = null);
+        Task<Response<TuitionPeriodDto>> ReversePaymentAsync(Guid idPayment, string? reason);
         Task<Response<List<TuitionPaymentDto>>> GetPaymentsAsync(Guid idPeriod);
         Task<Response<TuitionPreviewDto>> PreviewAsync(Guid idStudent, int month, int year);
         Task<Response<MonthClosePreviewDto>> PreviewMonthAsync(int month, int year);
@@ -367,6 +368,56 @@ namespace EduTrack.API.Services.TutorDomain
                 Amount = credited,
                 Method = method,
                 Notes = notes,
+            });
+
+            await _unitOfWork.SaveChangesAsync();
+            return Response<TuitionPeriodDto>.Success(TD.Lib.AutoMapper.AutoMapperGeneric.Map<TuitionPeriod, TuitionPeriodDto>(period), StatusCode.Ok.ToDescription());
+        }
+
+        /// <summary>
+        /// HOÀN TÁC 1 đợt thu (ghi nhầm người / nhầm số): KHÔNG xoá dòng gốc — ghi 1 dòng ÂM
+        /// đối ứng trỏ về đợt gốc, trừ lại PaidAmount + set lại Status. Khi PaidAmount về 0,
+        /// các luồng "Tính lại" / "Xoá kỳ" sẵn có tự mở khoá — không cần đường sửa riêng nào khác.
+        /// </summary>
+        public async Task<Response<TuitionPeriodDto>> ReversePaymentAsync(Guid idPayment, string? reason)
+        {
+            var idTutor = await GetCurrentTutorIdAsync();
+            var paymentRepos = _unitOfWork.GetRepository<TuitionPayment>();
+
+            var payment = await paymentRepos.TableNoTracking
+                .FirstOrDefaultAsync(p => p.Id == idPayment && p.IdTutor == idTutor);
+            if (payment == null)
+                return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy đợt thu");
+            if (payment.Amount <= 0)
+                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Đây là dòng hoàn tác — không thể hoàn tác lần nữa");
+
+            var alreadyReversed = await paymentRepos.TableNoTracking
+                .AnyAsync(p => p.IdReversalOf == idPayment);
+            if (alreadyReversed)
+                return Response<TuitionPeriodDto>.Error(StatusCode.BadRequest, "Đợt thu này đã được hoàn tác trước đó");
+
+            var period = await _repos.Table.FirstOrDefaultAsync(t => t.Id == payment.IdPeriod && t.IdTutor == idTutor);
+            if (period == null)
+                return Response<TuitionPeriodDto>.Error(StatusCode.NotFound, "Không tìm thấy kỳ học phí của đợt thu");
+
+            // Trừ lại tiền đã ghi + tính lại trạng thái theo số còn lại
+            period.PaidAmount = Math.Max(0, period.PaidAmount - payment.Amount);
+            period.Status = period.PaidAmount <= 0 ? TuitionPeriodStatusEnums.Closed
+                          : period.PaidAmount >= period.FinalAmount ? TuitionPeriodStatusEnums.Paid
+                          : TuitionPeriodStatusEnums.PartialPaid;
+            period.MarkDirty(nameof(period.PaidAmount));
+            period.MarkDirty(nameof(period.Status));
+
+            // Dòng âm đối ứng — sổ sách soi lại được cả thu lẫn hoàn
+            await paymentRepos.CreateAsync(new TuitionPayment
+            {
+                Id = Guid.NewGuid(),
+                IdTutor = idTutor,
+                IdPeriod = period.Id,
+                Amount = -payment.Amount,
+                Method = payment.Method,
+                Notes = string.IsNullOrWhiteSpace(reason) ? "Hoàn tác đợt thu" : reason,
+                IdReversalOf = payment.Id,
             });
 
             await _unitOfWork.SaveChangesAsync();

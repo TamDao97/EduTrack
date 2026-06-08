@@ -15,6 +15,11 @@ export class LessonService extends TdBaseService {
     return this._httpClient.get<IResponse>(`${this.apiUrl}/get-week?weekStart=${weekStart}`);
   }
 
+  /** Lịch theo khoảng ngày [from..to] (gồm cả 2 đầu) — dùng cho view tháng */
+  getRange(from: string, to: string): Observable<IResponse> {
+    return this._httpClient.get<IResponse>(`${this.apiUrl}/get-range?from=${from}&to=${to}`);
+  }
+
   bulkCreateRecurring(payload: ILessonBulkCreateReq): Observable<IResponse> {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/bulk-create-recurring`, payload);
   }

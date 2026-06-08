@@ -32,6 +32,11 @@ export class TuitionPeriodService extends TdBaseService {
     return this._httpClient.post<IResponse>(`${this.apiUrl}/record-payment/${id}`, { amount, notes, method });
   }
 
+  /** Hoàn tác 1 đợt thu (ghi nhầm) — ghi dòng âm đối ứng, không xoá dòng gốc */
+  reversePayment(idPayment: string, reason?: string): Observable<IResponse> {
+    return this._httpClient.post<IResponse>(`${this.apiUrl}/reverse-payment/${idPayment}`, { reason });
+  }
+
   /** Lịch sử các đợt thu của 1 kỳ (mới nhất trước) */
   getPayments(idPeriod: string): Observable<IResponse> {
     return this._httpClient.get<IResponse>(`${this.apiUrl}/get-payments/${idPeriod}`);
