@@ -1,31 +1,31 @@
-# EduTrack — Deploy production
+# EduTrack — Deploy production (all-Render)
 
-> Mục tiêu: từ `git push develop` → app live trên Internet trong 30 phút. Free tier toàn bộ.
+> Mục tiêu: từ `git push develop` → app live trên Internet trong ~30 phút. Cả FE + BE trên Render, 1 Blueprint. Free tier toàn bộ.
 
 ## Kiến trúc deploy
 
 ```
-┌──────────────────────────────┐
-│ Vercel (FE — Angular static) │
-│ https://edutrack.vercel.app  │
-└─────────────┬────────────────┘
+┌────────────────────────────────────┐
+│ Render Static Site (FE — Angular)  │
+│ https://edutrack-web.onrender.com   │
+└─────────────┬──────────────────────┘
               │ HTTPS calls
               ▼
-┌──────────────────────────────┐
-│ Render.com (BE — .NET 8 Docker)
-│ https://edutrack-api.onrender.com
-└─────────────┬────────────────┘
-              │ SQL TCP 1433
+┌────────────────────────────────────┐
+│ Render Web Service (BE — .NET 8)   │
+│ https://edutrack-api.onrender.com   │  region: singapore
+└─────────────┬──────────────────────┘
+              │ SQL TCP 1433 (Encrypt=true)
               ▼
-┌──────────────────────────────┐
-│ Your VPS (SQL Server)        │
-│ vps.ngxhuyhoang.com:1433     │
-└──────────────────────────────┘
+┌────────────────────────────────────┐
+│ Your VPS (SQL Server)              │
+│ vps.ngxhuyhoang.com:1433            │
+└────────────────────────────────────┘
 ```
 
-**Chi phí**: 0đ (Render free tier 750h/month, Vercel free unlimited static). VPS đã có sẵn.
+**Chi phí**: 0đ (Render free tier 750h/month cho web service + static site free). VPS đã có sẵn.
 
-**Trade-off Render free**: BE sleep sau 15 phút không request → request đầu sau ngủ mất ~10-20s wake up. OK cho beta, upgrade $7/mo khi cần always-on.
+**Trade-off Render free**: BE sleep sau 15 phút không request → request đầu sau ngủ mất ~30-60s (wake up + `Database.Migrate()`). OK cho beta, upgrade Starter $7/mo khi cần always-on. Static site KHÔNG ngủ.
 
 ---
 
@@ -35,102 +35,93 @@
 cd D:\Coderkechuyen\EduTrack
 git push origin develop
 ```
-Đảm bảo file `Dockerfile` (BE) + `vercel.json` + `render.yaml` đã có ở repo.
 
-## Bước 2 — Deploy BE lên Render
+`render.yaml` ở root định nghĩa cả 2 service (`edutrack-api` Docker + `edutrack-web` static) → Render dựng cả hai trong 1 Blueprint.
+
+## Bước 2 — Tạo Blueprint trên Render
 
 1. Vào https://render.com → đăng ký free (sign in with GitHub)
 2. **New +** → **Blueprint** → connect repo `TamDao97/EduTrack`
-3. Render đọc `render.yaml` → tạo service `edutrack-api`
-4. Vào service vừa tạo → tab **Environment** → **Add Environment Variable**:
+3. Render đọc `render.yaml` → tạo `edutrack-api` + `edutrack-web`
+4. Apply → cả 2 service vào hàng đợi build
+
+## Bước 3 — Set env vars cho `edutrack-api`
+
+Vào service `edutrack-api` → tab **Environment** → **Add Environment Variable**:
 
 | Key | Value | Secret? |
 |---|---|---|
-| `ConnectionStrings__EduTrackDbContextConnection` | `Server=vps.ngxhuyhoang.com,1433;Database=EduTrack;User Id=sa;Password=YOUR_PASS;Encrypt=false;TrustServerCertificate=true` | ✅ |
-| `Jwt__Key` | chuỗi random ≥ 32 ký tự, vd `edutrack-prod-aB1c2D3e4F5g6H7i8J9k0L-2026-secret-key` | ✅ |
-| `Cors__AllowedOrigins` | tạm `http://localhost:4200` — sẽ update sau bước 4 | – |
+| `ConnectionStrings__EduTrackDbContextConnection` | `Server=vps.ngxhuyhoang.com,1433;Database=EduTrack;User Id=YOUR_USER;Password=YOUR_PASS;Encrypt=true;TrustServerCertificate=true` | ✅ |
+| `Jwt__Key` | chuỗi random ≥ 32 ký tự | ✅ |
+| `Cors__AllowedOrigins` | `https://edutrack-web.onrender.com` (URL static site — điền sau bước 4 nếu Render gắn hậu tố) | – |
+| `Smtp__Enabled` | `true` | – |
+| `Smtp__User` | email Gmail | ✅ |
+| `Smtp__Password` | Gmail App Password (16 ký tự) | ✅ |
+| `Smtp__FromAddress` | trùng email Gmail (Gmail ghi đè From) | – |
 
-5. **Manual Deploy** → đợi build (~5-8 phút lần đầu)
-6. Khi log hiện `Now listening on http://+:8080`, service sẵn sàng. Copy URL Render assign (vd `https://edutrack-api-xxxx.onrender.com`)
-7. Test: `https://edutrack-api-xxxx.onrender.com/health` → trả `{"status":"ok",...}`
+> ⚠️ **Bảo mật DB**: kết nối Render→VPS đi qua Internet công cộng — BẮT BUỘC `Encrypt=true`. Không dùng `sa`; tạo SQL login riêng chỉ có quyền trên DB `EduTrack`. Firewall VPS phải mở cổng 1433 cho egress IP của Render (region Singapore) — Render free IP động, có thể phải mở rộng kèm login mạnh để bù.
 
-## Bước 3 — Apply DB migration (lần đầu)
+`ASPNETCORE_ENVIRONMENT=Production`, `Jwt__Issuer`, `Jwt__Audience` đã khai trong `render.yaml`, không cần set tay.
 
-VPS SQL Server đã có DB `EduTrack` (đã setup local). Chạy lại schema cho chắc:
+## Bước 4 — Chờ build + lấy URL
+
+1. **edutrack-api**: build Docker ~5-8 phút lần đầu. Khi log hiện `Now listening on http://+:<PORT>` → sẵn sàng.
+   - Test: `https://edutrack-api.onrender.com/health` → trả `{"status":"ok",...}`
+2. **edutrack-web**: build Angular (`npm run build:prod`) ~3-5 phút → serve tĩnh.
+3. Copy URL thật Render gán cho cả 2 (nếu tên bị trùng global, Render thêm hậu tố `-xxxx`).
+
+## Bước 5 — Apply DB schema (lần đầu)
+
+VPS SQL Server đã có DB `EduTrack`. BE tự chạy `Database.Migrate()` lúc khởi động — nhưng nếu muốn chủ động:
 
 ```powershell
-# Trên máy local
 cd D:\Coderkechuyen\EduTrack\EduTrack.API
 $env:ConnectionStrings__EduTrackDbContextConnection = "<production connection string>"
 dotnet ef database update
 ```
 
-Hoặc dùng SSMS chạy `ScriptSql/Schema/1_InitDb.sql` + `ScriptSql/Seed/2_Seed_InitData.sql`.
+## Bước 6 — Khớp URL hai chiều (chicken-egg)
 
-## Bước 4 — Deploy FE lên Vercel
+1. **FE → API**: sửa `EduTrack.WEB/src/environment.production.ts` nếu URL API thật khác mặc định:
+   ```typescript
+   export const environment = {
+       production: true,
+       apiUrl: 'https://edutrack-api.onrender.com/api',   // ← URL Render thật
+       fileUrl: 'https://edutrack-api.onrender.com',
+   };
+   ```
+   Commit + push → `edutrack-web` auto-rebuild.
 
-1. Vào https://vercel.com → đăng ký free (sign in with GitHub)
-2. **Add New** → **Project** → import repo `TamDao97/EduTrack`
-3. Configure:
-   - **Root Directory**: `EduTrack.WEB`
-   - **Framework Preset**: Angular (auto-detect)
-   - **Build Command**: `npm run build:prod` (đã set trong `vercel.json`)
-   - **Output Directory**: `dist/edutrack.web-prod/browser`
-4. **Deploy** → đợi ~3 phút
-5. Vercel assign URL vd `https://edutrack-frontend-tamdao97.vercel.app`
-
-## Bước 5 — Cập nhật API URL trong FE
-
-Sửa `EduTrack.WEB/src/environment.production.ts`:
-
-```typescript
-export const environment = {
-    production: true,
-    apiUrl: 'https://edutrack-api-xxxx.onrender.com/api',  // ← URL Render
-    fileUrl: 'https://edutrack-api-xxxx.onrender.com',
-};
-```
-
-Commit + push → Vercel auto-redeploy.
-
-## Bước 6 — Cập nhật CORS cho BE
-
-Quay lại Render → service `edutrack-api` → Environment → sửa `Cors__AllowedOrigins`:
-
-```
-http://localhost:4200,https://edutrack-frontend-tamdao97.vercel.app
-```
-
-Save → service restart.
+2. **API ← FE (CORS)**: Render → `edutrack-api` → Environment → đảm bảo `Cors__AllowedOrigins` = đúng URL `edutrack-web` (KHÔNG có dấu `/` cuối). Save → service restart.
 
 ## Bước 7 — Smoke test prod
 
-1. Mở `https://edutrack-frontend-tamdao97.vercel.app`
-2. Click **Đăng ký miễn phí** → tạo account `tutor1@beta.com / 123456`
-3. Nếu thấy "Đăng ký thành công" + redirect `/dashboard` → ✅
-4. Test thêm 1 HS, 1 buổi, mark done, chốt kỳ
-5. Inbox check Zalo deeplink mở đúng
+1. Mở `https://edutrack-web.onrender.com`
+2. **Đăng ký miễn phí** → tạo account `tutor1@beta.com / 123456`
+3. Thấy "Đăng ký thành công" + redirect `/dashboard` → ✅
+4. Test: thêm 1 HS → 1 buổi → mark "Đã dạy" → chốt kỳ → ghi nhận thu
+5. Reload deep-link (vd `/lesson`) → không bị 404 (SPA rewrite hoạt động)
 
 Nếu lỗi:
 - **F12 Console** xem CORS lỗi gì
-- **Render Logs** xem BE error
+- **Render Logs** (`edutrack-api`) xem BE error / SQL connection
 - **Network tab** xem request có tới đúng API URL không
 
 ## Bước 8 — Custom domain (tuỳ chọn)
 
-Khi sẵn sàng "ra mắt" với domain `edutrack.app` (đăng ký Namecheap/Cloudflare ~150k/năm):
+Khi ra mắt với domain `edutrack.app`:
 
-1. Vercel project → Domains → add `edutrack.app` → set DNS record theo hướng dẫn
-2. Render service → Settings → Custom Domains → add `api.edutrack.app` → set CNAME
-3. Sửa `environment.production.ts` apiUrl thành `https://api.edutrack.app/api`
-4. Update Render `Cors__AllowedOrigins` thêm `https://edutrack.app`
+1. `edutrack-web` → Settings → Custom Domains → add `edutrack.app` → set DNS theo hướng dẫn
+2. `edutrack-api` → Settings → Custom Domains → add `api.edutrack.app` → set CNAME
+3. Sửa `environment.production.ts` apiUrl → `https://api.edutrack.app/api`
+4. Update `Cors__AllowedOrigins` thêm `https://edutrack.app`
 
 ## Bước 9 — Onboard 5-10 tutor beta
 
-- Tạo 1 tin nhắn Zalo / Facebook gửi cho gia sư quen biết:
-  > "Em đang làm app quản lý gia sư. Bạn dùng giúp em 1 tuần feedback nhé? Link: https://edutrack-frontend-tamdao97.vercel.app — đăng ký free, 14 ngày không thẻ. Có gì khó dùng nhắn em sửa ngay."
-- Track funnel: bao nhiêu signup, bao nhiêu thêm HS đầu, bao nhiêu tạo lesson, bao nhiêu chốt kỳ
-- Sau 1 tuần survey 3 câu: thích nhất / ghét nhất / sẵn sàng trả 99k/tháng nếu có 5 tính năng X Y Z?
+- Nhắn gia sư quen:
+  > "Em đang làm app quản lý gia sư. Bạn dùng giúp em 1 tuần feedback nhé? Link: https://edutrack-web.onrender.com — đăng ký free. Có gì khó dùng nhắn em sửa ngay."
+- Track funnel: signup → thêm HS → tạo lesson → chốt kỳ
+- Sau 1 tuần survey 3 câu: thích nhất / ghét nhất / sẵn sàng trả 99k/tháng nếu có tính năng X Y Z?
 
 ---
 
@@ -138,25 +129,25 @@ Khi sẵn sàng "ra mắt" với domain `edutrack.app` (đăng ký Namecheap/Clo
 
 | Triệu chứng | Fix |
 |---|---|
-| BE Render build fail "Cannot find Base.Lib" | Dockerfile context phải là root repo (đã set `dockerContext: .` trong render.yaml) |
-| FE Vercel build fail "ng: command not found" | Check vercel.json has `installCommand: npm install --legacy-peer-deps` |
-| CORS lỗi từ FE | Check Render env var `Cors__AllowedOrigins` chính xác URL Vercel (no trailing slash) |
+| BE build fail "Cannot find TD.Lib" | Dockerfile context phải là root repo (`dockerContext: .` trong render.yaml — đã đúng) |
+| FE build fail "ng: command not found" / peer deps | `buildCommand` đã có `npm install --legacy-peer-deps` |
+| FE trắng trang / 404 khi reload deep-link | `staticPublishPath` phải là `dist/edutrack.web-prod/browser` + route rewrite `/* → /index.html` (đã set trong render.yaml) |
+| CORS lỗi từ FE | `Cors__AllowedOrigins` = đúng URL static (no trailing slash) |
 | 504 timeout request đầu | BE Render sleep — chấp nhận hoặc upgrade $7/mo |
-| SQL connection timeout từ Render → VPS | VPS firewall phải allow Render IPs. Hoặc dùng Render PostgreSQL free instead — cần migrate DB |
-| JWT verify fail | `Jwt__Key` ≥ 32 ký tự, không có khoảng trắng đầu/cuối |
+| SQL connection timeout từ Render → VPS | VPS firewall phải allow egress IP Render Singapore tới 1433. Hoặc migrate sang Render PostgreSQL (cần đổi provider Npgsql + tạo lại migration) |
+| SQL "certificate chain" error | Thêm `TrustServerCertificate=true` (VPS dùng self-signed cert) |
+| JWT verify fail | `Jwt__Key` ≥ 32 ký tự, không khoảng trắng đầu/cuối |
+| Email không gửi | `Smtp__Enabled=true` + App Password đúng + `Smtp__FromAddress` trùng Gmail user |
 
-## Lệnh thường dùng sau khi deploy
+## Lệnh thường dùng
 
 ```powershell
-# Push code mới → cả Render + Vercel auto-redeploy
+# Push code mới → cả edutrack-api + edutrack-web auto-redeploy
 git add -A
 git commit -m "..."
 git push
 
-# Xem Render logs (qua dashboard) hoặc Render CLI:
-# https://render.com/docs/cli
-
-# Local test build prod:
+# Local test build prod (kiểm tra trước khi push):
 cd EduTrack.WEB
 npm run build:prod
 # Static file ở dist/edutrack.web-prod/browser/
